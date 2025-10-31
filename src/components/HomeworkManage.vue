@@ -61,12 +61,13 @@
 
     <!-- 作业列表 -->
     <div v-else-if="currentTab === 1" class="homework-list-content">
-      <!-- 筛选条件 -->
+      <!-- 筛选条件区域 -->
       <div class="list-filters">
+        <!-- 第一行：班级筛选 + 时间筛选 + 查询输入框 -->
         <div class="filter-row">
           <div class="filter-item">
             <span class="filter-label">班级筛选：</span>
-            <el-select v-model="selectedGrade" placeholder="全部" class="filter-select-grade">
+            <el-select v-model="selectedGrade" placeholder="全部" class="filter-select-grade" size="large">
               <el-option label="全部" value="all" />
               <el-option label="九年级 * 2302班" value="class-2302" />
               <el-option label="九年级 * 2303班" value="class-2303" />
@@ -82,6 +83,7 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               class="filter-date-range"
+              size="large"
             />
           </div>
           
@@ -90,6 +92,7 @@
               v-model="homeworkSearchKeyword" 
               placeholder="查询作业名称" 
               class="filter-search-input"
+              size="large"
             >
               <template #suffix>
                 <el-icon class="search-icon"><Search /></el-icon>
@@ -98,7 +101,7 @@
           </div>
         </div>
         
-        <!-- 学段筛选 -->
+        <!-- 第二行：所属学段 -->
         <div class="filter-row">
           <span class="filter-label">所属学段：</span>
           <div class="filter-tags">
@@ -112,7 +115,7 @@
           </div>
         </div>
         
-        <!-- 学科筛选 -->
+        <!-- 第三行：所属学科 -->
         <div class="filter-row">
           <span class="filter-label">所属学科：</span>
           <div class="filter-tags subject-tags">
@@ -274,6 +277,39 @@ const homeworkList = ref([
     submitted: 5,
     reviewed: 4,
     unsubmitted: 12,
+    source: '校本库',
+    editTime: '2025-10-24'
+  },
+  {
+    id: 5,
+    class: '2302班',
+    title: '阶段测试卷（二）——法治教育',
+    totalCount: 17,
+    submitted: 4,
+    reviewed: 4,
+    unsubmitted: 13,
+    source: '校本库',
+    editTime: '2025-10-24'
+  },
+  {
+    id: 6,
+    class: '2302班',
+    title: '中国古代史·第五单元 隋唐时期：繁荣与开放的时代',
+    totalCount: 17,
+    submitted: 6,
+    reviewed: 6,
+    unsubmitted: 11,
+    source: '校本库',
+    editTime: '2025-10-24'
+  },
+  {
+    id: 7,
+    class: '2302班',
+    title: '基础篇',
+    totalCount: 17,
+    submitted: 7,
+    reviewed: 7,
+    unsubmitted: 10,
     source: '校本库',
     editTime: '2025-10-24'
   }
@@ -474,20 +510,26 @@ const homeworkList = ref([
 
 .list-filters {
   margin-bottom: 24px;
+  font-size: 18px;
 }
 
 .filter-row {
   display: flex;
   align-items: center;
-  margin-bottom: 16px;
   gap: 16px;
 }
 
+.filter-row:not(:first-child) {
+  padding: 20px 0px 0px;
+  height: 60px;
+}
+
 .filter-row .filter-label {
-  font-size: 14px;
+  font-size: 18px;
   color: #303133;
   white-space: nowrap;
   font-weight: 500;
+  width: 100px;
 }
 
 .filter-item {
@@ -500,8 +542,16 @@ const homeworkList = ref([
   width: 200px;
 }
 
+.filter-select-grade :deep(.el-input__inner) {
+  font-size: 18px;
+}
+
 .filter-date-range {
   width: 350px;
+}
+
+.filter-date-range :deep(.el-input__inner) {
+  font-size: 18px;
 }
 
 .search-item {
@@ -510,6 +560,14 @@ const homeworkList = ref([
 
 .filter-search-input {
   width: 300px;
+}
+
+.filter-search-input :deep(.el-input__inner) {
+  font-size: 18px;
+}
+
+.filter-search-input :deep(.el-input__inner::placeholder) {
+  font-size: 15px;
 }
 
 .search-icon {
@@ -530,9 +588,22 @@ const homeworkList = ref([
 .filter-tag-item {
   cursor: pointer;
   padding: 6px 16px;
-  font-size: 14px;
+  font-size: 18px;
   border-radius: 4px;
   transition: all 0.3s;
+  height: 40px;
+  line-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.filter-tag-item.el-tag--primary {
+  color: #2262FB;
+  background-color: #F2F3F5;
+  border-color: transparent;
+  border-radius: 20px;
 }
 
 .filter-tag-item:hover {
