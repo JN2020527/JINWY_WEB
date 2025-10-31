@@ -86,7 +86,7 @@
         </div>
       </template>
       <div class="qrcode-box">
-        <img src="/bg.3e971a55.png" alt="二维码" style="width: 150px; height: 150px;" />
+        <img src="/saomiao.png" alt="二维码" style="width: 150px; height: 150px;" />
         <p style="text-align: center; margin-top: 8px; font-size: 12px; color: #666;">
           扫码访问移动端
         </p>
