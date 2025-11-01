@@ -7,7 +7,7 @@
         <!-- 左侧分类 -->
         <div class="left-category">
           <div class="category-header">
-            <span class="category-title">— 试卷分类 —</span>
+            <span class="category-title">— 备考分类 —</span>
           </div>
           <div class="category-list">
             <div 
@@ -116,7 +116,7 @@
                 <template #default="{ row }">
                   <div class="name-cell">
                     <span class="name-text">{{ row.name || '未命名' }}</span>
-                    <el-icon class="edit-icon"><Edit /></el-icon>
+                    <el-icon class="edit-icon" @click="handleRenameWork(row)"><Edit /></el-icon>
                   </div>
                 </template>
               </el-table-column>
@@ -242,6 +242,34 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 重命名作业对话框 -->
+    <el-dialog
+      v-model="showRenameWorkDialog"
+      title="重命名"
+      width="588px"
+      :close-on-click-modal="false"
+      class="add-category-dialog"
+    >
+      <el-form :model="renameWorkForm" label-width="85px" class="category-form">
+        <el-form-item label="作业名称" required>
+          <el-input
+            v-model="renameWorkForm.name"
+            placeholder="请填写作业名称"
+            maxlength="100"
+            show-word-limit
+            clearable
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleConfirmRenameWork" class="confirm-btn">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -269,6 +297,13 @@ const renameCategoryForm = ref({
   name: ''
 })
 const categoryList = ref([]) // 自定义分组列表
+
+// 重命名作业
+const showRenameWorkDialog = ref(false)
+const renameWorkForm = ref({
+  id: null,
+  name: ''
+})
 
 // 我的备考 - 筛选条件
 const examPrepDateRange = ref([])
@@ -304,24 +339,6 @@ const examPrepList = ref([
     isLocked: false
   },
   {
-    id: 3,
-    name: '',
-    type: '试题组卷',
-    stage: '初中',
-    subject: '语文',
-    editTime: '2025-10-30 13:31:13',
-    isLocked: false
-  },
-  {
-    id: 4,
-    name: '',
-    type: '试题组卷',
-    stage: '初中',
-    subject: '语文',
-    editTime: '2025-10-28 15:15:59',
-    isLocked: false
-  },
-  {
     id: 5,
     name: '古诗文默写',
     type: '试题组卷',
@@ -335,7 +352,7 @@ const examPrepList = ref([
 // 分页
 const currentPage = ref(1)
 const pageSize = ref(10)
-const total = ref(5)
+const total = ref(3)
 
 // 确认添加分组
 const handleConfirmAdd = () => {
@@ -418,6 +435,33 @@ const handleDeleteCategory = (categoryId) => {
     })
 }
 
+// 重命名作业
+const handleRenameWork = (work) => {
+  renameWorkForm.value.id = work.id
+  renameWorkForm.value.name = work.name || ''
+  showRenameWorkDialog.value = true
+}
+
+// 确认重命名作业
+const handleConfirmRenameWork = () => {
+  if (!renameWorkForm.value.name.trim()) {
+    ElMessage.warning('请输入作业名称')
+    return
+  }
+  
+  // 查找并更新作业名称
+  const index = examPrepList.value.findIndex(item => item.id === renameWorkForm.value.id)
+  if (index !== -1) {
+    const oldName = examPrepList.value[index].name || '未命名'
+    examPrepList.value[index].name = renameWorkForm.value.name.trim()
+    ElMessage.success(`作业"${oldName}"已重命名为"${renameWorkForm.value.name}"`)
+  }
+  
+  // 关闭对话框并重置表单
+  showRenameWorkDialog.value = false
+  renameWorkForm.value = { id: null, name: '' }
+}
+
 // 搜索
 const handleSearch = () => {
   ElMessage.info('搜索功能')
@@ -435,13 +479,13 @@ const handlePageChange = (page) => {
   height: 100%;
   background: transparent;
   border-radius: 5px 0 0 0;
-  padding: 16px 20px;
+  padding: 0;
 }
 
 /* 内容区 */
 .tab-content-area {
   width: 100%;
-  height: calc(100vh - 140px);
+  height: 100%;
 }
 
 /* 我的备考 - 左右两栏布局 */
@@ -449,6 +493,7 @@ const handlePageChange = (page) => {
   display: flex;
   gap: 16px;
   height: 100%;
+  padding: 16px 20px;
 }
 
 /* 左侧分类 */
@@ -469,9 +514,9 @@ const handlePageChange = (page) => {
 }
 
 .category-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: #606266;
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
 }
 
 .category-list {
@@ -569,7 +614,7 @@ const handlePageChange = (page) => {
   padding: 24px 32px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
@@ -754,8 +799,8 @@ const handlePageChange = (page) => {
 
 /* 表格容器 */
 .table-container {
-  flex: 1;
-  overflow: hidden;
+  flex: 0 1 auto;
+  overflow: visible;
   display: flex;
   flex-direction: column;
 }
@@ -774,8 +819,8 @@ const handlePageChange = (page) => {
   color: #303133;
   font-weight: 600;
   font-size: 14px;
-  height: 48px;
-  padding: 12px 0;
+  height: 52px;
+  padding: 14px 0;
 }
 
 .table-container :deep(.el-table th.el-table__cell) {
@@ -787,8 +832,8 @@ const handlePageChange = (page) => {
 .table-container :deep(.el-table td) {
   color: #303133;
   font-size: 14px;
-  height: 44px;
-  padding: 10px 0;
+  height: 50px;
+  padding: 13px 0;
 }
 
 .table-container :deep(.el-table td.el-table__cell) {
@@ -949,14 +994,15 @@ const handlePageChange = (page) => {
 
 /* 其他标签页 */
 .content-wrapper {
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 40px);
+  height: calc(100% - 32px);
   display: flex;
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.3s;
   background: #ffffff;
   border-radius: 8px;
+  margin: 16px 20px;
   padding: 20px;
 }
 
