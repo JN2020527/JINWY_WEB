@@ -3,51 +3,60 @@
     <!-- 选题组卷 -->
     <div v-if="currentTab === 0" class="question-selection">
       <!-- 左侧筛选栏 -->
-      <div class="left-sidebar">
-        <div class="sidebar-header">
-          <span class="version-text">版本/滚动迁移·中考...</span>
-        </div>
-        
-        <div class="sidebar-tabs">
-          <div 
-            :class="['tab-item', { active: sidebarTab === 'chapter' }]"
-            @click="sidebarTab = 'chapter'"
-          >
-            按章节筛选
+      <div class="left-filter-area">
+        <!-- 教材版本筛选容器 -->
+        <div class="textbook-filter-container">
+          <div class="container-header">
+            <span class="header-title">— 教材版本 —</span>
           </div>
-          <div class="tab-divider">|</div>
-          <div 
-            :class="['tab-item', { active: sidebarTab === 'knowledge' }]"
-            @click="sidebarTab = 'knowledge'"
-          >
-            按知识点筛选
+          <div class="textbook-selector">
+            <el-select 
+              v-model="selectedTextbook" 
+              placeholder="请选择教材版本"
+              style="width: 100%"
+            >
+              <el-option label="滚动迁移(2026)／中考版" value="gundong-2026-zhongkao" />
+              <el-option label="人教版·七年级上" value="renjiao-7-1" />
+              <el-option label="苏教版·八年级下" value="sujiao-8-2" />
+            </el-select>
           </div>
         </div>
 
-        <div class="sidebar-content">
-          <div class="knowledge-tree">
-            <div 
-              v-for="item in knowledgeTree" 
-              :key="item.id"
-              class="tree-item"
-            >
+        <!-- 知识点筛选容器 -->
+        <div class="knowledge-filter-container">
+          <div class="container-header">
+            <span class="header-title">— 知识点筛选 —</span>
+          </div>
+
+          <div class="sidebar-content">
+            <div class="knowledge-tree">
               <div 
-                class="tree-node"
-                @click="toggleNode(item)"
+                v-for="item in knowledgeTree" 
+                :key="item.id"
+                class="catalog-item"
               >
-                <el-icon v-if="item.children" class="expand-icon" :class="{ expanded: item.expanded }">
-                  <ArrowRight />
-                </el-icon>
-                <span class="node-label">{{ item.label }}</span>
-              </div>
-              <div v-if="item.expanded && item.children" class="tree-children">
                 <div 
-                  v-for="child in item.children" 
-                  :key="child.id"
-                  class="tree-child"
-                  @click="selectKnowledge(child)"
+                  class="catalog-node level-1"
+                  :class="{ active: selectedKnowledgeId === item.id }"
+                  @click="toggleNode(item)"
                 >
-                  {{ child.label }}
+                  <span class="expand-icon-wrapper">
+                    <el-icon v-if="item.children && item.children.length > 0" class="expand-icon" :class="{ expanded: item.expanded }">
+                      <CaretRight />
+                    </el-icon>
+                  </span>
+                  <span class="node-label">{{ item.label }}</span>
+                </div>
+                <div v-if="item.expanded && item.children && item.children.length > 0" class="catalog-children">
+                  <div 
+                    v-for="child in item.children" 
+                    :key="child.id"
+                    class="catalog-node level-2"
+                    :class="{ active: selectedKnowledgeId === child.id }"
+                    @click="selectKnowledge(child)"
+                  >
+                    <span class="node-label">{{ child.label }}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -172,9 +181,200 @@
     </div>
 
     <!-- 快速组卷 -->
-    <div v-else class="quick-paper">
-      <div class="placeholder-container">
-        <p class="placeholder-hint">快速组卷</p>
+    <div v-else class="question-selection">
+      <!-- 左侧筛选栏 -->
+      <div class="left-filter-area">
+        <!-- 教材版本筛选容器 -->
+        <div class="textbook-filter-container">
+          <div class="container-header">
+            <span class="header-title">— 教材版本 —</span>
+          </div>
+          <div class="textbook-selector">
+            <el-select 
+              v-model="quickSelectedTextbook" 
+              placeholder="请选择教材版本"
+              style="width: 100%"
+            >
+              <el-option label="滚动迁移(2026)／中考版" value="gundong-2026-zhongkao" />
+              <el-option label="人教版·七年级上" value="renjiao-7-1" />
+              <el-option label="苏教版·八年级下" value="sujiao-8-2" />
+            </el-select>
+          </div>
+        </div>
+
+        <!-- 知识点筛选容器（多选） -->
+        <div class="knowledge-filter-container">
+          <div class="container-header">
+            <span class="header-title">— 知识点筛选 —</span>
+          </div>
+
+          <div class="sidebar-content">
+            <div class="knowledge-tree">
+              <div 
+                v-for="item in quickKnowledgeTree" 
+                :key="item.id"
+                class="catalog-item"
+              >
+                <div 
+                  class="catalog-node level-1 checkbox-node"
+                  :class="{ active: isParentSelected(item) }"
+                >
+                  <span class="expand-icon-wrapper arrow-wrapper" @click="toggleQuickNode(item)">
+                    <el-icon v-if="item.children && item.children.length > 0" class="expand-icon" :class="{ expanded: item.expanded }">
+                      <CaretRight />
+                    </el-icon>
+                  </span>
+                  <span class="expand-icon-wrapper checkbox-wrapper">
+                    <el-checkbox 
+                      :model-value="isParentSelected(item)"
+                      :indeterminate="isParentIndeterminate(item)"
+                      @click.stop
+                      @change="toggleParentSelection(item)"
+                    />
+                  </span>
+                  <span class="node-label" @click="toggleQuickNode(item)">{{ item.label }}</span>
+                </div>
+                <div v-if="item.expanded && item.children" class="catalog-children">
+                  <div 
+                    v-for="child in item.children" 
+                    :key="child.id"
+                    class="catalog-node level-2 checkbox-node"
+                    :class="{ active: selectedKnowledgeIds.includes(child.id) }"
+                  >
+                    <span class="expand-icon-wrapper arrow-placeholder"></span>
+                    <span class="expand-icon-wrapper checkbox-wrapper">
+                      <el-checkbox 
+                        :model-value="selectedKnowledgeIds.includes(child.id)"
+                        @click.stop
+                        @change="toggleKnowledgeSelection(child.id)"
+                      />
+                    </span>
+                    <span class="node-label" @click="toggleKnowledgeSelection(child.id)">{{ child.label }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧内容区 -->
+      <div class="right-content">
+        <!-- 筛选条件 -->
+        <div class="filter-section">
+          <!-- 试题来源 -->
+          <div class="filter-row">
+            <label class="filter-label">试题来源：</label>
+            <div class="filter-options">
+              <el-radio 
+                v-for="item in sourceOptions" 
+                :key="item.value"
+                v-model="quickFilters.source"
+                :label="item.value"
+                class="custom-radio"
+              >
+                {{ item.label }}
+              </el-radio>
+            </div>
+          </div>
+
+          <!-- 试题类型 -->
+          <div class="filter-row">
+            <label class="filter-label">试题类型：</label>
+            <div class="filter-options">
+              <el-radio 
+                v-for="item in typeOptions" 
+                :key="item.value"
+                v-model="quickFilters.type"
+                :label="item.value"
+                class="custom-radio"
+              >
+                {{ item.label }}
+              </el-radio>
+            </div>
+          </div>
+
+          <!-- 试题难度 -->
+          <div class="filter-row">
+            <label class="filter-label">试题难度：</label>
+            <div class="filter-options">
+              <el-radio 
+                v-for="item in difficultyOptions" 
+                :key="item.value"
+                v-model="quickFilters.difficulty"
+                :label="item.value"
+                class="custom-radio"
+              >
+                {{ item.label }}
+              </el-radio>
+            </div>
+          </div>
+
+          <!-- 年份 -->
+          <div class="filter-row">
+            <label class="filter-label">年份：</label>
+            <div class="filter-options">
+              <el-radio 
+                v-for="item in yearOptions" 
+                :key="item.value"
+                v-model="quickFilters.year"
+                :label="item.value"
+                class="custom-radio"
+              >
+                {{ item.label }}
+              </el-radio>
+            </div>
+          </div>
+        </div>
+
+        <div class="question-list">
+          <div 
+            v-for="(question, index) in questionList" 
+            :key="question.id"
+            class="question-item"
+          >
+            <div class="question-header">
+              <div class="question-text" v-html="question.content"></div>
+              <button class="btn-screen" title="大屏演示" @click="openScreenPresentation(question, index)">
+                <el-icon><Monitor /></el-icon>
+                <span>大屏演示</span>
+              </button>
+            </div>
+            
+            <!-- 答案解析区域 -->
+            <div v-if="question.showAnalysis" class="analysis-section">
+              <div class="analysis-item">
+                <strong>答案：</strong>{{ question.answer }}
+              </div>
+              <div class="analysis-item" v-if="question.analysis">
+                <strong>解析：</strong>{{ question.analysis }}
+              </div>
+            </div>
+
+            <div class="question-footer">
+              <div class="question-meta">
+                <span class="meta-item">题型：{{ question.type }}</span>
+                <span class="meta-item">年份：{{ question.year }}</span>
+                <span class="meta-item">所属地区：{{ question.region }}</span>
+                <span class="meta-item">试题来源：{{ question.source }}</span>
+              </div>
+              
+              <div class="question-actions">
+                <button 
+                  class="btn-analysis" 
+                  @click="toggleAnalysis(question)"
+                >
+                  <el-icon><View /></el-icon>
+                  <span>{{ question.showAnalysis ? '收起' : '答案解析' }}</span>
+                </button>
+                <button class="btn-add">
+                  <el-icon><Plus /></el-icon>
+                  <span>加入组卷</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -192,7 +392,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { ArrowRight, Monitor, View, Plus } from '@element-plus/icons-vue'
+import { CaretRight, Monitor, View, Plus } from '@element-plus/icons-vue'
 import ScreenPresentation from './ScreenPresentation.vue'
 
 defineProps({
@@ -202,45 +402,214 @@ defineProps({
   }
 })
 
-// 左侧边栏tab
-const sidebarTab = ref('knowledge')
+// 教材版本选择（选题组卷）
+const selectedTextbook = ref('gundong-2026-zhongkao')
 
-// 知识点树形数据
+// 选中的知识点ID（选题组卷）
+const selectedKnowledgeId = ref(null)
+
+// 知识点树形数据（选题组卷）
 const knowledgeTree = ref([
   {
     id: 1,
     label: '语言文字基础',
     expanded: false,
-    children: []
+    children: [
+      { id: 11, label: '汉字与书法', expanded: false, children: [] },
+      { id: 12, label: '词语与熟语', expanded: false, children: [] },
+      { id: 13, label: '句子与标点', expanded: false, children: [] },
+      { id: 14, label: '修辞与表达', expanded: false, children: [] }
+    ]
   },
   {
     id: 2,
-    label: '阅读与鉴赏',
+    label: '文学常识与名著阅读',
     expanded: false,
-    children: []
+    children: [
+      { id: 21, label: '古代文学常识', expanded: false, children: [] },
+      { id: 22, label: '现代文学常识', expanded: false, children: [] },
+      { id: 23, label: '外国文学常识', expanded: false, children: [] },
+      { id: 24, label: '名著阅读与鉴赏', expanded: false, children: [] }
+    ]
   },
   {
     id: 3,
+    label: '古诗文阅读',
+    expanded: false,
+    children: [
+      { id: 31, label: '文言文阅读', expanded: false, children: [] },
+      { id: 32, label: '古诗词鉴赏', expanded: false, children: [] }
+    ]
+  },
+  {
+    id: 4,
+    label: '现代文阅读',
+    expanded: false,
+    children: [
+      { id: 41, label: '记叙文阅读', expanded: false, children: [] },
+      { id: 42, label: '议论文阅读', expanded: false, children: [] },
+      { id: 43, label: '说明文阅读', expanded: false, children: [] }
+    ]
+  },
+  {
+    id: 5,
     label: '写作',
     expanded: false,
     children: []
   }
 ])
 
-// 切换节点展开/收起
+// 教材版本选择（快速组卷）
+const quickSelectedTextbook = ref('gundong-2026-zhongkao')
+
+// 选中的知识点ID数组（快速组卷，支持多选）
+const selectedKnowledgeIds = ref([])
+
+// 知识点树形数据（快速组卷）
+const quickKnowledgeTree = ref([
+  {
+    id: 1,
+    label: '语言文字基础',
+    expanded: false,
+    children: [
+      { id: 11, label: '汉字与书法', expanded: false, children: [] },
+      { id: 12, label: '词语与熟语', expanded: false, children: [] },
+      { id: 13, label: '句子与标点', expanded: false, children: [] },
+      { id: 14, label: '修辞与表达', expanded: false, children: [] }
+    ]
+  },
+  {
+    id: 2,
+    label: '文学常识与名著阅读',
+    expanded: false,
+    children: [
+      { id: 21, label: '古代文学常识', expanded: false, children: [] },
+      { id: 22, label: '现代文学常识', expanded: false, children: [] },
+      { id: 23, label: '外国文学常识', expanded: false, children: [] },
+      { id: 24, label: '名著阅读与鉴赏', expanded: false, children: [] }
+    ]
+  },
+  {
+    id: 3,
+    label: '古诗文阅读',
+    expanded: false,
+    children: [
+      { id: 31, label: '文言文阅读', expanded: false, children: [] },
+      { id: 32, label: '古诗词鉴赏', expanded: false, children: [] }
+    ]
+  },
+  {
+    id: 4,
+    label: '现代文阅读',
+    expanded: false,
+    children: [
+      { id: 41, label: '记叙文阅读', expanded: false, children: [] },
+      { id: 42, label: '议论文阅读', expanded: false, children: [] },
+      { id: 43, label: '说明文阅读', expanded: false, children: [] }
+    ]
+  },
+  {
+    id: 5,
+    label: '写作',
+    expanded: false,
+    children: []
+  }
+])
+
+// 切换节点展开/收起（选题组卷）
 const toggleNode = (node) => {
+  // 选中该节点
+  selectedKnowledgeId.value = node.id
+  // 如果有子节点，则展开/收起
   if (node.children) {
     node.expanded = !node.expanded
   }
 }
 
-// 选择知识点
+// 选择知识点（选题组卷）
 const selectKnowledge = (node) => {
+  selectedKnowledgeId.value = node.id
   console.log('选择知识点:', node.label)
 }
 
-// 筛选条件
+// 切换节点展开/收起（快速组卷）
+const toggleQuickNode = (node) => {
+  // 如果有子节点，则展开/收起
+  if (node.children && node.children.length > 0) {
+    node.expanded = !node.expanded
+  }
+}
+
+// 切换知识点选中状态（快速组卷，支持多选）
+const toggleKnowledgeSelection = (id) => {
+  const index = selectedKnowledgeIds.value.indexOf(id)
+  if (index > -1) {
+    // 如果已选中，则取消选中
+    selectedKnowledgeIds.value.splice(index, 1)
+  } else {
+    // 如果未选中，则添加到选中列表
+    selectedKnowledgeIds.value.push(id)
+  }
+  console.log('当前选中的知识点:', selectedKnowledgeIds.value)
+}
+
+// 判断父节点是否全选
+const isParentSelected = (parentNode) => {
+  if (!parentNode.children || parentNode.children.length === 0) {
+    return false
+  }
+  return parentNode.children.every(child => selectedKnowledgeIds.value.includes(child.id))
+}
+
+// 判断父节点是否半选（部分子节点选中）
+const isParentIndeterminate = (parentNode) => {
+  if (!parentNode.children || parentNode.children.length === 0) {
+    return false
+  }
+  const selectedCount = parentNode.children.filter(child => 
+    selectedKnowledgeIds.value.includes(child.id)
+  ).length
+  return selectedCount > 0 && selectedCount < parentNode.children.length
+}
+
+// 切换父节点的全选状态
+const toggleParentSelection = (parentNode) => {
+  if (!parentNode.children || parentNode.children.length === 0) {
+    return
+  }
+  
+  const allSelected = isParentSelected(parentNode)
+  
+  if (allSelected) {
+    // 如果当前全选，则取消全选
+    parentNode.children.forEach(child => {
+      const index = selectedKnowledgeIds.value.indexOf(child.id)
+      if (index > -1) {
+        selectedKnowledgeIds.value.splice(index, 1)
+      }
+    })
+  } else {
+    // 如果未全选，则全选所有子节点
+    parentNode.children.forEach(child => {
+      if (!selectedKnowledgeIds.value.includes(child.id)) {
+        selectedKnowledgeIds.value.push(child.id)
+      }
+    })
+  }
+  
+  console.log('当前选中的知识点:', selectedKnowledgeIds.value)
+}
+
+// 筛选条件（选题组卷）
 const filters = ref({
+  source: 'platform',
+  type: 'all',
+  difficulty: 'all',
+  year: 'all'
+})
+
+// 筛选条件（快速组卷）
+const quickFilters = ref({
   source: 'platform',
   type: 'all',
   difficulty: 'all',
@@ -395,7 +764,7 @@ const toggleAnalysis = (question) => {
 .smart-paper {
   padding: 20px 24px;
   min-height: 100%;
-  background-color: #ffffff;
+  background-color: transparent;
   border-radius: 5px 0 0 0;
 }
 
@@ -407,85 +776,123 @@ const toggleAnalysis = (question) => {
   animation: fadeIn 0.3s;
 }
 
-/* 左侧边栏样式 */
-.left-sidebar {
-  width: 260px;
+/* 左侧筛选区域 */
+.left-filter-area {
+  width: 320px;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 教材版本筛选容器 */
+.textbook-filter-container {
+  background: #ffffff;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  overflow: hidden;
+  padding: 16px;
+}
+
+/* 知识点筛选容器 */
+.knowledge-filter-container {
   background: #ffffff;
   border: 1px solid #e4e7ed;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 200px);
+  flex: 1;
+  overflow: hidden;
+  max-height: calc(100vh - 380px);
+  padding: 16px;
 }
 
-.sidebar-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid #e4e7ed;
+/* 容器头部 */
+.container-header {
+  margin-bottom: 12px;
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #E4E7ED;
 }
 
-.version-text {
-  font-size: 14px;
+.header-title {
+  font-size: 16px;
   color: #303133;
+  font-weight: 600;
 }
 
-.sidebar-tabs {
-  display: flex;
-  align-items: center;
-  padding: 12px 20px;
-  gap: 12px;
-  border-bottom: 1px solid #e4e7ed;
+/* 教材版本选择器 */
+.textbook-selector {
+  margin-top: 0;
 }
 
-.tab-item {
-  font-size: 14px;
-  color: #606266;
-  cursor: pointer;
-  transition: color 0.3s;
+.textbook-selector :deep(.el-select .el-select__wrapper) {
+  min-height: 36px;
+  padding: 8px 12px;
+  box-shadow: 0 0 0 1px #E4E7ED inset;
+  border-radius: 4px;
+  transition: all 0.3s;
 }
 
-.tab-item:hover {
-  color: #2262FB;
+.textbook-selector :deep(.el-select .el-select__wrapper:hover) {
+  box-shadow: 0 0 0 1px #C0C4CC inset;
 }
 
-.tab-item.active {
-  color: #2262FB;
-  font-weight: 500;
-}
-
-.tab-divider {
-  color: #dcdfe6;
+.textbook-selector :deep(.el-select .el-select__wrapper.is-focused) {
+  box-shadow: 0 0 0 1px #2262FB inset;
 }
 
 .sidebar-content {
   flex: 1;
   overflow-y: auto;
-  padding: 12px 0;
+  padding: 0;
+  min-height: 0;
 }
 
 .knowledge-tree {
-  padding: 0 12px;
+  display: flex;
+  flex-direction: column;
 }
 
-.tree-item {
-  margin-bottom: 4px;
+.catalog-item {
+  margin-bottom: 0;
 }
 
-.tree-node {
+.catalog-item + .catalog-item {
+  margin-top: 2px;
+}
+
+.catalog-node {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
+  padding: 6px 12px;
   cursor: pointer;
+  transition: all 0.2s;
   border-radius: 4px;
-  transition: background-color 0.3s;
+  user-select: none;
+  min-height: 32px;
 }
 
-.tree-node:hover {
-  background-color: #f5f7fa;
+.catalog-node:hover {
+  background: #f5f7fa;
+}
+
+.catalog-node.active {
+  background: #ecf5ff;
+  color: #2262FB;
+}
+
+.catalog-node .expand-icon-wrapper {
+  width: 16px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-right: 6px;
 }
 
 .expand-icon {
-  margin-right: 8px;
   font-size: 14px;
   color: #909399;
   transition: transform 0.3s;
@@ -496,27 +903,152 @@ const toggleAnalysis = (question) => {
 }
 
 .node-label {
-  font-size: 14px;
-  color: #303133;
-}
-
-.tree-children {
-  margin-left: 24px;
-  margin-top: 4px;
-}
-
-.tree-child {
-  padding: 8px 12px;
+  flex: 1;
   font-size: 14px;
   color: #606266;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.3s;
+  line-height: 20px;
+  user-select: none;
 }
 
-.tree-child:hover {
-  background-color: #f5f7fa;
+.catalog-node.active .node-label {
   color: #2262FB;
+  font-weight: 500;
+}
+
+.level-1 {
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 32px;
+}
+
+.level-1 .node-label {
+  line-height: 20px;
+  font-size: 14px;
+}
+
+.level-1 .expand-icon-wrapper {
+  margin-right: 6px;
+}
+
+.level-2 {
+  padding-left: 34px;
+  font-size: 14px;
+  min-height: 28px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.level-2 .node-label {
+  line-height: 20px;
+  font-size: 14px;
+}
+
+.catalog-children {
+  margin: 0;
+}
+
+/* 多选节点特殊样式 */
+.checkbox-node {
+  cursor: pointer;
+}
+
+.checkbox-node .checkbox-wrapper {
+  width: 20px !important;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox-node .checkbox-wrapper :deep(.el-checkbox) {
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-node .checkbox-wrapper :deep(.el-checkbox__input) {
+  line-height: 1;
+  height: 16px;
+}
+
+.checkbox-node .checkbox-wrapper :deep(.el-checkbox__inner) {
+  width: 16px;
+  height: 16px;
+}
+
+.checkbox-node.active {
+  background: #ecf5ff;
+  color: #2262FB;
+}
+
+.checkbox-node:hover {
+  background: #f5f7fa;
+}
+
+.checkbox-node.active:hover {
+  background: #e0efff;
+}
+
+/* 一级节点特殊布局 */
+.level-1.checkbox-node {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  min-height: 32px;
+}
+
+.level-1.checkbox-node .node-label {
+  flex: 1;
+  cursor: pointer;
+  user-select: none;
+  line-height: 20px;
+  font-size: 14px;
+}
+
+.level-1.checkbox-node .arrow-wrapper {
+  width: 16px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 6px;
+}
+
+.level-1.checkbox-node .checkbox-wrapper {
+  margin-right: 6px;
+}
+
+/* 二级节点布局调整 */
+.level-2.checkbox-node {
+  display: flex;
+  align-items: center;
+  padding: 5px 12px;
+  padding-left: 12px;
+  min-height: 28px;
+}
+
+.level-2.checkbox-node .node-label {
+  flex: 1;
+  cursor: pointer;
+  user-select: none;
+  line-height: 20px;
+  font-size: 14px;
+}
+
+.level-2.checkbox-node .arrow-placeholder {
+  width: 16px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin-right: 6px;
+}
+
+.level-2.checkbox-node .checkbox-wrapper {
+  margin-right: 6px;
 }
 
 /* 右侧内容区样式 */
@@ -776,27 +1308,6 @@ const toggleAnalysis = (question) => {
   font-size: 16px;
 }
 
-/* 快速组卷样式 */
-.quick-paper {
-  width: 100%;
-  height: calc(100vh - 200px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.placeholder-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.placeholder-hint {
-  font-size: 24px;
-  color: #909399;
-  margin: 0;
-}
 
 @keyframes fadeIn {
   from {

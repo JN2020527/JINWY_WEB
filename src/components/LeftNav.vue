@@ -97,7 +97,7 @@ const menuItems = [
   { label: '备课资源', icon: EditPen },
   { label: '作业管理', icon: List },
   { label: '学情分析', icon: DataAnalysis },
-  { label: '智能组卷', icon: DocumentCopy },
+  { label: '备考组卷', icon: DocumentCopy },
   { label: '学校管理', icon: OfficeBuilding },
   { label: '我的', icon: User }
 ]

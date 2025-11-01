@@ -169,11 +169,128 @@
       </div>
 
       <!-- 我的备课 -->
-      <div v-else-if="currentTab === 1" class="content-wrapper">
-        <div class="placeholder-container">
-          <el-icon class="placeholder-icon"><EditPen /></el-icon>
-          <p class="placeholder-hint">我的备课</p>
-          <p class="placeholder-desc">这里将展示您收藏和准备的备课资源</p>
+      <div v-else-if="currentTab === 1" class="prepare-resource-container">
+        <!-- 左侧分类 -->
+        <div class="left-category">
+          <div class="category-header">
+            <span class="category-title">— 备课分类 —</span>
+          </div>
+          <div class="category-list">
+            <div 
+              :class="['category-item', { active: selectedPrepareCategory === 'all' }]"
+              @click="selectedPrepareCategory = 'all'"
+            >
+              <span class="category-name">全部</span>
+              <el-icon class="add-icon" @click.stop="showAddPrepareDialog = true">
+                <Plus />
+              </el-icon>
+            </div>
+            
+            <!-- 自定义分组列表 -->
+            <div 
+              v-for="category in prepareCategoryList" 
+              :key="category.id"
+              :class="['category-item', { active: selectedPrepareCategory === category.id }]"
+              @click="selectedPrepareCategory = category.id"
+            >
+              <span class="category-name">{{ category.name }}</span>
+              <el-dropdown trigger="click" @click.stop>
+                <el-icon class="more-icon">
+                  <MoreFilled />
+                </el-icon>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item @click="handleRenamePrepareCategory(category)">
+                      <el-icon><Edit /></el-icon>
+                      <span>重命名</span>
+                    </el-dropdown-item>
+                    <el-dropdown-item @click="handleDeletePrepareCategory(category.id)">
+                      <el-icon><Delete /></el-icon>
+                      <span>删除</span>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
+            
+            <div 
+              :class="['category-item', { active: selectedPrepareCategory === 'uncategorized' }]"
+              @click="selectedPrepareCategory = 'uncategorized'"
+            >
+              <span class="category-name">未分类</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧内容区 -->
+        <div class="right-content">
+          <!-- 顶部分类标签 -->
+          <div class="category-tabs">
+            <div 
+              v-for="(tab, index) in prepareResourceTabs" 
+              :key="index"
+              class="tab-item"
+              :class="{ active: currentPrepareTab === index }"
+              @click="currentPrepareTab = index"
+            >
+              {{ tab }}
+            </div>
+          </div>
+
+          <!-- 资源列表 -->
+          <div class="resource-list">
+            <div 
+              v-for="resource in prepareResourceList" 
+              :key="resource.id"
+              class="resource-item"
+            >
+              <!-- 左侧图标 -->
+              <div class="resource-icon">
+                <img :src="getFileIcon(resource.fileType)" class="file-icon" :class="`icon-${resource.fileType.toLowerCase()}`" :alt="resource.fileType">
+              </div>
+
+              <!-- 中间信息 -->
+              <div class="resource-info">
+                <div class="resource-title">{{ resource.title }}</div>
+                <div class="resource-meta">
+                  <span class="meta-tag">{{ resource.category }}</span>
+                  <span class="meta-text">
+                    <el-icon><Clock /></el-icon>
+                    {{ resource.date }}
+                  </span>
+                  <span class="meta-text">
+                    <el-icon><Download /></el-icon>
+                    {{ resource.downloads }}次
+                  </span>
+                  <span class="meta-text">
+                    <el-icon><View /></el-icon>
+                    {{ resource.views }}次
+                  </span>
+                  <span class="meta-text">文件大小 {{ resource.size }}</span>
+                </div>
+              </div>
+
+              <!-- 右侧操作按钮 -->
+              <div class="resource-actions">
+                <el-button text @click="handleDownloadResource(resource)">
+                  <el-icon><Download /></el-icon>
+                  <span>下载</span>
+                </el-button>
+                <el-button text @click="handlePreviewResource(resource)">
+                  <el-icon><View /></el-icon>
+                  <span>预览</span>
+                </el-button>
+                <el-button text @click="handleMovePrepareResource(resource)">
+                  <el-icon><FolderOpened /></el-icon>
+                  <span>移动</span>
+                </el-button>
+                <el-button text @click="handleRemoveFromPrepare(resource)">
+                  <el-icon><Delete /></el-icon>
+                  <span>移除</span>
+                </el-button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -270,12 +387,98 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 移动资源对话框 -->
+    <el-dialog
+      v-model="showMoveResourceDialog"
+      title="移动到"
+      width="588px"
+      :close-on-click-modal="false"
+      class="add-category-dialog"
+    >
+      <el-form :model="moveResourceForm" label-width="85px" class="category-form">
+        <el-form-item label="目标分组" required>
+          <el-select v-model="moveResourceForm.targetCategoryId" placeholder="请选择目标分组" style="width: 100%">
+            <el-option label="未分类" value="uncategorized" />
+            <el-option 
+              v-for="category in prepareCategoryList" 
+              :key="category.id"
+              :label="category.name"
+              :value="category.id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleConfirmMoveResource" class="confirm-btn">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 添加备课分组对话框 -->
+    <el-dialog
+      v-model="showAddPrepareDialog"
+      title="添加分组"
+      width="588px"
+      :close-on-click-modal="false"
+      class="add-category-dialog"
+    >
+      <el-form :model="addPrepareCategoryForm" label-width="85px" class="category-form">
+        <el-form-item label="分组名称" required>
+          <el-input
+            v-model="addPrepareCategoryForm.name"
+            placeholder="请填写分组名称"
+            maxlength="50"
+            show-word-limit
+            clearable
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleConfirmAddPrepareCategory" class="confirm-btn">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 重命名备课分组对话框 -->
+    <el-dialog
+      v-model="showRenamePrepareDialog"
+      title="重命名分组"
+      width="588px"
+      :close-on-click-modal="false"
+      class="add-category-dialog"
+    >
+      <el-form :model="renamePrepareCategoryForm" label-width="85px" class="category-form">
+        <el-form-item label="分组名称" required>
+          <el-input
+            v-model="renamePrepareCategoryForm.name"
+            placeholder="请填写分组名称"
+            maxlength="50"
+            show-word-limit
+            clearable
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleConfirmRenamePrepareCategory" class="confirm-btn">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { Reading, EditPen, Document, Plus, Search, Tickets, Upload, Edit, ArrowDown, Delete, MoreFilled } from '@element-plus/icons-vue'
+import { Reading, EditPen, Document, Plus, Search, Tickets, Upload, Edit, ArrowDown, Delete, MoreFilled, Clock, Download, View, Star, FolderOpened } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 defineProps({
@@ -304,6 +507,52 @@ const renameWorkForm = ref({
   id: null,
   name: ''
 })
+
+// 我的备课 - 左侧分类
+const selectedPrepareCategory = ref('all')
+const showAddPrepareDialog = ref(false)
+const addPrepareCategoryForm = ref({
+  name: ''
+})
+const showRenamePrepareDialog = ref(false)
+const renamePrepareCategoryForm = ref({
+  id: '',
+  name: ''
+})
+const prepareCategoryList = ref([]) // 备课自定义分组列表
+const currentPrepareTab = ref(0)
+const prepareResourceTabs = ref(['全部资源', '课件', '教案', '音视频', '模拟卷'])
+
+// 移动资源
+const showMoveResourceDialog = ref(false)
+const moveResourceForm = ref({
+  resourceId: null,
+  targetCategoryId: ''
+})
+
+// 我的备课 - 资源列表
+const prepareResourceList = ref([
+  { id: 'p1', title: '2025晋文源语文中考模拟卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-22', downloads: 1, views: 6, size: '0.47MB' },
+  { id: 'p2', title: '第一章教学课件', category: '课件', fileType: 'PPT', date: '2025-10-20', downloads: 3, views: 12, size: '2.1MB' },
+  { id: 'p3', title: '第一章教案设计', category: '教案', fileType: 'DOC', date: '2025-10-18', downloads: 2, views: 8, size: '0.8MB' },
+  { id: 'p4', title: '第一章知识点讲解视频', category: '音视频', fileType: 'MP4', date: '2025-10-16', downloads: 15, views: 45, size: '38MB' },
+  { id: 'p5', title: '第一章学习资料合集', category: '综合', fileType: 'PDF', date: '2025-10-15', downloads: 8, views: 24, size: '1.5MB' }
+])
+
+// 获取文件图标
+const getFileIcon = (fileType) => {
+  const iconMap = {
+    'PDF': '/src/assets/icron/文件类型-pdf.svg',
+    'PPT': '/src/assets/icron/文件类型-ppt.svg',
+    'DOC': '/src/assets/icron/文件类型-文档.svg',
+    'EXCEL': '/src/assets/icron/文件类型-excel.svg',
+    'MP4': '/src/assets/icron/文件类型-视频.svg',
+    'MP3': '/src/assets/icron/文件类型-音频.svg',
+    'ZIP': '/src/assets/icron/文件类型-压缩包.svg',
+    'IMG': '/src/assets/icron/文件类型-图片.svg'
+  }
+  return iconMap[fileType] || '/src/assets/icron/文件类型-附件.svg'
+}
 
 // 我的备考 - 筛选条件
 const examPrepDateRange = ref([])
@@ -462,6 +711,148 @@ const handleConfirmRenameWork = () => {
   renameWorkForm.value = { id: null, name: '' }
 }
 
+// 我的备课 - 添加分组
+const handleConfirmAddPrepareCategory = () => {
+  if (!addPrepareCategoryForm.value.name.trim()) {
+    ElMessage.warning('请输入分组名称')
+    return
+  }
+  
+  // 创建新分组
+  const newCategory = {
+    id: `prepare_category_${Date.now()}`,
+    name: addPrepareCategoryForm.value.name.trim()
+  }
+  
+  // 添加到分组列表
+  prepareCategoryList.value.push(newCategory)
+  
+  ElMessage.success(`分组"${addPrepareCategoryForm.value.name}"创建成功`)
+  
+  // 关闭对话框并重置表单
+  showAddPrepareDialog.value = false
+  addPrepareCategoryForm.value.name = ''
+}
+
+// 我的备课 - 重命名分类
+const handleRenamePrepareCategory = (category) => {
+  renamePrepareCategoryForm.value.id = category.id
+  renamePrepareCategoryForm.value.name = category.name
+  showRenamePrepareDialog.value = true
+}
+
+// 我的备课 - 确认重命名
+const handleConfirmRenamePrepareCategory = () => {
+  if (!renamePrepareCategoryForm.value.name.trim()) {
+    ElMessage.warning('请输入分组名称')
+    return
+  }
+  
+  // 查找并更新分组名称
+  const index = prepareCategoryList.value.findIndex(item => item.id === renamePrepareCategoryForm.value.id)
+  if (index !== -1) {
+    const oldName = prepareCategoryList.value[index].name
+    prepareCategoryList.value[index].name = renamePrepareCategoryForm.value.name.trim()
+    ElMessage.success(`分组"${oldName}"已重命名为"${renamePrepareCategoryForm.value.name}"`)
+  }
+  
+  // 关闭对话框并重置表单
+  showRenamePrepareDialog.value = false
+  renamePrepareCategoryForm.value = { id: '', name: '' }
+}
+
+// 我的备课 - 删除分类
+const handleDeletePrepareCategory = (categoryId) => {
+  ElMessageBox.confirm(
+    '确定要删除该分类吗？',
+    '删除确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+    .then(() => {
+      const index = prepareCategoryList.value.findIndex(item => item.id === categoryId)
+      if (index !== -1) {
+        const categoryName = prepareCategoryList.value[index].name
+        prepareCategoryList.value.splice(index, 1)
+        
+        if (selectedPrepareCategory.value === categoryId) {
+          selectedPrepareCategory.value = 'all'
+        }
+        
+        ElMessage.success(`分类"${categoryName}"已删除`)
+      }
+    })
+    .catch(() => {})
+}
+
+// 我的备课 - 资源操作
+const handleDownloadResource = (resource) => {
+  ElMessage.success(`下载资源：${resource.title}`)
+}
+
+const handlePreviewResource = (resource) => {
+  ElMessage.info(`预览资源：${resource.title}`)
+}
+
+const handleMovePrepareResource = (resource) => {
+  moveResourceForm.value.resourceId = resource.id
+  moveResourceForm.value.targetCategoryId = ''
+  showMoveResourceDialog.value = true
+}
+
+const handleConfirmMoveResource = () => {
+  if (!moveResourceForm.value.targetCategoryId) {
+    ElMessage.warning('请选择目标分组')
+    return
+  }
+  
+  // 查找资源
+  const resource = prepareResourceList.value.find(item => item.id === moveResourceForm.value.resourceId)
+  if (resource) {
+    // 这里可以给资源添加 categoryId 属性来标记所属分组
+    // resource.categoryId = moveResourceForm.value.targetCategoryId
+    
+    // 获取目标分组名称
+    let targetName = '未分类'
+    if (moveResourceForm.value.targetCategoryId !== 'uncategorized') {
+      const targetCategory = prepareCategoryList.value.find(item => item.id === moveResourceForm.value.targetCategoryId)
+      if (targetCategory) {
+        targetName = targetCategory.name
+      }
+    }
+    
+    ElMessage.success(`已将"${resource.title}"移动到"${targetName}"`)
+    
+    // 关闭对话框并重置表单
+    showMoveResourceDialog.value = false
+    moveResourceForm.value = { resourceId: null, targetCategoryId: '' }
+  }
+}
+
+const handleRemoveFromPrepare = (resource) => {
+  ElMessageBox.confirm(
+    `确定要从备课资源中移除"${resource.title}"吗？`,
+    '移除确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+    .then(() => {
+      // 从列表中移除
+      const index = prepareResourceList.value.findIndex(item => item.id === resource.id)
+      if (index !== -1) {
+        prepareResourceList.value.splice(index, 1)
+        ElMessage.success(`已从备课资源中移除"${resource.title}"`)
+      }
+    })
+    .catch(() => {})
+}
+
 // 搜索
 const handleSearch = () => {
   ElMessage.info('搜索功能')
@@ -494,6 +885,24 @@ const handlePageChange = (page) => {
   gap: 16px;
   height: 100%;
   padding: 16px 20px;
+}
+
+/* 我的备课 - 左右两栏布局 */
+.prepare-resource-container {
+  display: flex;
+  gap: 16px;
+  height: 100%;
+  padding: 16px 20px;
+}
+
+.prepare-resource-container .right-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* 左侧分类 */
@@ -1116,6 +1525,35 @@ const handlePageChange = (page) => {
   color: #8F959E;
 }
 
+.category-form :deep(.el-select) {
+  width: 100%;
+}
+
+.category-form :deep(.el-select .el-select__wrapper) {
+  min-height: 40px !important;
+  padding: 9px 12px;
+  box-shadow: 0 0 0 1px #E5E6EB inset;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.category-form :deep(.el-select .el-input__wrapper) {
+  padding: 9px 12px;
+  box-shadow: 0 0 0 1px #E5E6EB inset;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.category-form :deep(.el-select .el-select__wrapper:hover),
+.category-form :deep(.el-select .el-input__wrapper:hover) {
+  box-shadow: 0 0 0 1px #C9CDD4 inset;
+}
+
+.category-form :deep(.el-select .el-select__wrapper.is-focused),
+.category-form :deep(.el-select .el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px #2262FB inset !important;
+}
+
 .dialog-footer {
   display: flex;
   justify-content: center;
@@ -1141,6 +1579,147 @@ const handlePageChange = (page) => {
 .confirm-btn:active {
   background: #1450d9;
   border-color: #1450d9;
+}
+
+/* 我的备课 - 资源列表样式 */
+.prepare-resource-container .category-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #e4e7ed;
+  padding: 0 20px;
+}
+
+.prepare-resource-container .tab-item {
+  padding: 16px 24px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  color: #606266;
+  position: relative;
+  transition: color 0.3s;
+}
+
+.prepare-resource-container .tab-item:hover {
+  color: #2262FB;
+}
+
+.prepare-resource-container .tab-item.active {
+  color: #2262FB;
+  font-weight: 600;
+}
+
+.prepare-resource-container .tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #2262FB;
+}
+
+.prepare-resource-container .resource-list {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.prepare-resource-container .resource-item {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  background: #ffffff;
+  transition: all 0.3s;
+}
+
+.prepare-resource-container .resource-item:hover {
+  border-color: #2262FB;
+  box-shadow: 0 2px 12px rgba(34, 98, 251, 0.1);
+}
+
+.prepare-resource-container .resource-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  flex-shrink: 0;
+  margin-right: 16px;
+}
+
+.prepare-resource-container .file-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  transition: transform 0.3s;
+}
+
+.prepare-resource-container .resource-item:hover .file-icon {
+  transform: scale(1.1);
+}
+
+.prepare-resource-container .resource-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.prepare-resource-container .resource-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #303133;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prepare-resource-container .resource-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: #909399;
+}
+
+.prepare-resource-container .meta-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #f0f2f5;
+  color: #606266;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.prepare-resource-container .meta-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.prepare-resource-container .meta-text .el-icon {
+  font-size: 14px;
+}
+
+.prepare-resource-container .resource-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 16px;
+}
+
+.prepare-resource-container .resource-actions .el-button {
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.prepare-resource-container .resource-actions .el-button .el-icon {
+  font-size: 16px;
+}
+
+.prepare-resource-container .resource-actions .el-button:nth-child(4):hover {
+  color: #F56C6C;
+  background: #FEF0F0;
 }
 </style>
 
