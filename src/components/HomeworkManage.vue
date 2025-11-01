@@ -139,36 +139,42 @@
           :key="homework.id"
           class="homework-item"
         >
-          <div class="homework-item-header">
-            <div class="homework-left">
-              <el-tag type="primary" class="class-tag">{{ homework.class }}</el-tag>
-              <span class="homework-title">{{ homework.title }}</span>
-            </div>
-          </div>
-          
-          <div class="homework-item-body">
-            <div class="homework-stats">
-              <span class="stat-item">
-                总人数：<span class="stat-value">{{ homework.totalCount }}人</span>
-              </span>
-              <span class="stat-item">
-                已提交：<span class="stat-value green">{{ homework.submitted }}份</span>
-              </span>
-              <span class="stat-item">
-                已批阅：<span class="stat-value orange">{{ homework.reviewed }}份</span>
-              </span>
-              <span class="stat-item">
-                未提交：<span class="stat-value red">{{ homework.unsubmitted }}份</span>
-              </span>
+          <!-- 主要内容区域：左右布局 -->
+          <div class="homework-main">
+            <!-- 左侧：标题和数据汇总 -->
+            <div class="homework-left-container">
+              <div class="homework-header">
+                <el-tag type="primary" class="class-tag">{{ homework.class }}</el-tag>
+                <span class="homework-title">{{ homework.title }}</span>
+              </div>
+              
+              <div class="homework-stats">
+                <span class="stat-item">
+                  总人数：<span class="stat-value">{{ homework.totalCount }}人</span>
+                </span>
+                <span class="stat-item">
+                  已提交：<span class="stat-value green">{{ homework.submitted }}份</span>
+                </span>
+                <span class="stat-item">
+                  已批阅：<span class="stat-value orange">{{ homework.reviewed }}份</span>
+                </span>
+                <span class="stat-item">
+                  未提交：<span class="stat-value red">{{ homework.unsubmitted }}份</span>
+                </span>
+              </div>
             </div>
             
-            <div class="homework-actions">
-              <el-button class="action-btn-outline">作业讲评</el-button>
-              <el-button class="action-btn-warning">试卷批阅</el-button>
-              <el-button type="primary" class="action-btn-primary">查看学情</el-button>
+            <!-- 右侧：操作按钮 -->
+            <div class="homework-right-container">
+              <div class="homework-actions">
+                <el-button class="action-btn-outline">作业讲评</el-button>
+                <el-button class="action-btn-warning">试卷批阅</el-button>
+                <el-button type="primary" class="action-btn-primary">查看学情</el-button>
+              </div>
             </div>
           </div>
           
+          <!-- 底部信息 -->
           <div class="homework-item-footer">
             <span class="homework-source">作业来源：{{ homework.source }}</span>
             <div class="footer-right">
@@ -604,6 +610,7 @@ const homeworkList = ref([
   background-color: #F2F3F5;
   border-color: transparent;
   border-radius: 20px;
+  font-weight: 600;
 }
 
 .filter-tag-item:hover {
@@ -621,7 +628,7 @@ const homeworkList = ref([
   background: #ffffff;
   border: 1px solid #e4e7ed;
   border-radius: 8px;
-  padding: 20px;
+  padding: 16px 20px;
   transition: all 0.3s;
 }
 
@@ -629,14 +636,25 @@ const homeworkList = ref([
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
-.homework-item-header {
+/* 主要内容区域：左右布局 */
+.homework-main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  gap: 24px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f5f7fa;
 }
 
-.homework-left {
+/* 左侧容器：标题和数据汇总 */
+.homework-left-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.homework-header {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -649,24 +667,16 @@ const homeworkList = ref([
 }
 
 .homework-title {
-  font-size: 16px;
+  font-size: 18px;
   color: #303133;
-  font-weight: 500;
-}
-
-.homework-item-body {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 0;
-  border-top: 1px solid #f5f7fa;
-  border-bottom: 1px solid #f5f7fa;
+  font-weight: 600;
 }
 
 .homework-stats {
   display: flex;
   align-items: center;
   gap: 32px;
+  flex-wrap: wrap;
 }
 
 .stat-item {
@@ -692,9 +702,17 @@ const homeworkList = ref([
   color: #F56C6C;
 }
 
+/* 右侧容器：操作按钮 */
+.homework-right-container {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .homework-actions {
   display: flex;
   gap: 12px;
+  align-items: center;
 }
 
 .action-btn-outline {
@@ -731,7 +749,7 @@ const homeworkList = ref([
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 16px;
+  padding-top: 8px;
 }
 
 .homework-source {
