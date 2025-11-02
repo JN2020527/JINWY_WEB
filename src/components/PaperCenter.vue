@@ -1,40 +1,49 @@
 <template>
   <div class="paper-center">
-    <!-- 顶部试卷信息栏 -->
-    <div class="paper-info-bar">
-      <el-button @click="emit('back')" icon="ArrowLeft" text>返回</el-button>
-      <div class="paper-title-section">
-        <el-input 
-          v-model="paperInfo.title" 
-          class="title-input"
-          placeholder="请输入试卷标题"
-        >
-          <template #prepend>试卷标题</template>
-        </el-input>
-      </div>
-      <div class="paper-stats">
-        <span class="stat-item">总题数：<strong>{{ totalQuestions }}</strong> 题</span>
-        <span class="stat-item">总分：<strong>{{ totalScore }}</strong> 分</span>
-        <span class="stat-item">预计用时：<strong>{{ estimatedTime }}</strong> 分钟</span>
-      </div>
-      <div class="paper-actions">
-        <el-button @click="previewPaper" icon="View">预览试卷</el-button>
-        <el-button @click="exportWord" icon="Document">导出Word</el-button>
-        <el-button @click="exportPDF" icon="Printer">导出PDF</el-button>
-        <el-button type="primary" @click="savePaper" icon="Check">保存试卷</el-button>
-      </div>
-    </div>
-
     <!-- 主体内容区 -->
     <div class="paper-content">
-      <!-- 试题列表（居中显示） -->
-      <div class="question-list-panel">
-        <div class="panel-header">
-          <h3>试题列表</h3>
-          <el-button text @click="expandAll">
-            {{ allExpanded ? '全部收起' : '全部展开' }}
+      <div class="content-container">
+        <!-- 左侧操作按钮 -->
+        <div class="action-buttons">
+          <el-button @click="previewPaper" size="small" plain>
+            <el-icon><View /></el-icon>
+            预览试卷
+          </el-button>
+          <el-button @click="exportWord" size="small" plain>
+            <el-icon><Document /></el-icon>
+            导出Word
+          </el-button>
+          <el-button @click="exportPDF" size="small" plain>
+            <el-icon><Printer /></el-icon>
+            导出PDF
+          </el-button>
+          <el-button type="primary" @click="savePaper" size="small">
+            <el-icon><Check /></el-icon>
+            保存试卷
           </el-button>
         </div>
+
+        <!-- 试题列表（居中显示） -->
+        <div class="question-list-panel">
+        <!-- 试卷标题区域 -->
+        <div class="paper-title-area">
+          <el-input 
+            v-model="paperInfo.title" 
+            class="paper-title-input"
+            placeholder="请输入试卷标题"
+            size="large"
+          />
+          <div class="paper-stats">
+            <span class="stat-item">共 <strong>{{ totalQuestions }}</strong> 题</span>
+            <span class="stat-divider">|</span>
+            <span class="stat-item">满分 <strong>{{ totalScore }}</strong> 分</span>
+            <span class="stat-divider">|</span>
+            <span class="stat-item">预计用时 <strong>{{ estimatedTime }}</strong> 分钟</span>
+          </div>
+        </div>
+
+        <!-- 试题内容区 -->
+        <div class="questions-area">
 
         <div class="question-groups">
           <div 
@@ -43,11 +52,8 @@
             class="question-group"
           >
             <!-- 题型标题 -->
-            <div class="group-header" @click="toggleGroup(group)">
+            <div class="group-header">
               <div class="group-title">
-                <el-icon class="expand-icon" :class="{ expanded: group.expanded }">
-                  <CaretRight />
-                </el-icon>
                 <span class="title-text">{{ getChineseNumber(groupIndex + 1) }}、{{ group.typeName }}</span>
                 <span class="title-meta">（共 {{ group.questions.length }} 题，{{ group.totalScore }} 分）</span>
               </div>
@@ -57,8 +63,7 @@
             </div>
 
             <!-- 试题列表 -->
-            <transition name="slide">
-              <div v-show="group.expanded" class="group-questions">
+            <div class="group-questions">
                 <div 
                   v-for="(question, qIndex) in group.questions"
                   :key="question.id"
@@ -99,10 +104,11 @@
                   </div>
                 </div>
               </div>
-            </transition>
+            </div>
           </div>
         </div>
       </div>
+    </div>
     </div>
 
     <!-- 试题详情弹窗 -->
@@ -176,7 +182,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { CaretRight, Refresh, Delete, ArrowUp, ArrowDown, View, Document, Printer, Check, ArrowLeft } from '@element-plus/icons-vue'
+import { Refresh, Delete, ArrowUp, ArrowDown, View, Document, Printer, Check } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const props = defineProps({
@@ -364,7 +370,7 @@ const questionGroups = ref([
   {
     typeName: '几何证明题',
     typeValue: 'proof',
-    expanded: false,
+    expanded: true,
     questions: [
       {
         id: 14,
@@ -393,7 +399,7 @@ const questionGroups = ref([
   {
     typeName: '应用题',
     typeValue: 'application',
-    expanded: false,
+    expanded: true,
     questions: [
       {
         id: 16,
@@ -422,7 +428,7 @@ const questionGroups = ref([
   {
     typeName: '函数与图象',
     typeValue: 'function',
-    expanded: false,
+    expanded: true,
     questions: [
       {
         id: 18,
@@ -438,9 +444,6 @@ const questionGroups = ref([
     ]
   }
 ])
-
-// 全部展开/收起状态
-const allExpanded = ref(true)
 
 // 试题详情弹窗
 const showDetailDialog = ref(false)
@@ -467,19 +470,6 @@ questionGroups.value.forEach(group => {
 const estimatedTime = computed(() => {
   return Math.ceil(totalScore.value * 1.5)
 })
-
-// 切换题组展开/收起
-const toggleGroup = (group) => {
-  group.expanded = !group.expanded
-}
-
-// 全部展开/收起
-const expandAll = () => {
-  allExpanded.value = !allExpanded.value
-  questionGroups.value.forEach(group => {
-    group.expanded = allExpanded.value
-  })
-}
 
 // 将数字转换为中文数字
 const getChineseNumber = (num) => {
@@ -613,66 +603,27 @@ const savePaper = () => {
   background: #f5f7fa;
 }
 
-/* 顶部试卷信息栏 */
-.paper-info-bar {
-  background: #ffffff;
-  padding: 16px 24px;
-  border-bottom: 1px solid #e4e7ed;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.paper-title-section {
-  flex: 1;
-  min-width: 300px;
-}
-
-.title-input {
-  width: 100%;
-}
-
-.title-input :deep(.el-input-group__prepend) {
-  background: #f5f7fa;
-  font-weight: 600;
-  color: #303133;
-}
-
-.paper-stats {
-  display: flex;
-  gap: 32px;
-}
-
-.stat-item {
-  font-size: 14px;
-  color: #606266;
-}
-
-.stat-item strong {
-  font-size: 16px;
-  font-weight: 600;
-  color: #2262FB;
-  margin: 0 4px;
-}
-
-.paper-actions {
-  display: flex;
-  gap: 12px;
-}
-
 /* 主体内容区 */
 .paper-content {
   flex: 1;
   display: flex;
   justify-content: center;
   padding: 20px 24px;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
-/* 试题列表（居中显示，A4纸宽度） */
-.question-list-panel {
+/* 内容容器 */
+.content-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  max-width: 1000px;
   width: 100%;
+}
+
+/* 试题列表（A4纸宽度） */
+.question-list-panel {
+  flex: 1;
   max-width: 800px;
   background: #ffffff;
   border-radius: 4px;
@@ -682,25 +633,93 @@ const savePaper = () => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.panel-header {
-  padding: 16px 20px;
+/* 试卷标题区域 */
+.paper-title-area {
+  padding: 24px 24px 20px;
   border-bottom: 1px solid #e4e7ed;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
-.panel-header h3 {
-  margin: 0;
-  font-size: 16px;
+.paper-title-input {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.paper-title-input :deep(.el-input__inner) {
+  font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  text-align: center;
+  border: none;
+  padding: 8px 16px;
+}
+
+.paper-title-input :deep(.el-input__inner:focus) {
+  border: 1px solid #2262FB;
+}
+
+.paper-stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #606266;
+}
+
+.stat-item strong {
+  font-weight: 600;
+  color: #2262FB;
+  margin: 0 4px;
+}
+
+.stat-divider {
+  color: #dcdfe6;
+}
+
+/* 左侧操作按钮 */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex-shrink: 0;
+  align-items: flex-end;
+}
+
+.action-buttons .el-button {
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* 除第一个按钮外，其他按钮向上移动1px，让边框重叠 */
+.action-buttons .el-button:not(:first-child) {
+  margin-top: -1px;
+}
+
+.action-buttons .el-button :deep(span) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+.action-buttons .el-button :deep(.el-icon) {
+  font-size: 24px;
+  margin: 0;
+}
+
+/* 试题内容区 */
+.questions-area {
+  padding: 20px;
 }
 
 .question-groups {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* 题型分组 */
@@ -715,28 +734,12 @@ const savePaper = () => {
   padding: 12px 16px;
   background: #f5f7fa;
   border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.group-header:hover {
-  background: #ecf5ff;
 }
 
 .group-title {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.expand-icon {
-  font-size: 14px;
-  color: #909399;
-  transition: transform 0.3s;
-}
-
-.expand-icon.expanded {
-  transform: rotate(90deg);
 }
 
 .title-text {
@@ -753,26 +756,6 @@ const savePaper = () => {
 .group-actions {
   display: flex;
   gap: 8px;
-}
-
-/* 试题列表动画 */
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.3s ease;
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  opacity: 0;
-  max-height: 0;
-  transform: translateY(-10px);
-}
-
-.slide-enter-to,
-.slide-leave-from {
-  opacity: 1;
-  max-height: 2000px;
-  transform: translateY(0);
 }
 
 /* 试题项 */
