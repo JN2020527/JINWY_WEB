@@ -374,7 +374,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Camera, Search, Delete, CaretRight, Monitor, View, Plus } from '@element-plus/icons-vue'
 
 defineProps({

@@ -1761,7 +1761,7 @@ const handlePageChange = (page) => {
 }
 
 .add-category-dialog .el-dialog__header {
-  padding: 20px 24px 16px;
+  padding: 14px 24px 12px;
   margin: 0;
   border-bottom: 1px solid #E5E6EB;
   text-align: center;
