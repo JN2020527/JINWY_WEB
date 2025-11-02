@@ -1,7 +1,15 @@
 <template>
   <div class="smart-paper">
+    <!-- 组卷中心 -->
+    <PaperCenter 
+      v-if="showPaperCenter"
+      :paperConfig="currentPaperConfig"
+      @back="handleBackFromPaperCenter"
+      @save="handleSavePaper"
+    />
+
     <!-- 选题组卷 -->
-    <div v-if="currentTab === 0" class="question-selection">
+    <div v-else-if="currentTab === 0" class="question-selection">
       <!-- 左侧筛选栏 -->
       <div class="left-filter-area">
         <!-- 教材版本筛选容器 -->
@@ -260,119 +268,186 @@
 
       <!-- 右侧内容区 -->
       <div class="right-content">
-        <!-- 筛选条件 -->
-        <div class="filter-section">
-          <!-- 试题来源 -->
-          <div class="filter-row">
-            <label class="filter-label">试题来源：</label>
-            <div class="filter-options">
-              <el-radio 
-                v-for="item in sourceOptions" 
-                :key="item.value"
-                v-model="quickFilters.source"
-                :label="item.value"
-                class="custom-radio"
-              >
-                {{ item.label }}
-              </el-radio>
+        <!-- 快速组卷配置 -->
+        <div class="quick-paper-config">
+          <!-- 试卷标题 -->
+          <div class="config-section horizontal">
+            <div class="section-title">试卷标题</div>
+            <div class="section-content">
+              <el-input 
+                v-model="paperTitle" 
+                placeholder="请输入试卷标题"
+                maxlength="100"
+                show-word-limit
+                clearable
+                class="title-input"
+              />
+            </div>
+          </div>
+
+          <!-- 参考范围 -->
+          <div class="config-section horizontal">
+            <div class="section-title">参考范围</div>
+            <div class="section-content">
+              <div class="reference-scope">
+                <el-tag 
+                  v-for="knowledgeId in selectedKnowledgeIds" 
+                  :key="knowledgeId"
+                  closable
+                  type="info"
+                  @close="removeKnowledge(knowledgeId)"
+                  class="knowledge-tag"
+                >
+                  {{ getKnowledgeName(knowledgeId) }}
+                </el-tag>
+                <span v-if="selectedKnowledgeIds.length === 0" class="empty-hint">
+                  请在左侧勾选知识点
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 难度占比 -->
+          <div class="config-section horizontal">
+            <div class="section-title">难度占比</div>
+            <div class="section-content">
+              <div class="difficulty-ratio">
+                <div class="ratio-item">
+                  <label class="ratio-label">容易题占比：</label>
+                  <el-input-number 
+                    v-model="difficultyRatio.easy"
+                    :min="0"
+                    :max="100"
+                    :step="5"
+                    @change="handleRatioChange"
+                    class="ratio-input"
+                  />
+                  <span class="ratio-unit">%</span>
+                </div>
+                <div class="ratio-item">
+                  <label class="ratio-label">中等题占比：</label>
+                  <el-input-number 
+                    v-model="difficultyRatio.medium"
+                    :min="0"
+                    :max="100"
+                    :step="5"
+                    @change="handleRatioChange"
+                    class="ratio-input"
+                  />
+                  <span class="ratio-unit">%</span>
+                </div>
+                <div class="ratio-item">
+                  <label class="ratio-label">拔高题占比：</label>
+                  <el-input-number 
+                    v-model="difficultyRatio.hard"
+                    :min="0"
+                    :max="100"
+                    :step="5"
+                    @change="handleRatioChange"
+                    class="ratio-input"
+                  />
+                  <span class="ratio-unit">%</span>
+                </div>
+                <div class="ratio-total" :class="{ error: ratioTotal !== 100 }">
+                  总计：{{ ratioTotal }}%
+                  <span v-if="ratioTotal !== 100" class="ratio-error">（占比总和应为100%）</span>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- 试题类型 -->
-          <div class="filter-row">
-            <label class="filter-label">试题类型：</label>
-            <div class="filter-options">
-              <el-radio 
-                v-for="item in typeOptions" 
-                :key="item.value"
-                v-model="quickFilters.type"
-                :label="item.value"
-                class="custom-radio"
-              >
-                {{ item.label }}
-              </el-radio>
-            </div>
-          </div>
-
-          <!-- 试题难度 -->
-          <div class="filter-row">
-            <label class="filter-label">试题难度：</label>
-            <div class="filter-options">
-              <el-radio 
-                v-for="item in difficultyOptions" 
-                :key="item.value"
-                v-model="quickFilters.difficulty"
-                :label="item.value"
-                class="custom-radio"
-              >
-                {{ item.label }}
-              </el-radio>
-            </div>
-          </div>
-
-          <!-- 年份 -->
-          <div class="filter-row">
-            <label class="filter-label">年份：</label>
-            <div class="filter-options">
-              <el-radio 
-                v-for="item in yearOptions" 
-                :key="item.value"
-                v-model="quickFilters.year"
-                :label="item.value"
-                class="custom-radio"
-              >
-                {{ item.label }}
-              </el-radio>
-            </div>
-          </div>
-        </div>
-
-        <div class="question-list">
-          <div 
-            v-for="(question, index) in questionList" 
-            :key="question.id"
-            class="question-item"
-          >
-            <div class="question-header">
-              <div class="question-text" v-html="question.content"></div>
-              <button class="btn-screen" title="大屏演示" @click="openScreenPresentation(question, index)">
-                <el-icon><Monitor /></el-icon>
-                <span>大屏演示</span>
-              </button>
-            </div>
-            
-            <!-- 答案解析区域 -->
-            <div v-if="question.showAnalysis" class="analysis-section">
-              <div class="analysis-item">
-                <strong>答案：</strong>{{ question.answer }}
-              </div>
-              <div class="analysis-item" v-if="question.analysis">
-                <strong>解析：</strong>{{ question.analysis }}
-              </div>
-            </div>
-
-            <div class="question-footer">
-              <div class="question-meta">
-                <span class="meta-item">题型：{{ question.type }}</span>
-                <span class="meta-item">年份：{{ question.year }}</span>
-                <span class="meta-item">所属地区：{{ question.region }}</span>
-                <span class="meta-item">试题来源：{{ question.source }}</span>
-              </div>
-              
-              <div class="question-actions">
-                <button 
-                  class="btn-analysis" 
-                  @click="toggleAnalysis(question)"
+          <div class="config-section horizontal">
+            <div class="section-title">试题类型</div>
+            <div class="section-content">
+              <div class="question-types">
+                <el-checkbox 
+                  v-for="type in questionTypes" 
+                  :key="type.value"
+                  v-model="type.checked"
+                  @change="handleTypeChange(type)"
+                  class="type-checkbox"
                 >
-                  <el-icon><View /></el-icon>
-                  <span>{{ question.showAnalysis ? '收起' : '答案解析' }}</span>
-                </button>
-                <button class="btn-add">
-                  <el-icon><Plus /></el-icon>
-                  <span>加入组卷</span>
-                </button>
+                  {{ type.label }}
+                </el-checkbox>
               </div>
             </div>
+          </div>
+
+          <!-- 试题配置表格 -->
+          <div class="config-section">
+            <el-table 
+              :data="questionConfigs" 
+              border
+              class="config-table"
+              :header-cell-style="{ background: '#f5f7fa', color: '#303133', fontWeight: '600' }"
+            >
+              <el-table-column prop="type" label="试题题型" min-width="150" align="center" />
+              <el-table-column label="试题数量" width="160" align="center">
+                <template #default="{ row }">
+                  <el-input-number 
+                    v-model="row.count"
+                    :min="0"
+                    :max="50"
+                    size="small"
+                    @change="updateTotalScore(row)"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column label="每题分数" width="160" align="center">
+                <template #default="{ row }">
+                  <el-input-number 
+                    v-model="row.score"
+                    :min="0"
+                    :max="100"
+                    :step="0.5"
+                    size="small"
+                    @change="updateTotalScore(row)"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column prop="totalScore" label="试题总分" width="140" align="center">
+                <template #default="{ row }">
+                  {{ row.totalScore }}
+                </template>
+              </el-table-column>
+              <el-table-column label="试题顺序" width="120" align="center">
+                <template #default="{ row, $index }">
+                  <div class="order-controls">
+                    <el-button 
+                      :disabled="$index === 0"
+                      @click="moveUp($index)"
+                      size="small"
+                      text
+                    >
+                      <el-icon><ArrowUp /></el-icon>
+                    </el-button>
+                    <el-button 
+                      :disabled="$index === questionConfigs.length - 1"
+                      @click="moveDown($index)"
+                      size="small"
+                      text
+                    >
+                      <el-icon><ArrowDown /></el-icon>
+                    </el-button>
+                  </div>
+                </template>
+              </el-table-column>
+            </el-table>
+            <div class="table-summary">
+              <span class="summary-item">总题数：<strong>{{ totalQuestionCount }}</strong> 题</span>
+              <span class="summary-item">总分：<strong>{{ totalPaperScore }}</strong> 分</span>
+            </div>
+          </div>
+
+          <!-- 操作按钮 -->
+          <div class="action-buttons">
+            <el-button type="primary" size="large" @click="generatePaper" class="generate-btn">
+              生成试卷
+            </el-button>
+            <el-button size="large" @click="resetConfig" class="reset-btn">
+              重置配置
+            </el-button>
           </div>
         </div>
       </div>
@@ -391,9 +466,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { CaretRight, Monitor, View, Plus } from '@element-plus/icons-vue'
+import { ref, computed } from 'vue'
+import { CaretRight, Monitor, View, Plus, ArrowUp, ArrowDown } from '@element-plus/icons-vue'
 import ScreenPresentation from './ScreenPresentation.vue'
+import PaperCenter from './PaperCenter.vue'
+import { ElMessage } from 'element-plus'
 
 defineProps({
   currentTab: {
@@ -736,6 +813,10 @@ const showScreenPresentation = ref(false)
 const currentPresentationQuestion = ref(null)
 const currentPresentationIndex = ref(0)
 
+// 组卷中心相关
+const showPaperCenter = ref(false)
+const currentPaperConfig = ref(null)
+
 // 打开大屏演示
 const openScreenPresentation = (question, index) => {
   currentPresentationQuestion.value = question
@@ -757,6 +838,248 @@ const changePresentationQuestion = (index) => {
 // 切换答案解析显示状态
 const toggleAnalysis = (question) => {
   question.showAnalysis = !question.showAnalysis
+}
+
+// ==================== 组卷中心相关 ====================
+
+// 从组卷中心返回
+const handleBackFromPaperCenter = () => {
+  showPaperCenter.value = false
+  currentPaperConfig.value = null
+}
+
+// 保存试卷
+const handleSavePaper = (paperData) => {
+  console.log('保存试卷数据:', paperData)
+  // TODO: 调用保存试卷接口
+  showPaperCenter.value = false
+  currentPaperConfig.value = null
+}
+
+// ==================== 快速组卷相关 ====================
+
+// 试卷标题
+const paperTitle = ref('')
+
+// 难度占比
+const difficultyRatio = ref({
+  easy: 30,
+  medium: 50,
+  hard: 20
+})
+
+// 计算难度占比总和
+const ratioTotal = computed(() => {
+  return difficultyRatio.value.easy + difficultyRatio.value.medium + difficultyRatio.value.hard
+})
+
+// 处理占比变化
+const handleRatioChange = () => {
+  console.log('难度占比变化:', difficultyRatio.value)
+  console.log('总计:', ratioTotal.value)
+}
+
+// 试题类型（语文学科）
+const questionTypes = ref([
+  { label: '字词书写', value: 'word-writing', checked: true },
+  { label: '现代文阅读', value: 'modern-reading', checked: true },
+  { label: '文言文阅读', value: 'classical-reading', checked: true },
+  { label: '名句名篇默写', value: 'famous-sentences', checked: true },
+  { label: '诗歌鉴赏', value: 'poetry', checked: true },
+  { label: '语言表达', value: 'language-expression', checked: false },
+  { label: '名著阅读', value: 'classics-reading', checked: false },
+  { label: '综合性学习', value: 'comprehensive', checked: false },
+  { label: '作文', value: 'composition', checked: true }
+])
+
+// 处理题型选择变化
+const handleTypeChange = (type) => {
+  console.log('题型选择变化:', type.label, type.checked)
+  // 如果勾选了题型，添加到配置表格；如果取消勾选，从表格中移除
+  if (type.checked) {
+    const exists = questionConfigs.value.find(config => config.value === type.value)
+    if (!exists) {
+      questionConfigs.value.push({
+        type: type.label,
+        value: type.value,
+        count: 1,
+        score: 5,
+        totalScore: 5
+      })
+    }
+  } else {
+    const index = questionConfigs.value.findIndex(config => config.value === type.value)
+    if (index > -1) {
+      questionConfigs.value.splice(index, 1)
+    }
+  }
+}
+
+// 试题配置表格数据
+const questionConfigs = ref([
+  { type: '字词书写', value: 'word-writing', count: 5, score: 2, totalScore: 10 },
+  { type: '现代文阅读', value: 'modern-reading', count: 3, score: 10, totalScore: 30 },
+  { type: '文言文阅读', value: 'classical-reading', count: 2, score: 10, totalScore: 20 },
+  { type: '名句名篇默写', value: 'famous-sentences', count: 6, score: 1, totalScore: 6 },
+  { type: '诗歌鉴赏', value: 'poetry', count: 2, score: 5, totalScore: 10 },
+  { type: '作文', value: 'composition', count: 1, score: 50, totalScore: 50 }
+])
+
+// 更新试题总分
+const updateTotalScore = (row) => {
+  row.totalScore = row.count * row.score
+}
+
+// 上移
+const moveUp = (index) => {
+  if (index > 0) {
+    const temp = questionConfigs.value[index]
+    questionConfigs.value[index] = questionConfigs.value[index - 1]
+    questionConfigs.value[index - 1] = temp
+  }
+}
+
+// 下移
+const moveDown = (index) => {
+  if (index < questionConfigs.value.length - 1) {
+    const temp = questionConfigs.value[index]
+    questionConfigs.value[index] = questionConfigs.value[index + 1]
+    questionConfigs.value[index + 1] = temp
+  }
+}
+
+// 计算总题数
+const totalQuestionCount = computed(() => {
+  return questionConfigs.value.reduce((sum, config) => sum + config.count, 0)
+})
+
+// 计算总分
+const totalPaperScore = computed(() => {
+  return questionConfigs.value.reduce((sum, config) => sum + config.totalScore, 0)
+})
+
+// 获取知识点名称
+const getKnowledgeName = (knowledgeId) => {
+  // 遍历知识树查找知识点名称
+  for (const parent of quickKnowledgeTree.value) {
+    if (parent.id === knowledgeId) {
+      return parent.label
+    }
+    if (parent.children) {
+      for (const child of parent.children) {
+        if (child.id === knowledgeId) {
+          return child.label
+        }
+      }
+    }
+  }
+  return '未知知识点'
+}
+
+// 移除知识点
+const removeKnowledge = (knowledgeId) => {
+  const index = selectedKnowledgeIds.value.indexOf(knowledgeId)
+  if (index > -1) {
+    selectedKnowledgeIds.value.splice(index, 1)
+  }
+}
+
+// 生成试卷
+const generatePaper = () => {
+  // 验证
+  // 1. 试卷标题校验
+  if (!paperTitle.value) {
+    ElMessage.warning('请输入试卷标题')
+    return
+  }
+  if (paperTitle.value.trim().length < 2) {
+    ElMessage.warning('试卷标题至少需要2个字符')
+    return
+  }
+  
+  // 2. 知识点选择校验
+  if (selectedKnowledgeIds.value.length === 0) {
+    ElMessage.warning('请至少选择一个知识点')
+    return
+  }
+  
+  // 3. 难度占比校验
+  if (ratioTotal.value !== 100) {
+    ElMessage.warning('难度占比总和必须为100%')
+    return
+  }
+  
+  // 4. 试题类型校验
+  if (questionConfigs.value.length === 0) {
+    ElMessage.warning('请至少选择一个试题类型')
+    return
+  }
+  
+  // 5. 单个题型的数量校验
+  const invalidConfig = questionConfigs.value.find(config => config.count <= 0)
+  if (invalidConfig) {
+    ElMessage.warning(`${invalidConfig.type}的试题数量必须大于0`)
+    return
+  }
+  
+  // 6. 单个题型的分数校验
+  const invalidScoreConfig = questionConfigs.value.find(config => config.score <= 0)
+  if (invalidScoreConfig) {
+    ElMessage.warning(`${invalidScoreConfig.type}的每题分数必须大于0`)
+    return
+  }
+  
+  // 7. 试题总数校验
+  if (totalQuestionCount.value === 0) {
+    ElMessage.warning('试题总数必须大于0')
+    return
+  }
+  
+  // 8. 试题总分校验
+  if (totalPaperScore.value === 0) {
+    ElMessage.warning('试卷总分必须大于0')
+    return
+  }
+  
+  const paperConfig = {
+    title: paperTitle.value,
+    knowledgeIds: selectedKnowledgeIds.value,
+    difficultyRatio: difficultyRatio.value,
+    questionConfigs: questionConfigs.value,
+    totalCount: totalQuestionCount.value,
+    totalScore: totalPaperScore.value
+  }
+  
+  console.log('生成试卷配置:', paperConfig)
+  
+  // 跳转到组卷中心
+  currentPaperConfig.value = paperConfig
+  showPaperCenter.value = true
+  
+  ElMessage.success('试卷生成成功！正在进入组卷中心...')
+}
+
+// 重置配置
+const resetConfig = () => {
+  paperTitle.value = ''
+  selectedKnowledgeIds.value = []
+  difficultyRatio.value = {
+    easy: 30,
+    medium: 50,
+    hard: 20
+  }
+  questionTypes.value.forEach(type => {
+    type.checked = ['word-writing', 'modern-reading', 'classical-reading', 'famous-sentences', 'poetry', 'composition'].includes(type.value)
+  })
+  questionConfigs.value = [
+    { type: '字词书写', value: 'word-writing', count: 5, score: 2, totalScore: 10 },
+    { type: '现代文阅读', value: 'modern-reading', count: 3, score: 10, totalScore: 30 },
+    { type: '文言文阅读', value: 'classical-reading', count: 2, score: 10, totalScore: 20 },
+    { type: '名句名篇默写', value: 'famous-sentences', count: 6, score: 1, totalScore: 6 },
+    { type: '诗歌鉴赏', value: 'poetry', count: 2, score: 5, totalScore: 10 },
+    { type: '作文', value: 'composition', count: 1, score: 50, totalScore: 50 }
+  ]
+  ElMessage.success('配置已重置')
 }
 </script>
 
@@ -1318,6 +1641,225 @@ const toggleAnalysis = (question) => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ==================== 快速组卷配置样式 ==================== */
+.quick-paper-config {
+  background: #ffffff;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.config-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.config-section.horizontal {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  padding-bottom: 8px;
+}
+
+.config-section.horizontal .section-title {
+  min-width: 120px;
+  flex-shrink: 0;
+  padding-bottom: 0;
+  padding-right: 16px;
+  line-height: 40px;
+}
+
+.section-content {
+  flex: 1;
+}
+
+.title-input {
+  width: 100%;
+}
+
+.title-input :deep(.el-input__wrapper) {
+  min-height: 40px;
+}
+
+/* 参考范围 */
+.reference-scope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-height: 40px;
+  padding: 8px 12px;
+  background: #f5f7fa;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.knowledge-tag {
+  font-size: 14px;
+}
+
+.empty-hint {
+  font-size: 14px;
+  color: #909399;
+  line-height: 24px;
+}
+
+/* 难度占比 */
+.difficulty-ratio {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: #f5f7fa;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.ratio-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ratio-label {
+  font-size: 14px;
+  color: #606266;
+  min-width: 120px;
+}
+
+.ratio-input {
+  width: 120px;
+}
+
+.ratio-unit {
+  font-size: 14px;
+  color: #606266;
+}
+
+.ratio-total {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  padding-top: 12px;
+  border-top: 1px solid #e4e7ed;
+}
+
+.ratio-total.error {
+  color: #F56C6C;
+}
+
+.ratio-error {
+  font-size: 14px;
+  font-weight: 400;
+  color: #F56C6C;
+  margin-left: 8px;
+}
+
+/* 试题类型 */
+.question-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  padding: 16px;
+  background: #f5f7fa;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.type-checkbox {
+  margin-right: 0;
+}
+
+.type-checkbox :deep(.el-checkbox__label) {
+  font-size: 14px;
+  color: #606266;
+}
+
+.type-checkbox.is-checked :deep(.el-checkbox__label) {
+  color: #2262FB;
+  font-weight: 500;
+}
+
+/* 试题配置表格 */
+.config-table {
+  width: 100%;
+  font-size: 14px;
+}
+
+.config-table :deep(.el-table__header-wrapper) {
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+}
+
+.config-table :deep(.el-table__cell) {
+  padding: 12px 0;
+}
+
+.config-table :deep(.el-input-number) {
+  width: 100%;
+}
+
+.order-controls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.order-controls .el-button {
+  padding: 4px;
+}
+
+.table-summary {
+  display: flex;
+  justify-content: flex-end;
+  gap: 32px;
+  padding: 16px;
+  background: #f5f7fa;
+  border: 1px solid #e4e7ed;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  margin-top: -1px;
+}
+
+.summary-item {
+  font-size: 14px;
+  color: #606266;
+}
+
+.summary-item strong {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2262FB;
+  margin-left: 4px;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e4e7ed;
+}
+
+.generate-btn {
+  width: 160px;
+  font-size: 16px;
+}
+
+.reset-btn {
+  width: 160px;
+  font-size: 16px;
 }
 </style>
 
