@@ -16,7 +16,7 @@
         <div class="textbook-filter-container">
           <div class="container-header">
             <span class="header-title">— 教材版本 —</span>
-          </div>
+        </div>
           <div class="textbook-selector">
             <el-select 
               v-model="selectedTextbook" 
@@ -28,41 +28,41 @@
               <el-option label="苏教版·八年级下" value="sujiao-8-2" />
             </el-select>
           </div>
-        </div>
+          </div>
 
         <!-- 知识点筛选容器 -->
         <div class="knowledge-filter-container">
           <div class="container-header">
             <span class="header-title">— 知识点筛选 —</span>
-          </div>
+        </div>
 
-          <div class="sidebar-content">
-            <div class="knowledge-tree">
-              <div 
-                v-for="item in knowledgeTree" 
-                :key="item.id"
+        <div class="sidebar-content">
+          <div class="knowledge-tree">
+            <div 
+              v-for="item in knowledgeTree" 
+              :key="item.id"
                 class="catalog-item"
-              >
-                <div 
+            >
+              <div 
                   class="catalog-node level-1"
                   :class="{ active: selectedKnowledgeId === item.id }"
-                  @click="toggleNode(item)"
-                >
+                @click="toggleNode(item)"
+              >
                   <span class="expand-icon-wrapper">
                     <el-icon v-if="item.children && item.children.length > 0" class="expand-icon" :class="{ expanded: item.expanded }">
                       <CaretRight />
-                    </el-icon>
+                </el-icon>
                   </span>
-                  <span class="node-label">{{ item.label }}</span>
-                </div>
+                <span class="node-label">{{ item.label }}</span>
+              </div>
                 <div v-if="item.expanded && item.children && item.children.length > 0" class="catalog-children">
-                  <div 
-                    v-for="child in item.children" 
-                    :key="child.id"
+                <div 
+                  v-for="child in item.children" 
+                  :key="child.id"
                     class="catalog-node level-2"
                     :class="{ active: selectedKnowledgeId === child.id }"
-                    @click="selectKnowledge(child)"
-                  >
+                  @click="selectKnowledge(child)"
+                >
                     <span class="node-label">{{ child.label }}</span>
                   </div>
                 </div>

@@ -57,9 +57,6 @@
                 <span class="title-text">{{ getChineseNumber(groupIndex + 1) }}、{{ group.typeName }}</span>
                 <span class="title-meta">（共 {{ group.questions.length }} 题，{{ group.totalScore }} 分）</span>
               </div>
-              <div class="group-actions">
-                <el-button text size="small" @click.stop="batchReplace(group)">批量替换</el-button>
-              </div>
             </div>
 
             <!-- 试题列表 -->
@@ -77,10 +74,6 @@
                     </div>
                   </div>
                   <div class="question-footer">
-                    <div class="question-tags">
-                      <el-tag size="small" type="info">{{ question.difficulty }}</el-tag>
-                      <el-tag size="small" type="info">{{ question.source }}</el-tag>
-                    </div>
                     <div class="question-operations">
                       <el-button text size="small" @click.stop="viewDetail(question, group, qIndex)">
                         <el-icon><View /></el-icon>
@@ -144,12 +137,6 @@
           </div>
         </div>
 
-        <!-- 试题内容 -->
-        <div class="content-section">
-          <div class="section-title">试题内容</div>
-          <div class="section-content" v-html="selectedQuestion.content"></div>
-        </div>
-
         <!-- 答案 -->
         <div class="content-section">
           <div class="section-title">参考答案</div>
@@ -162,20 +149,6 @@
           <div class="section-content">{{ selectedQuestion.analysis }}</div>
         </div>
       </div>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="replaceQuestion(selectedQuestion)">
-            <el-icon><Refresh /></el-icon>
-            替换此题
-          </el-button>
-          <el-button type="danger" @click="deleteCurrentQuestion">
-            <el-icon><Delete /></el-icon>
-            删除此题
-          </el-button>
-          <el-button @click="showDetailDialog = false">关闭</el-button>
-        </div>
-      </template>
     </el-dialog>
   </div>
 </template>
@@ -600,7 +573,7 @@ const savePaper = () => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #f5f7fa;
+  background: transparent;
 }
 
 /* 主体内容区 */
@@ -732,7 +705,7 @@ const savePaper = () => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: #f5f7fa;
+  background: #ffffff;
   border-radius: 4px;
 }
 
@@ -790,22 +763,7 @@ const savePaper = () => {
   color: #333;
   flex-shrink: 0;
   line-height: 1.6;
-}
-
-.question-content-wrapper {
-  flex: 1;
-  min-width: 0;
-}
-
-.question-content {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #606266;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  margin-right: 4px;
 }
 
 .question-score {
@@ -815,22 +773,37 @@ const savePaper = () => {
   flex-shrink: 0;
   line-height: 1.6;
   white-space: nowrap;
+  margin-right: 4px;
+}
+
+.question-content-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.question-content {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #606266;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.question-content :deep(br) {
+  display: block;
+  content: "";
+  margin: 4px 0;
 }
 
 .question-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-}
-
-.question-tags {
-  display: flex;
-  gap: 8px;
 }
 
 .question-operations {
   display: flex;
-  gap: 4px;
+  gap: 2px;
 }
 
 /* 弹窗内容 */
