@@ -762,7 +762,7 @@ const savePaper = () => {
   font-weight: 600;
   color: #333;
   flex-shrink: 0;
-  line-height: 1.6;
+  line-height: 1.8;
   margin-right: 4px;
 }
 
@@ -771,7 +771,7 @@ const savePaper = () => {
   color: #999;
   font-weight: 500;
   flex-shrink: 0;
-  line-height: 1.6;
+  line-height: 1.8;
   white-space: nowrap;
   margin-right: 4px;
 }
