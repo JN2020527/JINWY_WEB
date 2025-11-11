@@ -1,15 +1,7 @@
 <template>
   <div class="smart-paper">
-    <!-- 组卷中心 -->
-    <PaperCenter 
-      v-if="showPaperCenter"
-      :paperConfig="currentPaperConfig"
-      @back="handleBackFromPaperCenter"
-      @save="handleSavePaper"
-    />
-
     <!-- 选题组卷 -->
-    <div v-else-if="currentTab === 0" class="question-selection">
+    <div v-if="currentTab === 0" class="question-selection">
       <!-- 左侧筛选栏 -->
       <div class="left-filter-area">
         <!-- 教材版本筛选容器 -->
@@ -469,7 +461,6 @@
 import { ref, computed } from 'vue'
 import { CaretRight, Monitor, View, Plus, ArrowUp, ArrowDown } from '@element-plus/icons-vue'
 import ScreenPresentation from './ScreenPresentation.vue'
-import PaperCenter from './PaperCenter.vue'
 import { ElMessage } from 'element-plus'
 
 defineProps({
@@ -478,6 +469,8 @@ defineProps({
     default: 0
   }
 })
+
+const emit = defineEmits(['goto-paper-center'])
 
 // 教材版本选择（选题组卷）
 const selectedTextbook = ref('gundong-2026-zhongkao')
@@ -813,10 +806,6 @@ const showScreenPresentation = ref(false)
 const currentPresentationQuestion = ref(null)
 const currentPresentationIndex = ref(0)
 
-// 组卷中心相关
-const showPaperCenter = ref(false)
-const currentPaperConfig = ref(null)
-
 // 打开大屏演示
 const openScreenPresentation = (question, index) => {
   currentPresentationQuestion.value = question
@@ -838,22 +827,6 @@ const changePresentationQuestion = (index) => {
 // 切换答案解析显示状态
 const toggleAnalysis = (question) => {
   question.showAnalysis = !question.showAnalysis
-}
-
-// ==================== 组卷中心相关 ====================
-
-// 从组卷中心返回
-const handleBackFromPaperCenter = () => {
-  showPaperCenter.value = false
-  currentPaperConfig.value = null
-}
-
-// 保存试卷
-const handleSavePaper = (paperData) => {
-  console.log('保存试卷数据:', paperData)
-  // TODO: 调用保存试卷接口
-  showPaperCenter.value = false
-  currentPaperConfig.value = null
 }
 
 // ==================== 快速组卷相关 ====================
@@ -1052,9 +1025,11 @@ const generatePaper = () => {
   
   console.log('生成试卷配置:', paperConfig)
   
-  // 跳转到组卷中心
-  currentPaperConfig.value = paperConfig
-  showPaperCenter.value = true
+  // 通过 emit 通知父组件跳转到组卷中心
+  emit('goto-paper-center', {
+    catalogName: paperTitle.value,
+    questions: [] // 这里可以根据配置生成模拟题目数据
+  })
   
   ElMessage.success('试卷生成成功！正在进入组卷中心...')
 }

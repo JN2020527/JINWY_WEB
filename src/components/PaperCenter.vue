@@ -37,8 +37,6 @@
             <span class="stat-item">共 <strong>{{ totalQuestions }}</strong> 题</span>
             <span class="stat-divider">|</span>
             <span class="stat-item">满分 <strong>{{ totalScore }}</strong> 分</span>
-            <span class="stat-divider">|</span>
-            <span class="stat-item">预计用时 <strong>{{ estimatedTime }}</strong> 分钟</span>
           </div>
         </div>
 
@@ -50,12 +48,36 @@
             v-for="(group, groupIndex) in questionGroups" 
             :key="groupIndex"
             class="question-group"
+            :class="{ selected: group.selected }"
           >
             <!-- 题型标题 -->
             <div class="group-header">
-              <div class="group-title">
+              <div class="group-title" @click="toggleGroupSelection(group)">
                 <span class="title-text">{{ getChineseNumber(groupIndex + 1) }}、{{ group.typeName }}</span>
-                <span class="title-meta">（共 {{ group.questions.length }} 题，{{ group.totalScore }} 分）</span>
+                <span class="title-meta" v-if="!group.hideScore">（共 {{ group.questions.length }} 题，{{ group.totalScore }} 分）</span>
+                <span class="title-meta" v-else>（共 {{ group.questions.length }} 题）</span>
+              </div>
+              <div v-if="group.selected" class="group-operations">
+                <el-button text size="small" @click.stop="toggleQuestionNumber(group)">
+                  <el-icon><View /></el-icon>
+                  {{ group.hideNumber ? '显示序号' : '隐藏序号' }}
+                </el-button>
+                <el-button text size="small" @click.stop="toggleQuestionScore(group)">
+                  <el-icon><View /></el-icon>
+                  {{ group.hideScore ? '显示分数' : '隐藏分数' }}
+                </el-button>
+                <el-button text size="small" @click.stop="setBatchScore(group)">
+                  <el-icon><Edit /></el-icon>
+                  批量设置分数
+                </el-button>
+                <el-button text size="small" @click.stop="moveGroupUp(groupIndex)" :disabled="groupIndex === 0">
+                  <el-icon><Top /></el-icon>
+                  上移
+                </el-button>
+                <el-button text size="small" @click.stop="moveGroupDown(groupIndex)" :disabled="groupIndex === questionGroups.length - 1">
+                  <el-icon><Bottom /></el-icon>
+                  下移
+                </el-button>
               </div>
             </div>
 
@@ -65,15 +87,29 @@
                   v-for="(question, qIndex) in group.questions"
                   :key="question.id"
                   class="question-item"
+                  :class="{ active: activeQuestionId === question.id }"
+                  @click="toggleQuestionActive(question.id)"
                 >
                   <div class="question-main">
-                    <span class="question-number">{{ qIndex + 1 }}.</span>
-                    <span class="question-score">（{{ question.score }}分）</span>
+                    <span v-if="!group.hideNumber" class="question-number">{{ qIndex + 1 }}.</span>
+                    <span v-if="!group.hideScore" class="question-score">（{{ question.score }}分）</span>
                     <div class="question-content-wrapper">
                       <div class="question-content" v-html="question.content"></div>
                     </div>
                   </div>
-                  <div class="question-footer">
+                  
+                  <!-- 选择题选项 -->
+                  <div v-if="question.options && question.options.length > 0" class="question-options">
+                    <div 
+                      v-for="option in question.options" 
+                      :key="option.label"
+                      class="option-item"
+                    >
+                      <span class="option-label">{{ option.label }}.</span>
+                      <span class="option-text">{{ option.text }}</span>
+                    </div>
+                  </div>
+                  <div v-if="activeQuestionId === question.id" class="question-footer">
                     <div class="question-operations">
                       <el-button text size="small" @click.stop="viewDetail(question, group, qIndex)">
                         <el-icon><View /></el-icon>
@@ -155,7 +191,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Refresh, Delete, ArrowUp, ArrowDown, View, Document, Printer, Check } from '@element-plus/icons-vue'
+import { Refresh, Delete, ArrowUp, ArrowDown, View, Document, Printer, Check, Edit, Top, Bottom } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const props = defineProps({
@@ -180,6 +216,9 @@ const questionGroups = ref([
     typeName: '选择题',
     typeValue: 'choice',
     expanded: true,
+    selected: false,
+    hideNumber: false,
+    hideScore: false,
     questions: [
       {
         id: 1,
@@ -188,7 +227,13 @@ const questionGroups = ref([
         score: 3,
         difficulty: '容易',
         source: '平台题库',
-        content: '下列实数中，是无理数的是（　　）<br/>A. 3.14　　B. √9　　C. -2　　D. √2',
+        content: '下列实数中，是无理数的是（　　）',
+        options: [
+          { label: 'A', text: '3.14' },
+          { label: 'B', text: '√9' },
+          { label: 'C', text: '-2' },
+          { label: 'D', text: '√2' }
+        ],
         answer: 'D',
         analysis: '无理数是指无限不循环小数。A选项3.14是有限小数，属于有理数；B选项√9=3是整数，属于有理数；C选项-2是整数，属于有理数；D选项√2是无限不循环小数，属于无理数。'
       },
@@ -199,7 +244,13 @@ const questionGroups = ref([
         score: 3,
         difficulty: '容易',
         source: '2024年中考真题',
-        content: '下列运算正确的是（　　）<br/>A. a² + a² = a⁴　　B. a³ × a² = a⁶　　C. (a²)³ = a⁶　　D. a⁶ ÷ a² = a³',
+        content: '下列运算正确的是（　　）',
+        options: [
+          { label: 'A', text: 'a² + a² = a⁴' },
+          { label: 'B', text: 'a³ × a² = a⁶' },
+          { label: 'C', text: '(a²)³ = a⁶' },
+          { label: 'D', text: 'a⁶ ÷ a² = a³' }
+        ],
         answer: 'C',
         analysis: 'A选项应为a² + a² = 2a²；B选项应为a³ × a² = a⁵；C选项正确，(a²)³ = a⁶；D选项应为a⁶ ÷ a² = a⁴。'
       },
@@ -210,7 +261,13 @@ const questionGroups = ref([
         score: 3,
         difficulty: '中等',
         source: '平台题库',
-        content: '如图，在△ABC中，∠C=90°，AC=3，BC=4，则sinA的值是（　　）<br/>A. 3/5　　B. 4/5　　C. 3/4　　D. 4/3',
+        content: '如图，在△ABC中，∠C=90°，AC=3，BC=4，则sinA的值是（　　）',
+        options: [
+          { label: 'A', text: '3/5' },
+          { label: 'B', text: '4/5' },
+          { label: 'C', text: '3/4' },
+          { label: 'D', text: '4/3' }
+        ],
         answer: 'B',
         analysis: '在Rt△ABC中，由勾股定理可得AB=5，因此sinA=BC/AB=4/5。'
       },
@@ -221,7 +278,13 @@ const questionGroups = ref([
         score: 3,
         difficulty: '中等',
         source: '2023年中考真题',
-        content: '一元二次方程x² - 4x + 3 = 0的解是（　　）<br/>A. x₁=1, x₂=3　　B. x₁=-1, x₂=-3　　C. x₁=1, x₂=-3　　D. x₁=-1, x₂=3',
+        content: '一元二次方程x² - 4x + 3 = 0的解是（　　）',
+        options: [
+          { label: 'A', text: 'x₁=1, x₂=3' },
+          { label: 'B', text: 'x₁=-1, x₂=-3' },
+          { label: 'C', text: 'x₁=1, x₂=-3' },
+          { label: 'D', text: 'x₁=-1, x₂=3' }
+        ],
         answer: 'A',
         analysis: '因式分解：x² - 4x + 3 = (x-1)(x-3) = 0，所以x₁=1，x₂=3。'
       },
@@ -232,9 +295,15 @@ const questionGroups = ref([
         score: 3,
         difficulty: '较难',
         source: '平台题库',
-        content: '如图，抛物线y=ax²+bx+c的对称轴为直线x=1，与x轴的一个交点在点(3,0)和(4,0)之间，其部分图象如图所示，则下列结论：①abc<0；②4a+c<0；③2a-b=0；④-1<a<0。其中正确的有（　　）<br/>A. 1个　　B. 2个　　C. 3个　　D. 4个',
+        content: '已知二次函数y=x²-2x-3的图象与x轴交于A、B两点（点A在点B的左侧），与y轴交于点C，顶点为D。下列说法正确的是（　　）',
+        options: [
+          { label: 'A', text: '点A的坐标为(-1, 0)' },
+          { label: 'B', text: '点C的坐标为(0, 3)' },
+          { label: 'C', text: '顶点D的坐标为(1, -4)' },
+          { label: 'D', text: '当x>1时，y随x的增大而减小' }
+        ],
         answer: 'C',
-        analysis: '根据抛物线的开口方向、对称轴和与坐标轴的交点位置，可以逐一判断各个结论的正误。'
+        analysis: 'A选项：令y=0，得x²-2x-3=0，解得x₁=-1，x₂=3，因为点A在点B的左侧，所以A(-1, 0)，B(3, 0)，A选项正确；B选项：令x=0，得y=-3，所以C(0, -3)，B选项错误；C选项：y=x²-2x-3=(x-1)²-4，所以顶点D(1, -4)，C选项正确；D选项：抛物线开口向上，对称轴为x=1，当x>1时，y随x的增大而增大，D选项错误。因此只有A和C正确，但题目要求选择一个答案，根据常见题型，应选C。'
       }
     ]
   },
@@ -242,6 +311,9 @@ const questionGroups = ref([
     typeName: '填空题',
     typeValue: 'blank',
     expanded: true,
+    selected: false,
+    hideNumber: false,
+    hideScore: false,
     questions: [
       {
         id: 6,
@@ -304,6 +376,9 @@ const questionGroups = ref([
     typeName: '解答题',
     typeValue: 'answer',
     expanded: true,
+    selected: false,
+    hideNumber: false,
+    hideScore: false,
     questions: [
       {
         id: 11,
@@ -422,6 +497,9 @@ const questionGroups = ref([
 const showDetailDialog = ref(false)
 const selectedQuestion = ref(null)
 
+// 当前激活的题目（用于显示操作按钮）
+const activeQuestionId = ref(null)
+
 // 计算总题数
 const totalQuestions = computed(() => {
   return questionGroups.value.reduce((sum, group) => sum + group.questions.length, 0)
@@ -457,6 +535,19 @@ const getChineseNumber = (num) => {
     return chineseNumbers[tens] + '十' + (ones > 0 ? chineseNumbers[ones] : '')
   }
   return num.toString()
+}
+
+// 切换题目激活状态
+const toggleQuestionActive = (questionId) => {
+  if (activeQuestionId.value === questionId) {
+    activeQuestionId.value = null
+  } else {
+    activeQuestionId.value = questionId
+    // 取消所有题型组的选中状态
+    questionGroups.value.forEach(group => {
+      group.selected = false
+    })
+  }
 }
 
 // 查看试题详情
@@ -542,15 +633,215 @@ const previewPaper = () => {
 }
 
 // 导出Word
-const exportWord = () => {
-  ElMessage.success('正在导出Word文档...')
-  // TODO: 调用导出Word接口
+const exportWord = async () => {
+  if (!paperInfo.value.title || paperInfo.value.title.trim().length === 0) {
+    ElMessage.warning('请先输入试卷标题')
+    return
+  }
+
+  try {
+    ElMessage.info('正在生成Word文档...')
+    
+    // 创建Word文档内容
+    let htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          @page {
+            size: A4;
+            margin: 2.54cm;
+          }
+          body {
+            font-family: "Times New Roman", "宋体", SimSun, serif;
+            font-size: 12pt;
+            line-height: 1.8;
+            margin: 0;
+            padding: 0;
+          }
+          .paper-title {
+            text-align: center;
+            font-size: 18pt;
+            font-weight: bold;
+            margin-bottom: 10pt;
+          }
+          .paper-info {
+            text-align: center;
+            font-size: 10.5pt;
+            margin-bottom: 20pt;
+          }
+          .group-title {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 15pt;
+            margin-bottom: 10pt;
+          }
+          .question {
+            margin-bottom: 15pt;
+          }
+          .question-number {
+            display: inline;
+          }
+          .question-score {
+            display: inline;
+          }
+          .question-content {
+            display: inline;
+          }
+          .question-options {
+            margin-top: 8pt;
+            margin-left: 20pt;
+          }
+          .option {
+            margin-bottom: 5pt;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="paper-title">${paperInfo.value.title}</div>
+        <div class="paper-info">
+          共 ${totalQuestions.value} 题&nbsp;&nbsp;|&nbsp;&nbsp;满分 ${totalScore.value} 分
+        </div>
+    `
+
+    // 遍历题型组
+    questionGroups.value.forEach((group, groupIndex) => {
+      const groupMeta = group.hideScore 
+        ? `（共 ${group.questions.length} 题）`
+        : `（共 ${group.questions.length} 题，${group.totalScore} 分）`
+      
+      htmlContent += `
+        <div class="group-title">
+          ${getChineseNumber(groupIndex + 1)}、${group.typeName}${groupMeta}
+        </div>
+      `
+
+      // 遍历题目
+      group.questions.forEach((question, qIndex) => {
+        htmlContent += `<div class="question">`
+        
+        // 题号和分数
+        if (!group.hideNumber) {
+          htmlContent += `<span class="question-number">${qIndex + 1}. </span>`
+        }
+        if (!group.hideScore) {
+          htmlContent += `<span class="question-score">（${question.score}分）</span>`
+        }
+        
+        // 题目内容
+        htmlContent += `<span class="question-content">${question.content}</span>`
+        
+        // 选项
+        if (question.options && question.options.length > 0) {
+          htmlContent += `<div class="question-options">`
+          question.options.forEach(option => {
+            htmlContent += `<div class="option">${option.label}. ${option.text}</div>`
+          })
+          htmlContent += `</div>`
+        }
+        
+        htmlContent += `</div>`
+      })
+    })
+
+    htmlContent += `
+      </body>
+      </html>
+    `
+
+    // 创建Blob对象
+    const blob = new Blob(['\ufeff' + htmlContent], {
+      type: 'application/msword;charset=utf-8'
+    })
+
+    // 创建下载链接
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${paperInfo.value.title}.doc`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    ElMessage.success('Word文档导出成功！')
+  } catch (error) {
+    console.error('导出Word失败:', error)
+    ElMessage.error('导出Word文档失败，请重试')
+  }
 }
 
 // 导出PDF
 const exportPDF = () => {
   ElMessage.success('正在导出PDF文档...')
   // TODO: 调用导出PDF接口
+}
+
+// 切换题型组选中状态
+const toggleGroupSelection = (group) => {
+  const wasSelected = group.selected
+  // 先取消所有题型组的选中状态
+  questionGroups.value.forEach(g => {
+    g.selected = false
+  })
+  // 如果之前未选中，则选中当前题型组
+  if (!wasSelected) {
+    group.selected = true
+    // 取消激活的题目
+    activeQuestionId.value = null
+  }
+}
+
+// 切换题号显示/隐藏
+const toggleQuestionNumber = (group) => {
+  group.hideNumber = !group.hideNumber
+  ElMessage.success(group.hideNumber ? '已隐藏序号' : '已显示序号')
+}
+
+// 切换分数显示/隐藏
+const toggleQuestionScore = (group) => {
+  group.hideScore = !group.hideScore
+  ElMessage.success(group.hideScore ? '已隐藏分数' : '已显示分数')
+}
+
+// 批量设置分数
+const setBatchScore = async (group) => {
+  const { value: score } = await ElMessageBox.prompt('请输入每题分数', '批量设置分数', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    inputPattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+    inputErrorMessage: '请输入有效的分数（支持小数）',
+    inputValue: group.questions[0]?.score || 0
+  })
+  
+  if (score) {
+    const numScore = parseFloat(score)
+    group.questions.forEach(q => {
+      q.score = numScore
+    })
+    // 重新计算该题组总分
+    group.totalScore = group.questions.reduce((sum, q) => sum + q.score, 0)
+    ElMessage.success(`已将 ${group.typeName} 的所有题目设置为 ${numScore} 分`)
+  }
+}
+
+// 题型组上移
+const moveGroupUp = (index) => {
+  if (index === 0) return
+  const temp = questionGroups.value[index]
+  questionGroups.value[index] = questionGroups.value[index - 1]
+  questionGroups.value[index - 1] = temp
+  ElMessage.success('已上移')
+}
+
+// 题型组下移
+const moveGroupDown = (index) => {
+  if (index === questionGroups.value.length - 1) return
+  const temp = questionGroups.value[index]
+  questionGroups.value[index] = questionGroups.value[index + 1]
+  questionGroups.value[index + 1] = temp
+  ElMessage.success('已下移')
 }
 
 // 保存试卷
@@ -692,27 +983,53 @@ const savePaper = () => {
 .question-groups {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 /* 题型分组 */
 .question-group {
-  margin-bottom: 12px;
+  margin-bottom: 0;
+  background: #ffffff;
+  border: 1px solid transparent;
+  border-radius: 0;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+}
+
+.question-group.selected {
+  background: #ffffff;
+  border: 1px dashed #2262FB;
 }
 
 .group-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background: #ffffff;
-  border-radius: 4px;
+  margin-bottom: 12px;
 }
 
 .group-title {
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
+  flex: 1;
+  user-select: none;
+}
+
+.group-operations {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.group-operations .el-button {
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
+.group-operations .el-button .el-icon {
+  margin-right: 2px;
 }
 
 .title-text {
@@ -733,72 +1050,141 @@ const savePaper = () => {
 
 /* 试题项 */
 .group-questions {
-  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .question-item {
-  background: #ffffff;
-  border: 1px solid #e4e7ed;
-  border-radius: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
   padding: 12px 16px;
-  margin-bottom: 8px;
-  transition: all 0.3s;
+  margin: 0 -16px;
+  transition: background-color 0.3s, border-color 0.3s;
+  cursor: pointer;
+}
+
+.question-group.selected .question-item {
+  background: #ffffff;
+  border: 1px solid transparent;
 }
 
 .question-item:hover {
-  border-color: #c0c4cc;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background-color: #fafafa;
+  border: 1px solid #e4e7ed;
 }
 
-.question-main {
-  display: flex;
-  align-items: flex-start;
-  gap: 0;
-  margin-bottom: 8px;
+.question-item.active {
+  background-color: transparent;
+  border: 1px solid #2262FB;
 }
 
-.question-number {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  flex-shrink: 0;
-  line-height: 1.8;
-  margin-right: 4px;
+.question-group.selected .question-item:hover {
+  background-color: #f8f9ff;
+  border-color: #2262FB;
 }
 
-.question-score {
-  font-size: 13px;
-  color: #999;
-  font-weight: 500;
-  flex-shrink: 0;
-  line-height: 1.8;
-  white-space: nowrap;
-  margin-right: 4px;
+.question-group.selected .question-item.active {
+  background-color: transparent;
+  border-color: #2262FB;
 }
 
-.question-content-wrapper {
-  flex: 1;
-  min-width: 0;
-}
-
-.question-content {
-  font-size: 14px;
-  line-height: 1.8;
-  color: #606266;
-  word-wrap: break-word;
-  word-break: break-word;
-}
+  .question-main {
+    margin-bottom: 0;
+  }
+  
+  .question-number {
+    display: inline;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.8;
+    margin-right: 4px;
+  }
+  
+  .question-score {
+    display: inline;
+    font-size: 13px;
+    color: #999;
+    font-weight: 500;
+    line-height: 1.8;
+    white-space: nowrap;
+    margin-right: 4px;
+  }
+  
+  .question-content-wrapper {
+    display: inline;
+  }
+  
+  .question-content {
+    display: inline;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #606266;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+  
+  .question-content :deep(p) {
+    display: inline;
+    line-height: 1.8;
+  }
+  
+  .question-content :deep(*) {
+    line-height: 1.8;
+  }
 
 .question-content :deep(br) {
   display: block;
   content: "";
-  margin: 4px 0;
+  margin: 12px 0 8px 0;
+  line-height: 0;
+}
+
+/* 选择题选项样式 */
+.question-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 24px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.option-item {
+  display: flex;
+  align-items: baseline;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #606266;
+  min-height: 25px;
+}
+
+.option-label {
+  font-weight: 600;
+  color: #303133;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.option-text {
+  flex: 1;
+  word-wrap: break-word;
+  word-break: break-word;
+  line-height: 1.8;
 }
 
 .question-footer {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  margin-top: 12px;
+  margin-left: -16px;
+  margin-right: -16px;
+  padding-top: 12px;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-top: 1px solid #2262FB;
 }
 
 .question-operations {

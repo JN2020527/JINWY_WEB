@@ -130,13 +130,15 @@ const menuItems = [
 .grade-choose {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 7px 10px;
+  justify-content: center;
+  height: 40px;
+  padding: 0 10px;
   background: #D9E8FD;
   border: 1px solid rgba(220, 223, 230, 0.6);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s;
+  gap: 8px;
 }
 
 .grade-choose:hover {
@@ -147,6 +149,7 @@ const menuItems = [
 .grade-text {
   font-size: 13px;
   color: #2262FB;
+  font-weight: 600;
 }
 
 .arrow-icon {

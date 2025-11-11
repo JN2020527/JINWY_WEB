@@ -91,8 +91,8 @@
 
     <!-- 题目列表视图 -->
     <div v-else class="question-view">
-      <!-- 阅读模式：左侧边栏 + 右侧内容 -->
-      <div v-if="!isEditMode" class="question-content-wrapper">
+      <!-- 左侧边栏 + 右侧内容 -->
+      <div class="question-content-wrapper">
         <!-- 左侧筛选栏 -->
         <div class="left-sidebar">
           <div class="sidebar-header">
@@ -118,6 +118,29 @@
                   </el-icon>
                   </span>
                   <span class="node-label">{{ item.label }}</span>
+                  <div class="catalog-more" @click.stop>
+                    <el-dropdown trigger="click">
+                      <el-icon class="more-icon">
+                        <MoreFilled />
+                      </el-icon>
+                      <template #dropdown>
+                        <el-dropdown-menu>
+                          <el-dropdown-item @click="handleCollectCatalog(item)">
+                            <el-icon><Star /></el-icon>
+                            <span>收藏本节</span>
+                          </el-dropdown-item>
+                          <el-dropdown-item @click="handleEditCatalog(item)">
+                            <el-icon><Edit /></el-icon>
+                            <span>编辑本节</span>
+                          </el-dropdown-item>
+                          <el-dropdown-item @click="handleDownloadCatalog(item)">
+                            <el-icon><Download /></el-icon>
+                            <span>下载本节</span>
+                          </el-dropdown-item>
+                        </el-dropdown-menu>
+                      </template>
+                    </el-dropdown>
+                  </div>
                 </div>
                 
                 <!-- 二级节点 -->
@@ -138,6 +161,29 @@
                         </el-icon>
                       </span>
                       <span class="node-label">{{ child.label }}</span>
+                      <div class="catalog-more" @click.stop>
+                        <el-dropdown trigger="click">
+                          <el-icon class="more-icon">
+                            <MoreFilled />
+                          </el-icon>
+                          <template #dropdown>
+                            <el-dropdown-menu>
+                              <el-dropdown-item @click="handleCollectCatalog(child)">
+                                <el-icon><Star /></el-icon>
+                                <span>收藏本节</span>
+                              </el-dropdown-item>
+                              <el-dropdown-item @click="handleEditCatalog(child)">
+                                <el-icon><Edit /></el-icon>
+                                <span>编辑本节</span>
+                              </el-dropdown-item>
+                              <el-dropdown-item @click="handleDownloadCatalog(child)">
+                                <el-icon><Download /></el-icon>
+                                <span>下载本节</span>
+                              </el-dropdown-item>
+                            </el-dropdown-menu>
+                          </template>
+                        </el-dropdown>
+                      </div>
                   </div>
                     
                     <!-- 三级节点 -->
@@ -151,6 +197,29 @@
                       >
                         <span class="expand-icon-wrapper"></span>
                         <span class="node-label">{{ subChild.label }}</span>
+                        <div class="catalog-more" @click.stop>
+                          <el-dropdown trigger="click">
+                            <el-icon class="more-icon">
+                              <MoreFilled />
+                            </el-icon>
+                            <template #dropdown>
+                              <el-dropdown-menu>
+                                <el-dropdown-item @click="handleCollectCatalog(subChild)">
+                                  <el-icon><Star /></el-icon>
+                                  <span>收藏本节</span>
+                                </el-dropdown-item>
+                                <el-dropdown-item @click="handleEditCatalog(subChild)">
+                                  <el-icon><Edit /></el-icon>
+                                  <span>编辑本节</span>
+                                </el-dropdown-item>
+                                <el-dropdown-item @click="handleDownloadCatalog(subChild)">
+                                  <el-icon><Download /></el-icon>
+                                  <span>下载本节</span>
+                                </el-dropdown-item>
+                              </el-dropdown-menu>
+                            </template>
+                          </el-dropdown>
+                        </div>
                 </div>
               </div>
             </div>
@@ -162,39 +231,31 @@
 
         <!-- 右侧内容区 -->
         <div class="right-content">
-          <!-- 内容统计头部 -->
-          <div class="content-header">
-            <div class="content-info">
-              <div class="content-title">
-                <span class="title-text">{{ currentCatalogName }}</span>
+      <!-- 内容标题区 - 只在有内容时显示 -->
+      <div v-if="currentCatalogName && questionList.length > 0" class="content-header-area">
+        <div class="title-summary-wrapper">
+          <div class="content-title-main">{{ currentCatalogName }}</div>
+          <div class="content-summary">
+            <span class="summary-value">共 {{ questionList.length }} 个内容块</span>
           </div>
-              <div class="content-count">
-                <span class="count-label">共</span>
-                <span class="count-number">{{ questionList.length }}</span>
-                <span class="count-label">个知识点</span>
         </div>
-          </div>
-            <!-- 操作按钮 -->
-            <div class="action-buttons">
-              <el-tooltip content="收藏当前章节的全部知识点" placement="bottom">
-                <el-button size="default" @click="handleAddCurrentToExam">
-                  <el-icon><Star /></el-icon>
-                  <span>收藏全部</span>
-                </el-button>
-              </el-tooltip>
-              <el-tooltip content="编辑当前页面内容" placement="bottom">
-                <el-button size="default" @click="handleEditCurrent">
-                  <el-icon><Edit /></el-icon>
-                  <span>编辑本页</span>
-                </el-button>
-              </el-tooltip>
-              <el-tooltip content="下载当前章节的全部知识点" placement="bottom">
-                <el-button size="default" @click="handleDownloadCurrent">
-                  <el-icon><Download /></el-icon>
-                  <span>下载全部</span>
-                </el-button>
-              </el-tooltip>
-        </div>
+        <el-button class="btn-add-all" @click="handleAddAllToExam">
+          <el-icon><Plus /></el-icon>
+          <span>一键加入备考</span>
+        </el-button>
+      </div>
+
+      <!-- 空状态提示 - 已选择目录但无内容 -->
+      <div v-else-if="currentCatalogName && questionList.length === 0" class="empty-state">
+        <el-icon class="empty-icon"><FolderOpened /></el-icon>
+        <div class="empty-title">{{ currentCatalogName }}</div>
+        <div class="empty-text">请在左侧展开此目录查看内容</div>
+      </div>
+
+      <!-- 初始状态提示 - 未选择任何目录 -->
+      <div v-else-if="!currentCatalogName" class="empty-state">
+        <el-icon class="empty-icon"><Reading /></el-icon>
+        <div class="empty-text">请从左侧教辅目录中选择章节，开始学习</div>
       </div>
 
       <!-- 题目列表 -->
@@ -205,7 +266,7 @@
           class="question-item"
         >
           <div class="question-header">
-            <div class="question-number">{{ index + 1 }}.</div>
+            <div class="question-number">{{ String(index + 1).padStart(2, '0') }}</div>
             <div class="question-text" v-html="question.content"></div>
             <button class="btn-screen" title="大屏演示" @click="handleScreenShow(question)">
               <el-icon><Monitor /></el-icon>
@@ -245,43 +306,6 @@
       </div>
         </div>
       </div>
-
-      <!-- 编辑模式：全屏编辑界面 -->
-      <div v-else class="edit-mode-wrapper">
-        <!-- 编辑内容区 -->
-        <div class="right-edit-content">
-          <!-- 编辑内容列表 -->
-          <div class="edit-content">
-            <div 
-              v-for="(question, index) in questionList" 
-              :key="question.id"
-              class="edit-question-item"
-            >
-              <div class="question-header-edit">
-                <div class="question-number-edit">{{ index + 1 }}.</div>
-                <div class="question-title-edit">{{ question.type }}</div>
-                <div class="question-meta-edit">
-                  <span class="meta-item">年份：{{ question.year }}</span>
-                </div>
-                <div class="question-actions-edit">
-                  <el-button size="small" text @click="handleEditQuestion(question)">
-                    <el-icon><Edit /></el-icon>
-                    编辑
-                  </el-button>
-                  <el-button size="small" text type="danger" @click="handleDeleteQuestion(question)">
-                    <el-icon><Delete /></el-icon>
-                    删除
-                  </el-button>
-                </div>
-              </div>
-              
-              <div class="question-body-edit">
-                <div class="question-content" v-html="question.content"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -299,11 +323,14 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Search, Menu, Grid, Picture, ArrowLeft, Monitor, View, Plus, CaretRight, Star, Edit, Download, DocumentChecked, Delete } from '@element-plus/icons-vue'
+import { Search, Menu, Grid, Picture, ArrowLeft, Monitor, View, Plus, CaretRight, Star, Edit, Download, DocumentChecked, Delete, MoreFilled, FolderOpened, Reading } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { mockResources } from '../mock/data'
 import { useExamBasket } from '../store/examBasket'
 import ScreenPresentation from './ScreenPresentation.vue'
+
+// 定义 emits
+const emit = defineEmits(['goto-paper-center'])
 
 // 使用备考篮
 const { addToBasket } = useExamBasket()
@@ -446,18 +473,155 @@ const selectCatalog = (node) => {
   selectedCatalogId.value = node.id
   currentCatalogName.value = node.label
   
-  // 收集当前节点及其所有子节点的contentId
-  const contentIds = collectContentIds(node)
-  
-  if (contentIds.length > 0) {
-    // 根据收集到的所有contentId加载内容
-    loadContentByIds(contentIds)
+  // 只加载当前节点自己的内容，不包括子节点
+  if (node.contentId) {
+    // 根据当前节点的contentId加载内容
+    loadContentByIds([node.contentId])
     const level = node.children ? (node.children[0]?.children ? '一级' : '二级') : '三级'
     console.log(`选择${level}目录:`, node.label, `共加载 ${questionList.value.length} 个知识点`)
   } else {
     questionList.value = []
-    ElMessage.info('该章节内容正在编写中...')
+    ElMessage.info('该节点暂无内容')
   }
+}
+
+// 收藏目录节点
+const handleCollectCatalog = (node) => {
+  // 先选中该节点并加载内容
+  selectCatalog(node)
+  // 等待内容加载完成后执行收藏
+  setTimeout(() => {
+    if (questionList.value.length === 0) {
+      ElMessage.warning('该节点暂无内容可收藏')
+      return
+    }
+    
+    questionList.value.forEach(question => {
+      addToBasket(question)
+    })
+    ElMessage.success('已收藏！可在「我的」→「我的备考」中查看')
+  }, 100)
+}
+
+// 编辑目录节点
+const handleEditCatalog = (node) => {
+  // 先选中该节点并加载内容
+  selectCatalog(node)
+  // 等待内容加载完成后跳转到组卷中心
+  setTimeout(() => {
+    if (questionList.value.length === 0) {
+      ElMessage.warning('该节点暂无内容可编辑')
+      return
+    }
+    
+    emit('goto-paper-center', {
+      catalogName: node.label,
+      questions: questionList.value
+    })
+  }, 100)
+}
+
+// 下载目录节点
+const handleDownloadCatalog = async (node) => {
+  // 先选中该节点并加载内容
+  selectCatalog(node)
+  
+  // 等待内容加载完成后执行下载
+  setTimeout(async () => {
+    if (questionList.value.length === 0) {
+      ElMessage.warning('该节点暂无内容可下载')
+      return
+    }
+
+    try {
+      ElMessage.info('正在生成Word文档...')
+      
+      // 创建Word文档内容
+      let htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            @page {
+              size: A4;
+              margin: 2.54cm;
+            }
+            body {
+              font-family: "Times New Roman", "宋体", SimSun, serif;
+              font-size: 12pt;
+              line-height: 1.8;
+              margin: 0;
+              padding: 0;
+            }
+            .document-title {
+              text-align: center;
+              font-size: 18pt;
+              font-weight: bold;
+              margin-bottom: 20pt;
+            }
+            .content-item {
+              margin-bottom: 20pt;
+            }
+            .item-title {
+              font-size: 14pt;
+              font-weight: bold;
+              margin-bottom: 10pt;
+              color: #303133;
+            }
+            .item-content {
+              font-size: 12pt;
+              line-height: 1.8;
+              text-indent: 2em;
+            }
+            .item-meta {
+              font-size: 10pt;
+              color: #909399;
+              margin-top: 8pt;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="document-title">${node.label}</div>
+      `
+
+      // 遍历知识点
+      questionList.value.forEach((item, index) => {
+        htmlContent += `
+          <div class="content-item">
+            <div class="item-title">${index + 1}. ${item.title || '知识点' + (index + 1)}</div>
+            <div class="item-content">${item.content || item.description || ''}</div>
+            ${item.source ? `<div class="item-meta">来源：${item.source}</div>` : ''}
+          </div>
+        `
+      })
+
+      htmlContent += `
+        </body>
+        </html>
+      `
+
+      // 创建Blob对象
+      const blob = new Blob(['\ufeff' + htmlContent], {
+        type: 'application/msword;charset=utf-8'
+      })
+
+      // 创建下载链接
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${node.label}.doc`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      ElMessage.success('Word文档下载成功！')
+    } catch (error) {
+      console.error('下载Word失败:', error)
+      ElMessage.error('下载Word文档失败，请重试')
+    }
+  }, 100)
 }
 
 // 收藏当前内容
@@ -470,30 +634,34 @@ const handleAddCurrentToExam = () => {
   questionList.value.forEach(question => {
     addToBasket(question)
   })
-  ElMessage.success(`已收藏"${currentCatalogName.value}"（${questionList.value.length} 个知识点）`)
+  ElMessage.success('已收藏！可在「我的」→「我的备考」中查看')
 }
 
-// 编辑模式控制
-const isEditMode = ref(false)
-
-// 编辑当前内容
-const handleEditCurrent = () => {
-  if (!currentCatalogName.value) {
-    ElMessage.warning('请先选择要编辑的内容')
+// 一键加入备考
+const handleAddAllToExam = () => {
+  if (questionList.value.length === 0) {
+    ElMessage.warning('暂无内容可加入备考')
     return
   }
-  isEditMode.value = true
+  
+  questionList.value.forEach(question => {
+    addToBasket(question)
+  })
+  ElMessage.success(`已将${questionList.value.length}个知识点加入备考！可在「我的」→「我的备考」中查看`)
 }
 
-// 退出编辑模式
-const exitEditMode = () => {
-  isEditMode.value = false
-}
-
-// 保存编辑
-const handleSaveEdit = () => {
-  ElMessage.success('保存成功')
-  isEditMode.value = false
+// 跳转到组卷中心
+const handleGotoPaperCenter = () => {
+  if (!currentCatalogName.value || questionList.value.length === 0) {
+    ElMessage.warning('请先选择内容再进入组卷中心')
+    return
+  }
+  
+  // 触发父组件跳转事件
+  emit('goto-paper-center', {
+    catalogName: currentCatalogName.value,
+    questions: questionList.value
+  })
 }
 
 // 预览
@@ -507,22 +675,101 @@ const handleDownloadEdit = () => {
 }
 
 // 编辑单个知识点
-const handleEditQuestion = (question) => {
-  ElMessage.info(`编辑知识点：${question.id}`)
-}
-
-// 删除单个知识点
-const handleDeleteQuestion = (question) => {
-  ElMessage.warning(`确定要删除这个知识点吗？`)
-}
-
 // 下载当前内容
-const handleDownloadCurrent = () => {
+const handleDownloadCurrent = async () => {
   if (!currentCatalogName.value || questionList.value.length === 0) {
     ElMessage.warning('暂无内容可下载')
     return
   }
-  ElMessage.success(`正在下载"${currentCatalogName.value}"（${questionList.value.length} 个知识点）`)
+
+  try {
+    ElMessage.info('正在生成Word文档...')
+    
+    // 创建Word文档内容
+    let htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          @page {
+            size: A4;
+            margin: 2.54cm;
+          }
+          body {
+            font-family: "Times New Roman", "宋体", SimSun, serif;
+            font-size: 12pt;
+            line-height: 1.8;
+            margin: 0;
+            padding: 0;
+          }
+          .document-title {
+            text-align: center;
+            font-size: 18pt;
+            font-weight: bold;
+            margin-bottom: 20pt;
+          }
+          .content-item {
+            margin-bottom: 20pt;
+          }
+          .item-title {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 10pt;
+            color: #303133;
+          }
+          .item-content {
+            font-size: 12pt;
+            line-height: 1.8;
+            text-indent: 2em;
+          }
+          .item-meta {
+            font-size: 10pt;
+            color: #909399;
+            margin-top: 8pt;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="document-title">${currentCatalogName.value}</div>
+    `
+
+    // 遍历知识点
+    questionList.value.forEach((item, index) => {
+      htmlContent += `
+        <div class="content-item">
+          <div class="item-title">${index + 1}. ${item.title || '知识点' + (index + 1)}</div>
+          <div class="item-content">${item.content || item.description || ''}</div>
+          ${item.source ? `<div class="item-meta">来源：${item.source}</div>` : ''}
+        </div>
+      `
+    })
+
+    htmlContent += `
+      </body>
+      </html>
+    `
+
+    // 创建Blob对象
+    const blob = new Blob(['\ufeff' + htmlContent], {
+      type: 'application/msword;charset=utf-8'
+    })
+
+    // 创建下载链接
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${currentCatalogName.value}.doc`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    ElMessage.success('Word文档下载成功！')
+  } catch (error) {
+    console.error('下载Word失败:', error)
+    ElMessage.error('下载Word文档失败，请重试')
+  }
 }
 
 // 筛选条件
@@ -629,8 +876,17 @@ const contentLibrary = {
       year: '2026',
       answer: '这句话体现了孔子的谦虚态度和对自己的严格要求。他提出了三个标准：默默记忆、勤奋好学、热心教人，但又谦虚地说自己不知做到了哪些。<br/><br/>实际上这是孔子的自我勉励，也是对学生的期望和要求。这三点涵盖了学习的各个方面：积累知识、刻苦学习、无私传授。',
       analysis: '1. "默而识之"强调积累的重要性，学习要善于记忆和积累。<br/><br/>2. "学而不厌"体现了对学习的热爱和永不满足的求知精神。<br/><br/>3. "诲人不倦"展现了无私传授知识、热心教导他人的精神。<br/><br/>4. 最后的反问"何有于我哉"体现了孔子的谦虚，虽然做到了这些，却不自夸，这是君子的品格。',
-    showAnalysis: false
-  }
+      showAnalysis: false
+    },
+    {
+      id: 107,
+      content: '<strong>【命题点一 个人修养】</strong><br/>１．本文中有不少格言警句已经成为很多人提高自身修养的座右铭。请任选一句谈谈你获得的启示。<br/><br/><strong>【命题点二 为学之道】</strong><br/>２．（教材“思考探究”第二题）孔子及其弟子在学习态度和学习方法上有哪些观点？选择其中一点谈谈你的体会。',
+      type: '命题探究',
+      year: '2026',
+      answer: '【答】<br/><br/><strong>命题点一·示例一：</strong>“三军可夺帅也，匹夫不可夺志也。”孔子认为即使是一个普通人，也要有坚定的志向。一个人的志向能否被改变，取决于他自己。这启示我们，越是在危急的时刻，越要捍卫自己的人格，坚守自己的志向。<br/><br/><strong>命题点一·示例二：</strong>“博学而笃志，切问而近思，仁在其中矣。”子夏认为博学、笃志、切问、近思是提高个人修养的重要方法。这启示我们要博览群书，坚定自己的志向，同时要恳切地提出问题，联系现实自我思考，这样才能提高自身修养。<br/><br/><strong>命题点二·观点汇总：</strong>①学而时习之，不亦说乎？②温故而知新，可以为师矣。③学而不思则罔，思而不学则殆。④知之者不如好之者，好之者不如乐之者。⑤三人行，必有我师焉。择其善者而从之，其不善者而改之。<br/><br/><strong>命题点二·体会示例一：</strong>“学而不思则罔，思而不学则殆”这句话警醒我们要边读书边思考，只读书而不思考就不能深刻理解，甚至会陷入迷茫；只空想而不读书，则会感到疑惑而一无所得。只有做到学思结合，才能真正将知识融会贯通。<br/><br/><strong>命题点二·体会示例二：</strong>“三人行……其不善者而改之”这句话体现了一种谦虚的学习态度。善于发现他人优点和缺点的人，也往往是善于向他人学习的人。无论在什么环境下，我们都应该端正学习态度，虚心向他人请教，从中吸取经验教训，这样才能得到提高。',
+      analysis: '',
+      showAnalysis: false
+    }
   ],
   
   // 《诫子书》
@@ -841,6 +1097,18 @@ const changeScreenQuestion = (index) => {
     currentScreenQuestion.value = questionList.value[index]
   }
 }
+
+// 重置组件状态
+const resetState = () => {
+  selectedCatalogId.value = null
+  currentCatalogName.value = ''
+  questionList.value = []
+}
+
+// 暴露方法给父组件
+defineExpose({
+  resetState
+})
 </script>
 
 <style scoped>
@@ -1143,6 +1411,24 @@ const changeScreenQuestion = (index) => {
   font-weight: 500;
 }
 
+.catalog-more {
+  opacity: 1;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.catalog-more .more-icon {
+  font-size: 16px;
+  color: #909399;
+  cursor: pointer;
+  transition: color 0.2s;
+  transform: rotate(90deg);
+}
+
+.catalog-more .more-icon:hover {
+  color: #2262FB;
+}
+
 .level-1 {
   font-size: 14px;
   font-weight: 500;
@@ -1176,131 +1462,95 @@ const changeScreenQuestion = (index) => {
   min-width: 0;
 }
 
-/* 内容统计头部 */
-.content-header {
+/* 内容标题区域 */
+.content-header-area {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  margin: -20px -20px 16px -20px;
-  border-bottom: 1px solid #e4e7ed;
-  position: sticky;
-  top: 0;
-  background: #ffffff;
-  z-index: 10;
-  backdrop-filter: blur(10px);
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-/* 内容信息区（标题+数量统计） */
-.content-info {
+.title-summary-wrapper {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  align-items: center;
+  gap: 16px;
   flex: 1;
 }
 
-.content-title {
-  display: flex;
-  align-items: center;
-}
-
-.title-text {
-  font-size: 16px;
+.content-title-main {
+  font-size: 20px;
   font-weight: 600;
   color: #303133;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
-.content-count {
+.content-summary {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 4px;
+  white-space: nowrap;
 }
 
-.count-label {
-  font-size: 14px;
+.summary-label {
+  font-size: 13px;
   color: #909399;
 }
 
-.count-number {
-  font-size: 16px;
-  font-weight: 600;
+.summary-value {
+  font-size: 13px;
+  font-weight: 500;
   color: #2262FB;
-  margin: 0 2px;
 }
 
-/* 操作按钮区 */
-.action-buttons {
+.btn-add-all {
+  background: transparent;
+  border: 1px solid #2262FB;
+  color: #2262FB;
+}
+
+.btn-add-all:hover {
+  background: #f0f5ff;
+  border-color: #2262FB;
+  color: #2262FB;
+}
+
+.btn-add-all:active {
+  background: #e6f0ff;
+  border-color: #2262FB;
+  color: #2262FB;
+}
+
+/* 空状态样式 */
+.empty-state {
   display: flex;
-  gap: 0px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  min-height: 400px;
 }
 
-.action-buttons .el-button {
-  padding: 6px 4px;
+.empty-icon {
+  font-size: 80px;
+  color: #c0c4cc;
+  margin-bottom: 20px;
+}
+
+.empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 12px;
+}
+
+.empty-text {
   font-size: 14px;
-  border: none;
-  background-color: transparent;
-  color: #606266;
-  transition: all 0.3s ease;
-  border-radius: 6px;
-}
-
-.action-buttons .el-button:hover {
-  transform: translateY(-2px);
-}
-
-.action-buttons .el-button .el-icon {
-  margin-right: 4px;
-  font-size: 16px;
-  transition: transform 0.3s ease;
-}
-
-/* 收藏按钮 */
-.action-buttons .el-button:nth-child(1) {
-  color: #F59E0B;
-}
-
-.action-buttons .el-button:nth-child(1):hover {
-  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-  color: #D97706;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
-}
-
-.action-buttons .el-button:nth-child(1):hover .el-icon {
-  transform: scale(1.2) rotate(18deg);
-}
-
-/* 编辑按钮 */
-.action-buttons .el-button:nth-child(2) {
-  color: #2262FB;
-}
-
-.action-buttons .el-button:nth-child(2):hover {
-  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-  color: #1e54e0;
-  box-shadow: 0 4px 12px rgba(34, 98, 251, 0.2);
-}
-
-.action-buttons .el-button:nth-child(2):hover .el-icon {
-  transform: scale(1.2);
-}
-
-/* 下载按钮 */
-.action-buttons .el-button:nth-child(3) {
-  color: #10B981;
-}
-
-.action-buttons .el-button:nth-child(3):hover {
-  background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
-  color: #059669;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-}
-
-.action-buttons .el-button:nth-child(3):hover .el-icon {
-  transform: scale(1.2) translateY(2px);
-}
-
-.action-buttons .el-button:active {
-  transform: translateY(0);
+  color: #909399;
+  text-align: center;
+  line-height: 1.6;
 }
 
 /* 筛选区域样式 */
@@ -1420,6 +1670,12 @@ const changeScreenQuestion = (index) => {
   font-weight: 500;
   color: #2262FB;
   line-height: 1.8;
+  /* 与内容区分的视觉背景 */
+  background-color: #f0f5ff;
+  border: 1px solid #e6efff;
+  padding: 2px 8px;
+  border-radius: 2px;
+  display: inline-block;
 }
 
 .question-text {
@@ -1582,110 +1838,5 @@ const changeScreenQuestion = (index) => {
   }
 }
 
-/* 编辑模式样式 */
-.edit-mode-wrapper {
-  width: 100%;
-  height: calc(100vh - 150px);
-  background-color: transparent;
-  display: flex;
-  justify-content: center;
-}
-
-.right-edit-content {
-  width: 800px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-}
-
-.edit-content {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-  background: #ffffff;
-  width: 100%;
-}
-
-.edit-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.edit-content::-webkit-scrollbar-thumb {
-  background: #c0c4cc;
-  border-radius: 4px;
-}
-
-.edit-content::-webkit-scrollbar-thumb:hover {
-  background: #909399;
-}
-
-.edit-content::-webkit-scrollbar-track {
-  background: #f5f7fa;
-  border-radius: 4px;
-}
-
-.edit-question-item {
-  background: #ffffff;
-  border: 1px solid #e4e7ed;
-  border-radius: 4px;
-  padding: 20px;
-  margin-bottom: 16px;
-  transition: all 0.3s;
-}
-
-.edit-question-item:hover {
-  border-color: #c0c4cc;
-}
-
-.question-header-edit {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e4e7ed;
-}
-
-.question-number-edit {
-  font-size: 16px;
-  font-weight: 600;
-  color: #2262FB;
-  min-width: 40px;
-}
-
-.question-title-edit {
-  font-size: 14px;
-  font-weight: 500;
-  color: #606266;
-  padding: 4px 12px;
-  background: #f0f4ff;
-  border-radius: 4px;
-}
-
-.question-meta-edit {
-  flex: 1;
-  display: flex;
-  gap: 16px;
-  color: #909399;
-  font-size: 14px;
-}
-
-.question-actions-edit {
-  display: flex;
-  gap: 8px;
-}
-
-.question-body-edit {
-  line-height: 1.8;
-  color: #303133;
-}
-
-.question-body-edit .question-content {
-  font-size: 15px;
-}
 </style>
 

@@ -124,8 +124,8 @@
               <el-table-column prop="subject" label="学段/学科" width="160" align="center">
                 <template #default="{ row }">
                   <div class="subject-cell">
-                    <span>{{ row.stage }}-{{ row.subject }}</span>
-                    <el-icon class="edit-icon"><Edit /></el-icon>
+                  <span>{{ row.stage }}-{{ row.subject }}</span>
+                  <el-icon class="edit-icon"><Edit /></el-icon>
                   </div>
                 </template>
               </el-table-column>
@@ -295,11 +295,147 @@
       </div>
 
       <!-- 校本试卷 -->
-      <div v-else-if="currentTab === 2" class="content-wrapper">
-        <div class="placeholder-container">
-          <el-icon class="placeholder-icon"><Document /></el-icon>
-          <p class="placeholder-hint">校本试卷</p>
-          <p class="placeholder-desc">这里将展示您学校的试卷库</p>
+      <div v-else-if="currentTab === 2" class="exam-prep-container">
+        <!-- 左侧分类 -->
+        <div class="left-category">
+          <div class="category-header">
+            <span class="category-title">— 试卷分类 —</span>
+        </div>
+          <div class="category-list">
+            <div 
+              :class="['category-item', { active: schoolPaperCategory === 'all' }]"
+              @click="schoolPaperCategory = 'all'"
+            >
+              <span class="category-name">全部</span>
+              <el-icon class="add-icon" @click.stop="showAddSchoolPaperDialog = true">
+                <Plus />
+              </el-icon>
+      </div>
+            
+            <!-- 自定义分组列表 -->
+            <div 
+              v-for="category in schoolPaperCategoryList" 
+              :key="category.id"
+              :class="['category-item', { active: schoolPaperCategory === category.id }]"
+              @click="schoolPaperCategory = category.id"
+            >
+              <span class="category-name">{{ category.name }}</span>
+              <el-dropdown trigger="click" @click.stop>
+                <el-icon class="more-icon">
+                  <MoreFilled />
+                </el-icon>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item @click="handleRenameSchoolPaperCategory(category)">
+                      <el-icon><Edit /></el-icon>
+                      <span>重命名</span>
+                    </el-dropdown-item>
+                    <el-dropdown-item @click="handleDeleteSchoolPaperCategory(category.id)">
+                      <el-icon><Delete /></el-icon>
+                      <span>删除</span>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+    </div>
+            
+            <div 
+              :class="['category-item', { active: schoolPaperCategory === 'uncategorized' }]"
+              @click="schoolPaperCategory = 'uncategorized'"
+            >
+              <span class="category-name">未分类</span>
+  </div>
+          </div>
+        </div>
+
+        <!-- 右侧内容 -->
+        <div class="right-content">
+          <!-- 筛选区 -->
+          <div class="filter-bar">
+            <div class="filter-left">
+              <span class="filter-label">试卷查询：</span>
+              <el-input 
+                v-model="schoolPaperSearchKeyword" 
+                placeholder="查询作业名称" 
+                class="search-input"
+                style="margin-right: 24px;"
+              >
+                <template #suffix>
+                  <el-icon class="search-icon" @click="handleSchoolPaperSearch"><Search /></el-icon>
+                </template>
+              </el-input>
+              <span class="filter-label">时间筛选：</span>
+              <el-date-picker
+                v-model="schoolPaperDateRange"
+                type="daterange"
+                range-separator="-"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                class="date-picker"
+              />
+            </div>
+          </div>
+
+          <!-- 资源类型标签 -->
+          <div class="resource-type-tags">
+            <span class="type-label">资源类型：</span>
+            <div class="type-tags">
+              <el-tag 
+                v-for="type in schoolPaperResourceTypes" 
+                :key="type.value"
+                :type="schoolPaperResourceType === type.value ? 'primary' : 'info'"
+                @click="schoolPaperResourceType = type.value"
+                class="type-tag"
+              >
+                {{ type.label }}
+              </el-tag>
+            </div>
+          </div>
+
+          <!-- 表格列表 -->
+          <div class="table-container">
+            <el-table :data="schoolPaperList" style="width: 100%" :header-cell-style="{ fontWeight: '600' }">
+              <el-table-column prop="name" label="作业名称" min-width="220" show-overflow-tooltip>
+                <template #default="{ row }">
+                  <div class="name-cell">
+                    <span class="name-text">{{ row.name || '未命名' }}</span>
+                    <el-icon class="edit-icon" @click="handleRenameSchoolPaperWork(row)"><Edit /></el-icon>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column prop="type" label="作业类型" width="160" align="center" />
+              <el-table-column prop="creator" label="创建人" width="140" align="center" />
+              <el-table-column prop="createTime" label="创建时间" width="180" align="center" />
+              <el-table-column label="操作" width="140" align="center" fixed="right">
+                <template #default="{ row }">
+                  <el-dropdown trigger="click" class="operation-dropdown">
+                    <el-button text class="dropdown-btn">
+                      <span>下拉菜单</span>
+                      <el-icon><ArrowDown /></el-icon>
+                    </el-button>
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item>编辑</el-dropdown-item>
+                        <el-dropdown-item>删除</el-dropdown-item>
+                        <el-dropdown-item>移动</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                </template>
+              </el-table-column>
+            </el-table>
+
+            <!-- 分页 -->
+            <div class="pagination-container">
+              <el-pagination
+                v-model:current-page="schoolPaperCurrentPage"
+                :page-size="schoolPaperPageSize"
+                :total="schoolPaperTotal"
+                layout="total, prev, pager, next"
+                @current-change="handleSchoolPaperPageChange"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -468,6 +604,90 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button type="primary" @click="handleConfirmRenamePrepareCategory" class="confirm-btn">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 添加校本试卷分组对话框 -->
+    <el-dialog
+      v-model="showAddSchoolPaperDialog"
+      title="添加分组"
+      width="588px"
+      :close-on-click-modal="false"
+      class="add-category-dialog"
+    >
+      <el-form :model="addSchoolPaperCategoryForm" label-width="85px" class="category-form">
+        <el-form-item label="分组名称" required>
+          <el-input
+            v-model="addSchoolPaperCategoryForm.name"
+            placeholder="请填写分组名称"
+            maxlength="50"
+            show-word-limit
+            clearable
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleConfirmAddSchoolPaperCategory" class="confirm-btn">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 重命名校本试卷分组对话框 -->
+    <el-dialog
+      v-model="showRenameSchoolPaperDialog"
+      title="重命名分组"
+      width="588px"
+      :close-on-click-modal="false"
+      class="add-category-dialog"
+    >
+      <el-form :model="renameSchoolPaperCategoryForm" label-width="85px" class="category-form">
+        <el-form-item label="分组名称" required>
+          <el-input
+            v-model="renameSchoolPaperCategoryForm.name"
+            placeholder="请填写分组名称"
+            maxlength="50"
+            show-word-limit
+            clearable
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleConfirmRenameSchoolPaperCategory" class="confirm-btn">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 重命名校本试卷作业对话框 -->
+    <el-dialog
+      v-model="showRenameSchoolPaperWorkDialog"
+      title="重命名"
+      width="588px"
+      :close-on-click-modal="false"
+      class="add-category-dialog"
+    >
+      <el-form :model="renameSchoolPaperWorkForm" label-width="85px" class="category-form">
+        <el-form-item label="作业名称" required>
+          <el-input
+            v-model="renameSchoolPaperWorkForm.name"
+            placeholder="请填写作业名称"
+            maxlength="100"
+            show-word-limit
+            clearable
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleConfirmRenameSchoolPaperWork" class="confirm-btn">
             确定
           </el-button>
         </div>
@@ -852,6 +1072,177 @@ const handleRemoveFromPrepare = (resource) => {
     })
     .catch(() => {})
 }
+
+// ==================== 校本试卷相关 ====================
+
+// 校本试卷 - 左侧分类
+const schoolPaperCategory = ref('all')
+const showAddSchoolPaperDialog = ref(false)
+const addSchoolPaperCategoryForm = ref({
+  name: ''
+})
+const showRenameSchoolPaperDialog = ref(false)
+const renameSchoolPaperCategoryForm = ref({
+  id: '',
+  name: ''
+})
+const schoolPaperCategoryList = ref([]) // 自定义分组列表
+
+// 校本试卷 - 重命名作业
+const showRenameSchoolPaperWorkDialog = ref(false)
+const renameSchoolPaperWorkForm = ref({
+  id: null,
+  name: ''
+})
+
+// 校本试卷 - 筛选条件
+const schoolPaperDateRange = ref([])
+const schoolPaperSearchKeyword = ref('')
+const schoolPaperResourceType = ref('all')
+
+// 校本试卷 - 资源类型
+const schoolPaperResourceTypes = ref([
+  { label: '全部', value: 'all' },
+  { label: '自传试卷', value: 'uploaded' },
+  { label: '试题组卷', value: 'composed' }
+])
+
+// 校本试卷 - 表格数据
+const schoolPaperList = ref([
+  {
+    id: 1,
+    name: '2025年全国初中语文试卷',
+    type: '试题组卷',
+    creator: '张老师',
+    createTime: '2025-10-30 16:32:55'
+  },
+  {
+    id: 2,
+    name: '初中语文期末考试',
+    type: '自传试卷',
+    creator: '李老师',
+    createTime: '2025-10-28 14:20:30'
+  },
+  {
+    id: 3,
+    name: '中考模拟卷一',
+    type: '试题组卷',
+    creator: '王老师',
+    createTime: '2025-10-25 10:15:22'
+  }
+])
+
+// 校本试卷 - 分页
+const schoolPaperCurrentPage = ref(1)
+const schoolPaperPageSize = ref(10)
+const schoolPaperTotal = ref(3)
+
+// 校本试卷 - 添加分组
+const handleConfirmAddSchoolPaperCategory = () => {
+  if (!addSchoolPaperCategoryForm.value.name.trim()) {
+    ElMessage.warning('请输入分组名称')
+    return
+  }
+
+  const newCategory = {
+    id: Date.now(),
+    name: addSchoolPaperCategoryForm.value.name
+  }
+
+  schoolPaperCategoryList.value.push(newCategory)
+  ElMessage.success('分组创建成功')
+  showAddSchoolPaperDialog.value = false
+  addSchoolPaperCategoryForm.value.name = ''
+}
+
+// 校本试卷 - 重命名分类
+const handleRenameSchoolPaperCategory = (category) => {
+  renameSchoolPaperCategoryForm.value.id = category.id
+  renameSchoolPaperCategoryForm.value.name = category.name
+  showRenameSchoolPaperDialog.value = true
+}
+
+// 校本试卷 - 确认重命名分类
+const handleConfirmRenameSchoolPaperCategory = () => {
+  if (!renameSchoolPaperCategoryForm.value.name.trim()) {
+    ElMessage.warning('请输入分组名称')
+    return
+  }
+
+  const category = schoolPaperCategoryList.value.find(
+    cat => cat.id === renameSchoolPaperCategoryForm.value.id
+  )
+  if (category) {
+    category.name = renameSchoolPaperCategoryForm.value.name
+    ElMessage.success('重命名成功')
+  }
+  showRenameSchoolPaperDialog.value = false
+  renameSchoolPaperCategoryForm.value.id = ''
+  renameSchoolPaperCategoryForm.value.name = ''
+}
+
+// 校本试卷 - 删除分类
+const handleDeleteSchoolPaperCategory = (categoryId) => {
+  ElMessageBox.confirm(
+    '确定要删除该分类吗？',
+    '删除确认',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  )
+    .then(() => {
+      const index = schoolPaperCategoryList.value.findIndex(cat => cat.id === categoryId)
+      if (index !== -1) {
+        schoolPaperCategoryList.value.splice(index, 1)
+        ElMessage.success('删除成功')
+        // 如果删除的是当前选中的分类，切换到"全部"
+        if (schoolPaperCategory.value === categoryId) {
+          schoolPaperCategory.value = 'all'
+        }
+      }
+    })
+    .catch(() => {})
+}
+
+// 校本试卷 - 重命名作业
+const handleRenameSchoolPaperWork = (row) => {
+  renameSchoolPaperWorkForm.value.id = row.id
+  renameSchoolPaperWorkForm.value.name = row.name
+  showRenameSchoolPaperWorkDialog.value = true
+}
+
+// 校本试卷 - 确认重命名作业
+const handleConfirmRenameSchoolPaperWork = () => {
+  if (!renameSchoolPaperWorkForm.value.name.trim()) {
+    ElMessage.warning('请输入作业名称')
+    return
+  }
+
+  const work = schoolPaperList.value.find(
+    item => item.id === renameSchoolPaperWorkForm.value.id
+  )
+  if (work) {
+    work.name = renameSchoolPaperWorkForm.value.name
+    ElMessage.success('重命名成功')
+  }
+  showRenameSchoolPaperWorkDialog.value = false
+  renameSchoolPaperWorkForm.value.id = null
+  renameSchoolPaperWorkForm.value.name = ''
+}
+
+// 校本试卷 - 搜索
+const handleSchoolPaperSearch = () => {
+  ElMessage.info('搜索功能')
+}
+
+// 校本试卷 - 分页变化
+const handleSchoolPaperPageChange = (page) => {
+  schoolPaperCurrentPage.value = page
+}
+
+// ==================== 通用方法 ====================
 
 // 搜索
 const handleSearch = () => {
