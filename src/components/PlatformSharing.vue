@@ -130,13 +130,10 @@
                             <span>收藏本节</span>
                           </el-dropdown-item>
                           <el-dropdown-item @click="handleEditCatalog(item)">
-                            <el-icon><Edit /></el-icon>
-                            <span>编辑本节</span>
-                          </el-dropdown-item>
-                          <el-dropdown-item @click="handleDownloadCatalog(item)">
                             <el-icon><Download /></el-icon>
                             <span>下载本节</span>
                           </el-dropdown-item>
+                          
                         </el-dropdown-menu>
                       </template>
                     </el-dropdown>
@@ -173,13 +170,10 @@
                                 <span>收藏本节</span>
                               </el-dropdown-item>
                               <el-dropdown-item @click="handleEditCatalog(child)">
-                                <el-icon><Edit /></el-icon>
-                                <span>编辑本节</span>
-                              </el-dropdown-item>
-                              <el-dropdown-item @click="handleDownloadCatalog(child)">
                                 <el-icon><Download /></el-icon>
                                 <span>下载本节</span>
                               </el-dropdown-item>
+                              
                             </el-dropdown-menu>
                           </template>
                         </el-dropdown>
@@ -209,13 +203,10 @@
                                   <span>收藏本节</span>
                                 </el-dropdown-item>
                                 <el-dropdown-item @click="handleEditCatalog(subChild)">
-                                  <el-icon><Edit /></el-icon>
-                                  <span>编辑本节</span>
-                                </el-dropdown-item>
-                                <el-dropdown-item @click="handleDownloadCatalog(subChild)">
                                   <el-icon><Download /></el-icon>
                                   <span>下载本节</span>
                                 </el-dropdown-item>
+                                
                               </el-dropdown-menu>
                             </template>
                           </el-dropdown>
@@ -880,11 +871,20 @@ const contentLibrary = {
     },
     {
       id: 107,
-      content: '<strong>【命题点一 个人修养】</strong><br/>１．本文中有不少格言警句已经成为很多人提高自身修养的座右铭。请任选一句谈谈你获得的启示。<br/><br/><strong>【命题点二 为学之道】</strong><br/>２．（教材“思考探究”第二题）孔子及其弟子在学习态度和学习方法上有哪些观点？选择其中一点谈谈你的体会。',
+      content: '<strong>命题点一 个人修养</strong><br/>１．本文中有不少格言警句已经成为很多人提高自身修养的座右铭。请任选一句谈谈你获得的启示。<br/><br/><strong>命题点二 为学之道</strong><br/>２．（教材“思考探究”第二题）孔子及其弟子在学习态度和学习方法上有哪些观点？选择其中一点谈谈你的体会。',
       type: '命题探究',
       year: '2026',
-      answer: '【答】<br/><br/><strong>命题点一·示例一：</strong>“三军可夺帅也，匹夫不可夺志也。”孔子认为即使是一个普通人，也要有坚定的志向。一个人的志向能否被改变，取决于他自己。这启示我们，越是在危急的时刻，越要捍卫自己的人格，坚守自己的志向。<br/><br/><strong>命题点一·示例二：</strong>“博学而笃志，切问而近思，仁在其中矣。”子夏认为博学、笃志、切问、近思是提高个人修养的重要方法。这启示我们要博览群书，坚定自己的志向，同时要恳切地提出问题，联系现实自我思考，这样才能提高自身修养。<br/><br/><strong>命题点二·观点汇总：</strong>①学而时习之，不亦说乎？②温故而知新，可以为师矣。③学而不思则罔，思而不学则殆。④知之者不如好之者，好之者不如乐之者。⑤三人行，必有我师焉。择其善者而从之，其不善者而改之。<br/><br/><strong>命题点二·体会示例一：</strong>“学而不思则罔，思而不学则殆”这句话警醒我们要边读书边思考，只读书而不思考就不能深刻理解，甚至会陷入迷茫；只空想而不读书，则会感到疑惑而一无所得。只有做到学思结合，才能真正将知识融会贯通。<br/><br/><strong>命题点二·体会示例二：</strong>“三人行……其不善者而改之”这句话体现了一种谦虚的学习态度。善于发现他人优点和缺点的人，也往往是善于向他人学习的人。无论在什么环境下，我们都应该端正学习态度，虚心向他人请教，从中吸取经验教训，这样才能得到提高。',
-      analysis: '',
+      answer: '<p><strong>命题点一·示例一：</strong>“三军可夺帅也，匹夫不可夺志也。”孔子认为即使是一个普通人，也要有坚定的志向。一个人的志向能否被改变，取决于他自己。这启示我们，越是在危急的时刻，越要捍卫自己的人格，坚守自己的志向。</p><br/><p><strong>命题点一·示例二：</strong>“博学而笃志，切问而近思，仁在其中矣。”子夏认为博学、笃志、切问、近思是提高个人修养的重要方法。这启示我们要博览群书，坚定自己的志向，同时要恳切地提出问题，联系现实自我思考，这样才能提高自身修养。</p><br/><p><strong>命题点二·观点汇总：</strong></p><ol><li>学而时习之，不亦说乎？</li><li>温故而知新，可以为师矣。</li><li>学而不思则罔，思而不学则殆。</li><li>知之者不如好之者，好之者不如乐之者。</li><li>三人行，必有我师焉。择其善者而从之，其不善者而改之。</li></ol><br/><p><strong>命题点二·体会示例一：</strong>“学而不思则罔，思而不学则殆”这句话警醒我们要边读书边思考，只读书而不思考就不能深刻理解，甚至会陷入迷茫；只空想而不读书，则会感到疑惑而一无所得。只有做到学思结合，才能真正将知识融会贯通。</p><br/><p><strong>命题点二·体会示例二：</strong>“三人行……其不善者而改之”这句话体现了一种谦虚的学习态度。善于发现他人优点和缺点的人，也往往是善于向他人学习的人。无论在什么环境下，我们都应该端正学习态度，虚心向他人请教，从中吸取经验教训，这样才能得到提高。</p>',
+      analysis: '1. 命题点一聚焦个人修养，可从格言中提炼价值与方法并结合自我体会阐述。<br/><br/>2. 命题点二聚焦为学之道，建议先归纳典型观点，再选择一点结合自身学习实践进行论述，形成“观点+体会”的结构。<br/><br/>3. 作答结构建议：分段表达、条理清晰，适度使用例证与对比，语言朴实有力，更贴近考试书写规范。',
+      showAnalysis: false
+    },
+    {
+      id: 108,
+      content: '<strong>命题探究 学习生态</strong><br/>１．结合“学而时习之”“三人行，必有我师焉”等语句，谈谈如何在日常学习中形成良好的学习生态（学习方法、同伴互助、反思复盘）。<br/><br/><strong>命题探究 应用拓展</strong><br/>２．任选《论语》中的一句，联系现实学习场景，提出一项可落地的改进措施并说明理由。',
+      type: '命题探究',
+      year: '2026',
+      answer: '<p><strong>思路框架：</strong></p><ol><li>学习方法：践行“时习、温故知新”，设定每日回顾与每周小测。</li><li>同伴互助：以“取善改不善”为准则，进行同伴互评与经验分享。</li><li>反思复盘：落实“学思结合”，每次学习后记录问题与改进方案。</li></ol><br/><p><strong>示例措施：</strong>以“三人行，必有我师焉”为例，建立每周互评与分享机制，每人记录他人优点与自身改进项，并在下一周跟进落实；同时设立“温故知新”清单，复习旧知并输出新的理解。</p>',
+      analysis: '1. 命题围绕《论语》的核心学习观：时习、温故知新、学思结合、向人学习。<br/><br/>2. 建议采用“框架+示例”的表达方式，先归纳可行路径，再给出一条可落地的场景化举措。<br/><br/>3. 书写要点：标题明确、条理清晰、结合个人实践，体现真实改进与反馈闭环。',
       showAnalysis: false
     }
   ],
@@ -1683,7 +1683,8 @@ defineExpose({
   font-size: 14px;
   line-height: 1.8;
   color: #303133;
-  padding-right: 120px;
+  /* 预留按钮宽度 + 12px 间距 */
+  padding-right: 132px;
 }
 
 .question-text :deep(br) {
