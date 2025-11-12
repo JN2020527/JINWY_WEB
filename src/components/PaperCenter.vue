@@ -3,24 +3,52 @@
     <!-- 主体内容区 -->
     <div class="paper-content">
       <div class="content-container">
-        <!-- 左侧操作按钮 -->
-        <div class="action-buttons">
-          <el-button @click="previewPaper" size="small" plain>
-            <el-icon><View /></el-icon>
-            预览试卷
-          </el-button>
-          <el-button @click="exportWord" size="small" plain>
-            <el-icon><Document /></el-icon>
-            导出Word
-          </el-button>
-          <el-button @click="exportPDF" size="small" plain>
-            <el-icon><Printer /></el-icon>
-            导出PDF
-          </el-button>
-          <el-button type="primary" @click="savePaper" size="small">
-            <el-icon><Check /></el-icon>
-            保存试卷
-          </el-button>
+        <!-- 右侧操作与模板 -->
+        <div class="right-sidebar">
+          <div class="operation-panel">
+            <div class="panel-header">
+              <span class="panel-title">试卷操作</span>
+            </div>
+            <div class="operation-actions">
+              <el-button @click="savePaper" size="small" plain>
+                <el-icon><Check /></el-icon>
+                保存
+              </el-button>
+              <el-button @click="previewPaper" size="small" plain>
+                <el-icon><View /></el-icon>
+                预览
+              </el-button>
+              <el-button @click="downloadZip" size="small" plain>
+                <el-icon><Document /></el-icon>
+                下载
+              </el-button>
+            </div>
+          </div>
+
+          <div class="template-panel">
+          <div class="panel-header">
+            <span class="panel-title">试卷模板</span>
+            <div class="panel-actions">
+              <el-button link size="small" @click="resetTemplate">重置</el-button>
+              <el-button link size="small" @click="applyTemplate">完成</el-button>
+            </div>
+          </div>
+          <div class="panel-section grid">
+            <el-checkbox v-model="templateConfig.showTitle">主标题</el-checkbox>
+            <el-checkbox v-model="templateConfig.showSubtitle">副标题</el-checkbox>
+            <el-checkbox v-model="templateConfig.showInfoBar">试卷信息栏</el-checkbox>
+            <el-checkbox v-model="templateConfig.showCandidateBar">考生输入栏</el-checkbox>
+            <el-checkbox v-model="templateConfig.showScoreRegistry">誊分栏</el-checkbox>
+            <el-checkbox v-model="templateConfig.showNotice">注意事项</el-checkbox>
+          </div>
+
+          <div class="panel-divider"></div>
+
+          <div class="panel-section grid">
+            <el-checkbox v-model="templateConfig.showGroupNote">展示题目名称</el-checkbox>
+            <el-checkbox v-model="templateConfig.showGroupScoreArea">大题得分区</el-checkbox>
+          </div>
+        </div>
         </div>
 
         <!-- 试题列表（居中显示） -->
@@ -28,20 +56,39 @@
         <!-- 试卷标题区域 -->
         <div class="paper-title-area">
           <el-input 
+            v-if="templateConfig.showTitle"
             v-model="paperInfo.title" 
             class="paper-title-input"
-            placeholder="请输入试卷标题"
+            placeholder="请输入试卷主标题"
             size="large"
           />
-          <div class="paper-stats">
+          <el-input 
+            v-if="templateConfig.showSubtitle"
+            v-model="paperInfo.subtitle"
+            class="paper-subtitle-input"
+            placeholder="请输入试卷副标题"
+            size="default"
+          />
+          <div class="paper-stats" v-if="templateConfig.showInfoBar">
             <span class="stat-item">共 <strong>{{ totalQuestions }}</strong> 题</span>
             <span class="stat-divider">|</span>
             <span class="stat-item">满分 <strong>{{ totalScore }}</strong> 分</span>
+          </div>
+          <div class="candidate-bar" v-if="templateConfig.showCandidateBar">
+            <div class="candidate-row">
+              <span class="label">姓名：</span><span class="line"></span>
+              <span class="label">班级：</span><span class="line"></span>
+              <span class="label">学号：</span><span class="line"></span>
+            </div>
           </div>
         </div>
 
         <!-- 试题内容区 -->
         <div class="questions-area">
+        <div v-if="templateConfig.showNotice" class="notice-area">
+          <div class="notice-title">注意事项</div>
+          <div class="notice-content">{{ templateConfig.noticeText || '请在规定时间内完成试卷。答题内容书写规范、工整，保持卷面整洁。' }}</div>
+        </div>
 
         <div class="question-groups">
           <div 
@@ -52,10 +99,13 @@
           >
             <!-- 题型标题 -->
             <div class="group-header">
-              <div class="group-title" @click="toggleGroupSelection(group)">
+              <div class="group-title" v-if="templateConfig.showGroupNote" @click="toggleGroupSelection(group)">
                 <span class="title-text">{{ getChineseNumber(groupIndex + 1) }}、{{ group.typeName }}</span>
                 <span class="title-meta" v-if="!group.hideScore">（共 {{ group.questions.length }} 题，{{ group.totalScore }} 分）</span>
                 <span class="title-meta" v-else>（共 {{ group.questions.length }} 题）</span>
+              </div>
+              <div v-if="templateConfig.showGroupScoreArea" class="group-score-area">
+                <div class="score-box">评分</div>
               </div>
               <div v-if="group.selected" class="group-operations">
                 <el-button text size="small" @click.stop="toggleQuestionNumber(group)">
@@ -81,6 +131,7 @@
               </div>
             </div>
 
+
             <!-- 试题列表 -->
             <div class="group-questions">
                 <div 
@@ -91,7 +142,7 @@
                   @click="toggleQuestionActive(question.id)"
                 >
                   <div class="question-main">
-                    <span v-if="!group.hideNumber" class="question-number">{{ qIndex + 1 }}.</span>
+                    <span v-if="!group.hideNumber" class="question-number">{{ formatSerial(qIndex + 1) }}</span>
                     <span v-if="!group.hideScore" class="question-score">（{{ question.score }}分）</span>
                     <div class="question-content-wrapper">
                       <div class="question-content" v-html="question.content"></div>
@@ -193,6 +244,8 @@
 import { ref, computed } from 'vue'
 import { Refresh, Delete, ArrowUp, ArrowDown, View, Document, Printer, Check, Edit, Top, Bottom } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import JSZip from 'jszip'
+import { jsPDF } from 'jspdf'
 
 const props = defineProps({
   paperConfig: {
@@ -206,9 +259,47 @@ const emit = defineEmits(['back', 'save'])
 // 试卷信息
 const paperInfo = ref({
   title: (props.paperConfig.title || props.paperConfig.catalogName) || '未命名试卷',
+  subtitle: '',
   knowledgePoints: props.paperConfig.knowledgeIds || [],
   difficultyRatio: props.paperConfig.difficultyRatio || {}
 })
+
+// 试卷模板配置
+const templateConfig = ref({
+  kind: '测试',
+  showTitle: true,
+  showSubtitle: true,
+  showInfoBar: true,
+  showCandidateBar: false,
+  showNotice: false,
+  noticeText: '',
+  showScoreRegistry: false,
+  showSectionNote: false,
+  showGroupNote: false,
+  showGroupScoreArea: false,
+  serialStyle: 'dot' // dot | paren
+})
+
+const resetTemplate = () => {
+  templateConfig.value = {
+    kind: '测试',
+    showTitle: true,
+    showSubtitle: true,
+    showInfoBar: true,
+    showCandidateBar: false,
+    showNotice: false,
+    noticeText: '',
+    showScoreRegistry: false,
+    showSectionNote: false,
+    showGroupNote: false,
+    showGroupScoreArea: false,
+    serialStyle: 'dot'
+  }
+}
+
+const applyTemplate = () => {
+  ElMessage.success('模板设置已应用')
+}
 
 // 试题分组数据（初中数学模拟数据）
 const questionGroups = ref([
@@ -588,6 +679,14 @@ const getChineseNumber = (num) => {
   return num.toString()
 }
 
+// 题号样式格式化
+const formatSerial = (n) => {
+  if (templateConfig.value.serialStyle === 'paren') {
+    return `(${n})`
+  }
+  return `${n}.`
+}
+
 // 切换题目激活状态
 const toggleQuestionActive = (questionId) => {
   if (activeQuestionId.value === questionId) {
@@ -755,11 +854,13 @@ const exportWord = async () => {
         ? `（共 ${group.questions.length} 题）`
         : `（共 ${group.questions.length} 题，${group.totalScore} 分）`
       
-      htmlContent += `
-        <div class="group-title">
-          ${getChineseNumber(groupIndex + 1)}、${group.typeName}${groupMeta}
-        </div>
-      `
+      if (templateConfig.value.showGroupNote) {
+        htmlContent += `
+          <div class="group-title">
+            ${getChineseNumber(groupIndex + 1)}、${group.typeName}${groupMeta}
+          </div>
+        `
+      }
 
       // 遍历题目
       group.questions.forEach((question, qIndex) => {
@@ -901,6 +1002,144 @@ const savePaper = () => {
     questionGroups: questionGroups.value
   })
 }
+
+// 生成 Word Blob（复用导出逻辑但不直接下载）
+const buildWordHtml = () => {
+  let htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          @page { size: A4; margin: 2.54cm; }
+          body { font-family: "宋体", SimSun, serif; font-size: 12pt; line-height: 1.3; margin: 0; padding: 0; }
+          .paper-title { text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 10pt; }
+          .group-title { font-family: "Microsoft YaHei", "微软雅黑", sans-serif; font-size: 12pt; font-weight: bold; margin-top: 15pt; margin-bottom: 10pt; }
+          .question { margin-bottom: 15pt; }
+          .question-number { display: inline; }
+          .question-score { display: inline; }
+          .question-content { display: inline; }
+          .question-options { margin-top: 8pt; margin-left: 20pt; }
+          .option { margin-bottom: 5pt; }
+        </style>
+      </head>
+      <body>
+        <div class="paper-title">${paperInfo.value.title}</div>
+    `
+
+  questionGroups.value.forEach((group, groupIndex) => {
+    const groupMeta = group.hideScore 
+      ? `（共 ${group.questions.length} 题）`
+      : `（共 ${group.questions.length} 题，${group.totalScore} 分）`
+    if (templateConfig.value.showGroupNote) {
+      htmlContent += `
+          <div class="group-title">
+            ${getChineseNumber(groupIndex + 1)}、${group.typeName}${groupMeta}
+          </div>
+        `
+    }
+    group.questions.forEach((question, qIndex) => {
+      htmlContent += `<div class="question">`
+      if (!group.hideNumber) {
+        htmlContent += `<span class="question-number">${qIndex + 1}. </span>`
+      }
+      if (!group.hideScore) {
+        htmlContent += `<span class="question-score">（${question.score}分）</span>`
+      }
+      htmlContent += `<span class="question-content">${question.content}</span>`
+      if (question.options && question.options.length > 0) {
+        htmlContent += `<div class="question-options">`
+        question.options.forEach(option => {
+          htmlContent += `<div class="option">${option.label}. ${option.text}</div>`
+        })
+        htmlContent += `</div>`
+      }
+      htmlContent += `</div>`
+    })
+  })
+
+  htmlContent += `</body></html>`
+  return htmlContent
+}
+
+const generateWordBlob = () => {
+  const htmlContent = buildWordHtml()
+  return new Blob(['\ufeff' + htmlContent], { type: 'application/msword;charset=utf-8' })
+}
+
+// 生成 PDF Blob（简化文本版）
+const stripHtml = (html) => {
+  return (html || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')
+}
+
+const generatePdfBlob = () => {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' })
+  const marginLeft = 40
+  const marginTop = 60
+  const lineHeight = 18
+  let y = marginTop
+
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(16)
+  doc.text(paperInfo.value.title || '未命名试卷', marginLeft, y)
+  y += 26
+
+  questionGroups.value.forEach((group, gi) => {
+    doc.setFontSize(12)
+    const meta = group.hideScore ? `（共 ${group.questions.length} 题）` : `（共 ${group.questions.length} 题，${group.totalScore} 分）`
+    const title = `${getChineseNumber(gi + 1)}、${group.typeName}${meta}`
+    if (y > 780) { doc.addPage(); y = marginTop }
+    doc.text(title, marginLeft, y)
+    y += lineHeight
+
+    group.questions.forEach((q, qi) => {
+      const num = group.hideNumber ? '' : `${qi + 1}. `
+      const score = group.hideScore ? '' : `（${q.score}分）`
+      const text = `${num}${stripHtml(q.content)}${score}`
+      const chunks = doc.splitTextToSize(text, 500)
+      chunks.forEach(chunk => {
+        if (y > 780) { doc.addPage(); y = marginTop }
+        doc.text(chunk, marginLeft, y)
+        y += lineHeight
+      })
+      y += 4
+    })
+    y += 6
+  })
+
+  return doc.output('blob')
+}
+
+// 下载 Word+PDF 压缩包
+const downloadZip = async () => {
+  if (!paperInfo.value.title || paperInfo.value.title.trim().length === 0) {
+    ElMessage.warning('请输入试卷标题')
+    return
+  }
+  try {
+    ElMessage.info('正在打包试卷（Word+PDF）...')
+    const zip = new JSZip()
+    const wordBlob = generateWordBlob()
+    const pdfBlob = generatePdfBlob()
+    const baseName = paperInfo.value.title
+    zip.file(`${baseName}.doc`, wordBlob)
+    zip.file(`${baseName}.pdf`, pdfBlob)
+
+    const zipBlob = await zip.generateAsync({ type: 'blob' })
+    const url = URL.createObjectURL(zipBlob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${baseName}-试卷包.zip`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    ElMessage.success('试卷压缩包已下载！')
+  } catch (e) {
+    console.error('下载压缩包失败', e)
+    ElMessage.error('下载压缩包失败，请重试')
+  }
+}
 </script>
 
 <style scoped>
@@ -909,6 +1148,7 @@ const savePaper = () => {
   display: flex;
   flex-direction: column;
   background: transparent;
+  --el-color-primary: #2262FB;
 }
 
 /* 主体内容区 */
@@ -924,8 +1164,8 @@ const savePaper = () => {
 .content-container {
   display: flex;
   align-items: flex-start;
-  gap: 0;
-  max-width: 1000px;
+  gap: 16px;
+  max-width: 1200px;
   width: 100%;
 }
 
@@ -937,6 +1177,7 @@ const savePaper = () => {
   border-radius: 4px;
   display: flex;
   flex-direction: column;
+  align-self: flex-start;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
@@ -949,7 +1190,7 @@ const savePaper = () => {
 
 .paper-title-input {
   width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .paper-title-input :deep(.el-input__inner) {
@@ -961,7 +1202,27 @@ const savePaper = () => {
 }
 
 .paper-title-input :deep(.el-input__inner:focus) {
-  border: 1px solid #2262FB;
+  border: none;
+  outline: none;
+}
+
+.paper-title-input :deep(.el-input__wrapper) {
+  box-shadow: none !important;
+  border: none !important;
+  background-color: transparent;
+  padding: 0;
+  transition: background-color 0.2s ease;
+}
+
+.paper-title-input :deep(.el-input__wrapper:hover) {
+  box-shadow: none !important;
+  background-color: #f5f7ff;
+}
+
+.paper-title-input :deep(.el-input__wrapper.is-focus) {
+  box-shadow: none !important;
+  background-color: #eef3ff;
+  border: 1px solid #2262FB !important;
 }
 
 .paper-stats {
@@ -971,6 +1232,7 @@ const savePaper = () => {
   gap: 8px;
   font-size: 14px;
   color: #606266;
+  margin-top: 0;
 }
 
 .stat-item strong {
@@ -984,44 +1246,272 @@ const savePaper = () => {
 }
 
 /* 左侧操作按钮 */
-.action-buttons {
+.right-sidebar {
+  order: 3;
+  width: 300px;
   display: flex;
   flex-direction: column;
-  gap: 0;
-  flex-shrink: 0;
-  align-items: flex-end;
+  gap: 12px;
+  position: sticky;
+  top: 0px;
+  align-self: flex-start;
 }
 
-.action-buttons .el-button {
-  width: 72px;
-  height: 72px;
+.operation-panel {
+  width: 100%;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 12px;
+}
+
+.operation-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  grid-auto-rows: 36px;
+  grid-auto-flow: row dense;
+}
+
+.operation-actions .el-button {
+  width: 100%;
+  height: 36px;
   padding: 0;
-  border-radius: 0;
+  border-radius: 3px;
+  box-sizing: border-box;
+  font-weight: 500;
+  box-shadow: none;
 }
 
-/* 除第一个按钮外，其他按钮向上移动1px，让边框重叠 */
-.action-buttons .el-button:not(:first-child) {
-  margin-top: -1px;
+.operation-actions .el-button {
+  margin: 0; /* 清除默认外边距，避免栅格下不一致 */
+}
+.operation-actions .el-button + .el-button {
+  margin-left: 0; /* 覆盖 Element Plus 默认的相邻按钮左边距 */
 }
 
-.action-buttons .el-button :deep(span) {
+.operation-actions .el-button :deep(span) {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
   height: 100%;
+  padding: 0 12px;
 }
 
-.action-buttons .el-button :deep(.el-icon) {
-  font-size: 24px;
-  margin: 0;
+.operation-actions .el-button :deep(.el-icon) {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Plain 样式统一为卡片按钮 */
+.operation-actions .el-button.is-plain {
+  background-color: #f8fafc;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+.operation-actions .el-button.is-plain:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #111827;
+}
+
+.operation-actions .el-button.is-plain:active {
+  background-color: #e5e7eb;
+}
+
+/* Primary 强调按钮 */
+.operation-actions .el-button.el-button--primary {
+  background-color: #2262FB;
+  border-color: #2262FB;
+  color: #fff;
+}
+
+.operation-actions .el-button.el-button--primary:hover {
+  background-color: #1e54d9;
+  border-color: #1e54d9;
+}
+
+.operation-actions .el-button.el-button--primary:active {
+  background-color: #1848bb;
+  border-color: #1848bb;
+}
+
+/* 下载按钮占满一行（不再使用，已改为三列一行） */
+
+/* 焦点可访问态 */
+.operation-actions .el-button:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 1px;
+}
+
+/* 响应式：窄宽度时单列显示 */
+@media (max-width: 240px) {
+  .operation-actions {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 试题内容区 */
 .questions-area {
   padding: 20px;
+}
+
+/* 右侧模板面板 */
+.template-panel {
+  width: 100%;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 16px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.panel-title {
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+.panel-title::before {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 16px;
+  background-color: #2262FB;
+  border-radius: 0;
+  margin-right: 8px;
+}
+.panel-actions .el-button {
+  color: #2877FF;
+}
+.panel-section {
+  margin: 6px 0;
+}
+.panel-section.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 12px;
+  justify-items: start;
+  align-items: center;
+}
+.panel-divider {
+  height: 1px;
+  background: #edf0f5;
+  margin: 10px 0;
+}
+.panel-subtitle {
+  font-size: 12px;
+  color: #606266;
+  margin-bottom: 6px;
+}
+
+/* 副标题输入样式 */
+.paper-subtitle-input {
+  width: 100%;
+  margin: 0 0 12px;
+}
+.paper-subtitle-input :deep(.el-input__inner) {
+  font-size: 14px;
+  text-align: center;
+  border: none;
+}
+.paper-subtitle-input :deep(.el-input__inner:focus) {
+  border: none;
+  outline: none;
+}
+.paper-subtitle-input :deep(.el-input__wrapper) {
+  box-shadow: none !important;
+  border: none !important;
+  background-color: transparent;
+  padding: 0;
+  transition: background-color 0.2s ease;
+}
+.paper-subtitle-input :deep(.el-input__wrapper:hover) {
+  box-shadow: none !important;
+  background-color: #f5f7ff;
+}
+
+.paper-subtitle-input :deep(.el-input__wrapper.is-focus) {
+  box-shadow: none !important;
+  background-color: #eef3ff;
+  border: 1px solid #2262FB !important;
+}
+
+/* 考生信息栏 */
+.candidate-bar {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+}
+.candidate-row {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+  font-size: 14px;
+}
+.candidate-row .label {
+  color: #606266;
+}
+.candidate-row .line {
+  display: inline-block;
+  width: 100px;
+  border-bottom: 1px solid #dcdfe6;
+  height: 0;
+  line-height: 0;
+  transform: translateY(-1px);
+}
+
+/* 注意事项 */
+.notice-area {
+  background: #fafafa;
+  border: 1px dashed #e4e7ed;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.notice-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.group-note {
+  margin: 10px 20px 0;
+  color: #909399;
+  font-size: 13px;
+}
+
+/* 大题评分区（标题右上角占位） */
+.group-header {
+  position: relative;
+}
+.group-score-area {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.score-box {
+  width: 68px;
+  height: 36px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #606266;
+  background: #fff;
 }
 
 .question-groups {
@@ -1336,4 +1826,3 @@ const savePaper = () => {
   gap: 12px;
 }
 </style>
-
