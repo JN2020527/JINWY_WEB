@@ -38,15 +38,38 @@
             <el-checkbox v-model="templateConfig.showSubtitle">副标题</el-checkbox>
             <el-checkbox v-model="templateConfig.showInfoBar">试卷信息栏</el-checkbox>
             <el-checkbox v-model="templateConfig.showCandidateBar">考生输入栏</el-checkbox>
-            <el-checkbox v-model="templateConfig.showScoreRegistry">誊分栏</el-checkbox>
+            <el-checkbox v-model="templateConfig.showScoreRegistry">得分框</el-checkbox>
             <el-checkbox v-model="templateConfig.showNotice">注意事项</el-checkbox>
           </div>
 
           <div class="panel-divider"></div>
 
           <div class="panel-section grid">
-            <el-checkbox v-model="templateConfig.showGroupNote">展示题目名称</el-checkbox>
-            <el-checkbox v-model="templateConfig.showGroupScoreArea">大题得分区</el-checkbox>
+            <el-checkbox v-model="templateConfig.showGroupNote">展示题型名称</el-checkbox>
+            <el-checkbox v-model="templateConfig.showQuestionNumber">展示题目编号</el-checkbox>
+            <el-checkbox v-model="templateConfig.showQuestionScore">展示题目分数</el-checkbox>
+            <el-checkbox v-model="templateConfig.useGroupIndependentNumbering">题型内排序</el-checkbox>
+          </div>
+          
+          <div class="panel-divider"></div>
+          
+          <!-- 试卷排序功能 -->
+          <div class="panel-section">
+            <div class="panel-subtitle">排序模式</div>
+            <div class="sort-mode-container">
+              <el-radio-group v-model="templateConfig.sortMode" size="small">
+                <el-radio-button label="group">分组排序</el-radio-button>
+                <el-radio-button label="free">自由排序</el-radio-button>
+              </el-radio-group>
+            </div>
+            <div class="sort-mode-desc">
+              <div v-if="templateConfig.sortMode === 'group'">
+                支持组间的上下拖拽排序，以及组内的排序。
+              </div>
+              <div v-else>
+                支持将不同组内的题拖拽到别的组，更灵活地调整题目顺序。
+              </div>
+            </div>
           </div>
         </div>
         </div>
@@ -90,103 +113,218 @@
           <div class="notice-content">{{ templateConfig.noticeText || '请在规定时间内完成试卷。答题内容书写规范、工整，保持卷面整洁。' }}</div>
         </div>
 
-        <div class="question-groups">
-          <div 
-            v-for="(group, groupIndex) in questionGroups" 
-            :key="groupIndex"
-            class="question-group"
-            :class="{ selected: group.selected }"
+        <!-- 排序模式提示 -->
+        <div class="sort-mode-tip" v-if="templateConfig.sortMode">
+          <div class="tip-icon">
+            <el-icon><Menu /></el-icon>
+          </div>
+          <div class="tip-content">
+            <span class="tip-title">{{ templateConfig.sortMode === 'group' ? '分组排序模式' : '自由排序模式' }}</span>
+            <span class="tip-desc">{{ templateConfig.sortMode === 'group' ? '可拖拽调整题型顺序和组内题目顺序' : '可将题目拖拽到其他题型组中' }}</span>
+          </div>
+        </div>
+
+        <!-- 分组排序模式 -->
+        <div v-if="templateConfig.sortMode === 'group'" class="question-groups">
+          <!-- 组间拖拽排序 -->
+          <el-drag-sort
+            v-model="questionGroups"
+            item-key="typeName"
+            handle-class="drag-handle"
+            @change="handleGroupChange"
           >
-            <!-- 题型标题 -->
-            <div class="group-header">
-              <div class="group-title" v-if="templateConfig.showGroupNote" @click="toggleGroupSelection(group)">
-                <span class="title-text">{{ getChineseNumber(groupIndex + 1) }}、{{ group.typeName }}</span>
-                <span class="title-meta" v-if="!group.hideScore">（共 {{ group.questions.length }} 题，{{ group.totalScore }} 分）</span>
-                <span class="title-meta" v-else>（共 {{ group.questions.length }} 题）</span>
-              </div>
-              <div v-if="templateConfig.showGroupScoreArea" class="group-score-area">
-                <div class="score-box">评分</div>
-              </div>
-              <div v-if="group.selected" class="group-operations">
-                <el-button text size="small" @click.stop="toggleQuestionNumber(group)">
-                  <el-icon><View /></el-icon>
-                  {{ group.hideNumber ? '显示序号' : '隐藏序号' }}
-                </el-button>
-                <el-button text size="small" @click.stop="toggleQuestionScore(group)">
-                  <el-icon><View /></el-icon>
-                  {{ group.hideScore ? '显示分数' : '隐藏分数' }}
-                </el-button>
-                <el-button text size="small" @click.stop="setBatchScore(group)">
-                  <el-icon><Edit /></el-icon>
-                  批量设置分数
-                </el-button>
-                <el-button text size="small" @click.stop="moveGroupUp(groupIndex)" :disabled="groupIndex === 0">
-                  <el-icon><Top /></el-icon>
-                  上移
-                </el-button>
-                <el-button text size="small" @click.stop="moveGroupDown(groupIndex)" :disabled="groupIndex === questionGroups.length - 1">
-                  <el-icon><Bottom /></el-icon>
-                  下移
-                </el-button>
-              </div>
-            </div>
+            <template #item="{ element: group, index: groupIndex }">
+              <div 
+                class="question-group"
+                :class="{ selected: group.selected }"
+              >
+                <!-- 题型标题 -->
+                <div class="group-header">
+                  <div class="group-title" v-if="templateConfig.showGroupNote" @click="toggleGroupSelection(group)">
+                    <span class="drag-handle" style="margin-right: 8px; cursor: move; color: #c0c4cc;">
+                      <el-icon><Menu /></el-icon>
+                    </span>
+                    <span class="title-text">{{ getChineseNumber(groupIndex + 1) }}、{{ group.typeName }}</span>
+                    <span class="title-meta" v-if="!group.hideScore">（共 {{ group.questions.length }} 题，{{ group.totalScore }} 分）</span>
+                    <span class="title-meta" v-else>（共 {{ group.questions.length }} 题）</span>
+                  </div>
+                  <div v-if="group.selected" class="group-operations">
+                    <el-button text size="small" @click.stop="toggleQuestionNumber(group)">
+                      <el-icon><View /></el-icon>
+                      {{ group.hideNumber ? '显示序号' : '隐藏序号' }}
+                    </el-button>
+                    <el-button text size="small" @click.stop="toggleQuestionScore(group)">
+                      <el-icon><View /></el-icon>
+                      {{ group.hideScore ? '显示分数' : '隐藏分数' }}
+                    </el-button>
+                    <el-button text size="small" @click.stop="setBatchScore(group)">
+                      <el-icon><Edit /></el-icon>
+                      批量设置分数
+                    </el-button>
+                    <el-button text size="small" @click.stop="moveGroupUp(groupIndex)" :disabled="groupIndex === 0">
+                      <el-icon><Top /></el-icon>
+                      上移
+                    </el-button>
+                    <el-button text size="small" @click.stop="moveGroupDown(groupIndex)" :disabled="groupIndex === questionGroups.length - 1">
+                      <el-icon><Bottom /></el-icon>
+                      下移
+                    </el-button>
+                  </div>
+                </div>
 
-
-            <!-- 试题列表 -->
-            <div class="group-questions">
-                <div 
-                  v-for="(question, qIndex) in group.questions"
-                  :key="question.id"
-                  class="question-item"
-                  :class="{ active: activeQuestionId === question.id }"
-                  @click="toggleQuestionActive(question.id)"
+                <!-- 组内题目拖拽排序 -->
+                <el-drag-sort
+                  v-model="group.questions"
+                  item-key="id"
+                  handle-class="drag-handle"
+                  @change="() => handleQuestionChange(groupIndex)"
                 >
-                  <div class="question-main">
-                    <span v-if="!group.hideNumber" class="question-number">{{ formatSerial(qIndex + 1) }}</span>
-                    <span v-if="!group.hideScore" class="question-score">（{{ question.score }}分）</span>
-                    <div class="question-content-wrapper">
-                      <div class="question-content" v-html="question.content"></div>
-                    </div>
-                  </div>
-                  
-                  <!-- 选择题选项 -->
-                  <div v-if="question.options && question.options.length > 0" class="question-options">
+                  <template #item="{ element: question, index: qIndex }">
                     <div 
-                      v-for="option in question.options" 
-                      :key="option.label"
-                      class="option-item"
+                      class="question-item"
+                      :class="{ active: activeQuestionId === question.id }"
+                      @click="toggleQuestionActive(question.id)"
                     >
-                      <span class="option-label">{{ option.label }}.</span>
-                      <span class="option-text">{{ option.text }}</span>
+                      <div class="question-main">
+                        <span class="drag-handle" style="margin-right: 4px; cursor: move; color: #c0c4cc; font-size: 12px;">
+                          <el-icon><Menu /></el-icon>
+                        </span>
+                        <span v-if="templateConfig.showQuestionNumber" class="question-number">{{ formatSerial(templateConfig.useGroupIndependentNumbering ? qIndex + 1 : getGlobalQuestionIndex(groupIndex, qIndex)) }}</span>
+                        <span v-if="templateConfig.showQuestionScore && !group.hideScore" class="question-score">（{{ question.score }}分）</span>
+                        <div class="question-content-wrapper">
+                          <div class="question-content" v-html="question.content"></div>
+                        </div>
+                      </div>
+                      
+                      <!-- 得分框：当启用得分框且不是选择题时显示 -->
+                      <div v-if="templateConfig.showScoreRegistry && (!question.options || question.options.length === 0)" class="score-container">
+                        <table class="score-box-table">
+                          <tbody>
+                            <tr>
+                              <td class="score-label">得分：</td>
+                              <td class="score-input-cell"></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      
+                      <!-- 选择题选项 -->
+                      <div v-if="question.options && question.options.length > 0" class="question-options">
+                        <div 
+                          v-for="option in question.options" 
+                          :key="option.label"
+                          class="option-item"
+                        >
+                          <span class="option-label">{{ option.label }}.</span>
+                          <span class="option-text">{{ option.text }}</span>
+                        </div>
+                      </div>
+                      <div v-if="activeQuestionId === question.id" class="question-footer">
+                        <div class="question-operations">
+                          <el-button text size="small" @click.stop="viewDetail(question, group, qIndex)">
+                            <el-icon><View /></el-icon>
+                            详情
+                          </el-button>
+                          <el-button text size="small" @click.stop="replaceQuestion(question)">
+                            <el-icon><Refresh /></el-icon>
+                            替换
+                          </el-button>
+                          <el-button text size="small" @click.stop="deleteQuestion(group, qIndex)">
+                            <el-icon><Delete /></el-icon>
+                            删除
+                          </el-button>
+                          <el-button text size="small" @click.stop="moveUp(group, qIndex)" :disabled="qIndex === 0">
+                            <el-icon><ArrowUp /></el-icon>
+                          </el-button>
+                          <el-button text size="small" @click.stop="moveDown(group, qIndex)" :disabled="qIndex === group.questions.length - 1">
+                            <el-icon><ArrowDown /></el-icon>
+                          </el-button>
+                        </div>
+                      </div>
                     </div>
+                  </template>
+                </el-drag-sort>
+              </div>
+            </template>
+          </el-drag-sort>
+        </div>
+
+        <!-- 自由排序模式 -->
+        <div v-else-if="templateConfig.sortMode === 'free'" class="free-sort-mode">
+          <div class="sort-instruction">
+            <p>拖拽题目到任意位置，可以跨题型组调整顺序。</p>
+          </div>
+          
+          <!-- 所有题目混合排序 -->
+          <el-drag-sort
+            v-model="allQuestions"
+            item-key="id"
+            handle-class="drag-handle"
+            @change="handleFreeSortChange"
+          >
+            <template #item="{ element: questionWithGroup }">
+              <div 
+                class="question-item"
+                :class="{ active: activeQuestionId === questionWithGroup.question.id }"
+                @click="toggleQuestionActive(questionWithGroup.question.id)"
+              >
+                <div class="question-main">
+                  <span class="drag-handle" style="margin-right: 4px; cursor: move; color: #c0c4cc; font-size: 12px;">
+                    <el-icon><Menu /></el-icon>
+                  </span>
+                  <!-- 显示题型标签 -->
+                  <span class="question-type-tag">{{ questionWithGroup.groupTypeName }}</span>
+                  <span v-if="templateConfig.showQuestionNumber" class="question-number">{{ formatSerial(questionWithGroup.displayIndex) }}</span>
+                  <span v-if="templateConfig.showQuestionScore && !questionWithGroup.group.hideScore" class="question-score">（{{ questionWithGroup.question.score }}分）</span>
+                  <div class="question-content-wrapper">
+                    <div class="question-content" v-html="questionWithGroup.question.content"></div>
                   </div>
-                  <div v-if="activeQuestionId === question.id" class="question-footer">
-                    <div class="question-operations">
-                      <el-button text size="small" @click.stop="viewDetail(question, group, qIndex)">
-                        <el-icon><View /></el-icon>
-                        详情
-                      </el-button>
-                      <el-button text size="small" @click.stop="replaceQuestion(question)">
-                        <el-icon><Refresh /></el-icon>
-                        替换
-                      </el-button>
-                      <el-button text size="small" @click.stop="deleteQuestion(group, qIndex)">
-                        <el-icon><Delete /></el-icon>
-                        删除
-                      </el-button>
-                      <el-button text size="small" @click.stop="moveUp(group, qIndex)" :disabled="qIndex === 0">
-                        <el-icon><ArrowUp /></el-icon>
-                      </el-button>
-                      <el-button text size="small" @click.stop="moveDown(group, qIndex)" :disabled="qIndex === group.questions.length - 1">
-                        <el-icon><ArrowDown /></el-icon>
-                      </el-button>
-                    </div>
+                </div>
+                
+                <!-- 得分框：当启用得分框且不是选择题时显示 -->
+                <div v-if="templateConfig.showScoreRegistry && (!questionWithGroup.question.options || questionWithGroup.question.options.length === 0)" class="score-container">
+                  <table class="score-box-table">
+                    <tbody>
+                      <tr>
+                        <td class="score-label">得分：</td>
+                        <td class="score-input-cell"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- 选择题选项 -->
+                <div v-if="questionWithGroup.question.options && questionWithGroup.question.options.length > 0" class="question-options">
+                  <div 
+                    v-for="option in questionWithGroup.question.options" 
+                    :key="option.label"
+                    class="option-item"
+                  >
+                    <span class="option-label">{{ option.label }}.</span>
+                    <span class="option-text">{{ option.text }}</span>
+                  </div>
+                </div>
+                <div v-if="activeQuestionId === questionWithGroup.question.id" class="question-footer">
+                  <div class="question-operations">
+                    <el-button text size="small" @click.stop="viewDetail(questionWithGroup.question, questionWithGroup.group, questionWithGroup.questionIndex)">
+                      <el-icon><View /></el-icon>
+                      详情
+                    </el-button>
+                    <el-button text size="small" @click.stop="replaceQuestion(questionWithGroup.question)">
+                      <el-icon><Refresh /></el-icon>
+                      替换
+                    </el-button>
+                    <el-button text size="small" @click.stop="deleteQuestion(questionWithGroup.group, questionWithGroup.questionIndex)">
+                      <el-icon><Delete /></el-icon>
+                      删除
+                    </el-button>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </template>
+          </el-drag-sort>
         </div>
+      </div>
       </div>
     </div>
     </div>
@@ -242,8 +380,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Refresh, Delete, ArrowUp, ArrowDown, View, Document, Printer, Check, Edit, Top, Bottom } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { Refresh, Delete, ArrowUp, ArrowDown, View, Document, Printer, Check, Edit, Top, Bottom, Menu } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox, ElDragSort } from 'element-plus'
 import JSZip from 'jszip'
 import { jsPDF } from 'jspdf'
 
@@ -268,37 +406,132 @@ const paperInfo = ref({
 const templateConfig = ref({
   kind: '测试',
   showTitle: true,
-  showSubtitle: true,
+  showSubtitle: false,
   showInfoBar: true,
   showCandidateBar: false,
   showNotice: false,
   noticeText: '',
   showScoreRegistry: false,
   showSectionNote: false,
-  showGroupNote: false,
-  showGroupScoreArea: false,
-  serialStyle: 'dot' // dot | paren
+  showGroupNote: true,
+  showQuestionNumber: true,
+  showQuestionScore: true,
+  useGroupIndependentNumbering: false,
+  serialStyle: 'dot', // dot | paren
+  sortMode: 'group' // group | free
 })
 
 const resetTemplate = () => {
   templateConfig.value = {
     kind: '测试',
     showTitle: true,
-    showSubtitle: true,
+    showSubtitle: false,
     showInfoBar: true,
     showCandidateBar: false,
     showNotice: false,
     noticeText: '',
     showScoreRegistry: false,
     showSectionNote: false,
-    showGroupNote: false,
-    showGroupScoreArea: false,
-    serialStyle: 'dot'
+    showGroupNote: true,
+    showQuestionNumber: true,
+    showQuestionScore: true,
+    useGroupIndependentNumbering: false,
+    serialStyle: 'dot',
+    sortMode: 'group'
   }
 }
 
 const applyTemplate = () => {
   ElMessage.success('模板设置已应用')
+}
+
+// 自由排序模式下的所有题目列表（包含所属组信息）
+const allQuestions = computed({
+  get: () => {
+    if (templateConfig.value.sortMode !== 'free') return []
+    
+    let result = []
+    let globalIndex = 1
+    
+    questionGroups.value.forEach((group, groupIndex) => {
+      group.questions.forEach((question, questionIndex) => {
+        result.push({
+          id: question.id,
+          question,
+          group,
+          groupIndex,
+          questionIndex,
+          groupTypeName: group.typeName,
+          displayIndex: globalIndex++
+        })
+      })
+    })
+    
+    return result
+  },
+  set: (newValue) => {
+    if (templateConfig.value.sortMode !== 'free') return
+    
+    // 重新组织题目到对应组
+    // 1. 清空所有组的题目
+    questionGroups.value.forEach(group => {
+      group.questions = []
+    })
+    
+    // 2. 根据排序后的列表重新分配题目
+    newValue.forEach((item, index) => {
+      // 确保组存在
+      if (questionGroups.value[item.groupIndex]) {
+        // 更新题目索引信息
+        item.questionIndex = questionGroups.value[item.groupIndex].questions.length
+        item.displayIndex = index + 1
+        
+        // 添加题目到对应组
+        questionGroups.value[item.groupIndex].questions.push(item.question)
+      }
+    })
+    
+    // 3. 移除空组
+    questionGroups.value = questionGroups.value.filter(group => group.questions.length > 0)
+    
+    // 4. 重新计算所有组的总分
+    questionGroups.value.forEach(group => {
+      updateGroupTotalScore(group)
+    })
+  }
+})
+
+// 组排序变化处理
+const handleGroupChange = (list) => {
+  questionGroups.value = list
+  ElMessage.success('题型顺序已调整')
+}
+
+// 组内题目排序变化处理
+const handleQuestionChange = (groupIndex) => {
+  // 重新计算组内题目序号和总分
+  updateGroupTotalScore(questionGroups.value[groupIndex])
+  ElMessage.success('题目顺序已调整')
+}
+
+// 自由排序变化处理
+const handleFreeSortChange = (list) => {
+  allQuestions.value = list
+  ElMessage.success('题目顺序已调整（跨组移动）')
+}
+
+// 更新组总分
+const updateGroupTotalScore = (group) => {
+  group.totalScore = group.questions.reduce((sum, question) => sum + (question.score || 0), 0)
+}
+
+// 自由排序模式下切换到分组排序模式时重建题目组结构
+const handleSortModeChange = () => {
+  if (templateConfig.value.sortMode === 'group') {
+    ElMessage.info('已切换到分组排序模式')
+  } else if (templateConfig.value.sortMode === 'free') {
+    ElMessage.info('已切换到自由排序模式')
+  }
 }
 
 // 试题分组数据（初中数学模拟数据）
@@ -340,7 +573,7 @@ const questionGroups = ref([
           { label: 'A', text: 'a² + a² = a⁴' },
           { label: 'B', text: 'a³ × a² = a⁶' },
           { label: 'C', text: '(a²)³ = a⁶' },
-          { label: 'D', text: 'a⁶ ÷ a² = a³' }
+          { label: 'D', text: 'a⁶ ÷ a² = a⁳' }
         ],
         answer: 'C',
         analysis: 'A选项应为a² + a² = 2a²；B选项应为a³ × a² = a⁵；C选项正确，(a²)³ = a⁶；D选项应为a⁶ ÷ a² = a⁴。'
@@ -647,6 +880,18 @@ const totalQuestions = computed(() => {
   return questionGroups.value.reduce((sum, group) => sum + group.questions.length, 0)
 })
 
+// 获取题目全局索引（从1开始连续编号）
+const getGlobalQuestionIndex = (groupIndex, qIndex) => {
+  let globalIndex = 1
+  // 累加前面所有组的题目数量
+  for (let i = 0; i < groupIndex; i++) {
+    globalIndex += questionGroups.value[i].questions.length
+  }
+  // 加上当前组内的索引
+  globalIndex += qIndex
+  return globalIndex
+}
+
 // 计算总分
 const totalScore = computed(() => {
   return questionGroups.value.reduce((sum, group) => {
@@ -766,6 +1011,8 @@ const moveUp = (group, index) => {
   const temp = group.questions[index]
   group.questions[index] = group.questions[index - 1]
   group.questions[index - 1] = temp
+  // 更新组总分
+  updateGroupTotalScore(group)
 }
 
 // 下移
@@ -774,6 +1021,8 @@ const moveDown = (group, index) => {
   const temp = group.questions[index]
   group.questions[index] = group.questions[index + 1]
   group.questions[index + 1] = temp
+  // 更新组总分
+  updateGroupTotalScore(group)
 }
 
 // 预览试卷
@@ -1153,6 +1402,39 @@ const downloadZip = async () => {
 
 /* 主体内容区 */
 .paper-content {
+  /* 拖拽排序相关样式 */
+  .el-drag-sort-active {
+    opacity: 0.8;
+    background-color: #f0f9ff;
+  }
+  .el-drag-sort-drag {
+    opacity: 0.5;
+    background-color: #e6f7ff;
+  }
+  .drag-handle {
+    cursor: move;
+    padding: 0 8px;
+    color: #909399;
+    &:hover {
+      color: #2262FB;
+    }
+  }
+  /* 自由排序模式下的题目样式 */
+  .free-sort-question {
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    &:hover {
+      border-color: #2262FB;
+    }
+  }
+  /* 组排序模式下的题型组样式 */
+  .group-sort {
+    transition: all 0.3s ease;
+    border: 2px dashed transparent;
+    &:hover {
+      border-color: #2262FB;
+    }
+  }
   flex: 1;
   display: flex;
   justify-content: center;
@@ -1418,6 +1700,19 @@ const downloadZip = async () => {
   margin-bottom: 6px;
 }
 
+/* 排序模式样式 */
+.sort-mode-container {
+  margin: 8px 0;
+}
+
+.sort-mode-desc {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
+  line-height: 1.5;
+  padding-left: 4px;
+}
+
 /* 副标题输入样式 */
 .paper-subtitle-input {
   width: 100%;
@@ -1639,64 +1934,77 @@ const downloadZip = async () => {
   border-color: #2262FB;
 }
 
-  .question-main {
-    margin-bottom: 0;
-  }
-  
-  .question-number {
-    display: inline;
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-    line-height: 1.8;
-    margin-right: 4px;
-  }
-  
-  .question-score {
-    display: inline;
-    font-size: 13px;
-    color: #999;
-    font-weight: 500;
-    line-height: 1.8;
-    white-space: nowrap;
-    margin-right: 4px;
-  }
-  
-  .question-content-wrapper {
-    display: inline;
-  }
-  
-  .question-content {
-    display: inline;
-    font-size: 14px;
-    line-height: 1.8;
-    color: #606266;
-    word-wrap: break-word;
-    word-break: break-word;
-  }
-  
-  .question-content :deep(p) {
-    display: inline;
-    line-height: 1.8;
-  }
-  
-  .question-content :deep(*) {
-    line-height: 1.8;
-  }
+.question-main {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
 
-.question-content :deep(br) {
-  display: block;
-  content: "";
-  margin: 12px 0 8px 0;
-  line-height: 0;
+.question-number {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.question-score {
+  display: inline-block;
+  font-size: 13px;
+  color: #999;
+  font-weight: 500;
+  line-height: 1.8;
+  white-space: nowrap;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.question-content-wrapper {
+  display: inline-block;
+  vertical-align: top;
+  /* 移除右侧边距，因为得分框已经在独立容器中 */
+}
+
+.question-content {
+  display: inline-block;
+  vertical-align: top;
+}
+
+/* 得分框容器样式 */
+.score-container {
+  display: flex;
+  justify-content: flex-end;
+  margin: 8px 0;
+}
+
+/* 得分框表格样式 */
+.score-box-table {
+  width: 130px;
+  border: 1px solid #000000; /* 黑色边框 */
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.score-box-table td {
+  height: 32px;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.score-label {
+  width: 60px;
+  text-align: right;
+  border-right: 1px solid #000000; /* 黑色边框 */
+}
+
+.score-input-cell {
+  width: 60px;
 }
 
 /* 选择题选项样式 */
 .question-options {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px 24px;
-  margin-top: 8px;
+  margin-left: 24px;
   margin-bottom: 8px;
 }
 
