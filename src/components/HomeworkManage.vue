@@ -144,32 +144,32 @@
             <!-- 左侧：标题和数据汇总 -->
             <div class="homework-left-container">
               <div class="homework-header">
-                <el-tag type="primary" class="class-tag">{{ homework.class }}</el-tag>
-                <span class="homework-title">{{ homework.title }}</span>
-              </div>
-              
-              <div class="homework-stats">
-                <span class="stat-item">
-                  总人数：<span class="stat-value">{{ homework.totalCount }}人</span>
-                </span>
-                <span class="stat-item">
-                  已提交：<span class="stat-value green">{{ homework.submitted }}份</span>
-                </span>
-                <span class="stat-item">
-                  已批阅：<span class="stat-value orange">{{ homework.reviewed }}份</span>
-                </span>
-                <span class="stat-item">
-                  未提交：<span class="stat-value red">{{ homework.unsubmitted }}份</span>
-                </span>
+              <el-tag type="primary" class="class-tag">{{ homework.class }}</el-tag>
+              <span class="homework-title">{{ homework.title }}</span>
+          </div>
+          
+            <div class="homework-stats">
+              <span class="stat-item">
+                总人数：<span class="stat-value">{{ homework.totalCount }}人</span>
+              </span>
+              <span class="stat-item">
+                已提交：<span class="stat-value green">{{ homework.submitted }}份</span>
+              </span>
+              <span class="stat-item">
+                已批阅：<span class="stat-value orange">{{ homework.reviewed }}份</span>
+              </span>
+              <span class="stat-item">
+                未提交：<span class="stat-value red">{{ homework.unsubmitted }}份</span>
+              </span>
               </div>
             </div>
             
             <!-- 右侧：操作按钮 -->
             <div class="homework-right-container">
-              <div class="homework-actions">
-                <el-button class="action-btn-outline">作业讲评</el-button>
-                <el-button class="action-btn-warning">试卷批阅</el-button>
-                <el-button type="primary" class="action-btn-primary">查看学情</el-button>
+            <div class="homework-actions">
+              <el-button class="action-btn-outline">作业讲评</el-button>
+              <el-button class="action-btn-warning">试卷批阅</el-button>
+              <el-button type="primary" class="action-btn-primary">查看学情</el-button>
               </div>
             </div>
           </div>

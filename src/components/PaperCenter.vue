@@ -176,13 +176,13 @@
         <!-- 答案 -->
         <div class="content-section">
           <div class="section-title">参考答案</div>
-          <div class="section-content">{{ selectedQuestion.answer }}</div>
+          <div class="section-content" v-html="selectedQuestion.answer"></div>
         </div>
 
         <!-- 解析 -->
         <div class="content-section" v-if="selectedQuestion.analysis">
           <div class="section-title">试题解析</div>
-          <div class="section-content">{{ selectedQuestion.analysis }}</div>
+          <div class="section-content" v-html="selectedQuestion.analysis"></div>
         </div>
       </div>
     </el-dialog>
@@ -205,7 +205,7 @@ const emit = defineEmits(['back', 'save'])
 
 // 试卷信息
 const paperInfo = ref({
-  title: props.paperConfig.title || '未命名试卷',
+  title: (props.paperConfig.title || props.paperConfig.catalogName) || '未命名试卷',
   knowledgePoints: props.paperConfig.knowledgeIds || [],
   difficultyRatio: props.paperConfig.difficultyRatio || {}
 })
@@ -493,6 +493,57 @@ const questionGroups = ref([
   }
 ])
 
+// 如果教辅目录传入了题目，按类型动态分组替换默认数据
+const buildQuestionGroups = (questions = []) => {
+  const mapType = (t) => {
+    if (t === '选择题') return 'choice'
+    if (t === '填空题') return 'blank'
+    if (t === '解答题') return 'answer'
+    if (t === '几何证明题') return 'proof'
+    if (t === '应用题') return 'application'
+    return 'other'
+  }
+
+  const groups = new Map()
+  questions.forEach((q) => {
+    const typeName = (q.type || '其他题').toString()
+    if (!groups.has(typeName)) {
+      groups.set(typeName, {
+        typeName,
+        typeValue: mapType(typeName),
+        expanded: true,
+        selected: false,
+        hideNumber: false,
+        hideScore: true,
+        questions: []
+      })
+    }
+    const group = groups.get(typeName)
+    group.questions.push({
+      id: q.id,
+      displayNumber: '',
+      type: typeName,
+      score: q.score ?? 0,
+      difficulty: q.difficulty ?? '',
+      source: q.source ?? '教辅目录',
+      content: q.content ?? '',
+      options: q.options ?? [],
+      answer: q.answer ?? '',
+      analysis: q.analysis ?? ''
+    })
+  })
+
+  const result = Array.from(groups.values())
+  result.forEach(g => {
+    g.totalScore = g.questions.reduce((sum, qq) => sum + (qq.score || 0), 0)
+  })
+  return result
+}
+
+if (props.paperConfig?.questions && Array.isArray(props.paperConfig.questions) && props.paperConfig.questions.length > 0) {
+  questionGroups.value = buildQuestionGroups(props.paperConfig.questions)
+}
+
 // 试题详情弹窗
 const showDetailDialog = ref(false)
 const selectedQuestion = ref(null)
@@ -654,9 +705,9 @@ const exportWord = async () => {
             margin: 2.54cm;
           }
           body {
-            font-family: "Times New Roman", "宋体", SimSun, serif;
+            font-family: "宋体", SimSun, serif;
             font-size: 12pt;
-            line-height: 1.8;
+            line-height: 1.3;
             margin: 0;
             padding: 0;
           }
@@ -666,13 +717,9 @@ const exportWord = async () => {
             font-weight: bold;
             margin-bottom: 10pt;
           }
-          .paper-info {
-            text-align: center;
-            font-size: 10.5pt;
-            margin-bottom: 20pt;
-          }
           .group-title {
-            font-size: 14pt;
+            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
+            font-size: 12pt;
             font-weight: bold;
             margin-top: 15pt;
             margin-bottom: 10pt;
@@ -700,9 +747,6 @@ const exportWord = async () => {
       </head>
       <body>
         <div class="paper-title">${paperInfo.value.title}</div>
-        <div class="paper-info">
-          共 ${totalQuestions.value} 题&nbsp;&nbsp;|&nbsp;&nbsp;满分 ${totalScore.value} 分
-        </div>
     `
 
     // 遍历题型组
@@ -1032,6 +1076,21 @@ const savePaper = () => {
   margin-right: 2px;
 }
 
+/* 题型标题右侧操作按钮颜色：#2877FF */
+.group-operations :deep(.el-button.is-text) {
+  color: #2877FF;
+}
+
+.group-operations :deep(.el-button.is-text .el-icon) {
+  color: #2877FF;
+}
+
+/* 禁用态降低对比度但保持蓝色系 */
+.group-operations :deep(.el-button.is-text.is-disabled),
+.group-operations :deep(.el-button.is-text.is-disabled .el-icon) {
+  color: #AFC5FF;
+}
+
 .title-text {
   font-size: 15px;
   font-weight: 600;
@@ -1178,10 +1237,12 @@ const savePaper = () => {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 8px;
+  margin-bottom: -6px; /* 抵消父级 question-item 的底部 12px 内边距，使上下间距一致 */
   margin-left: -16px;
   margin-right: -16px;
-  padding-top: 12px;
+  padding-top: 6px;
+  padding-bottom: 0; /* 与顶部 6px 配合、底部外边距抵消后，实现上下一致视觉距离 */
   padding-left: 16px;
   padding-right: 16px;
   border-top: 1px solid #2262FB;
@@ -1190,6 +1251,33 @@ const savePaper = () => {
 .question-operations {
   display: flex;
   gap: 2px;
+}
+
+/* 压缩按钮高度与间距，整体栏更紧凑 */
+.question-operations .el-button {
+  padding: 0 6px;
+  height: 26px;
+  line-height: 26px;
+  font-size: 12px;
+}
+
+.question-operations .el-button .el-icon {
+  font-size: 14px;
+}
+
+/* 底部操作按钮与文字统一为品牌蓝色 */
+.question-operations :deep(.el-button.is-text) {
+  color: #2262FB;
+}
+
+.question-operations :deep(.el-button.is-text .el-icon) {
+  color: #2262FB;
+}
+
+/* 禁用状态降低对比度但保持蓝色系 */
+.question-operations :deep(.el-button.is-text.is-disabled),
+.question-operations :deep(.el-button.is-text.is-disabled .el-icon) {
+  color: #A7B9F9;
 }
 
 /* 弹窗内容 */
