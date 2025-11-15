@@ -96,6 +96,9 @@
         <!-- 左侧筛选栏 -->
         <div class="left-sidebar">
           <div class="sidebar-header">
+            <el-icon class="back-btn" @click="showQuestionList = false" title="返回图书列表">
+              <ArrowLeft />
+            </el-icon>
             <span class="catalog-title">— 教辅目录 —</span>
           </div>
 
@@ -1242,13 +1245,14 @@ defineExpose({
   background: #fff;
   border-radius: 4px;
   padding: 16px;
+  margin: 0 40px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .grid-view {
   background: transparent;
   border-radius: 0;
-  padding: 0;
+  padding: 0 40px;
   box-shadow: none;
 }
 
@@ -1380,8 +1384,26 @@ defineExpose({
 }
 
 .sidebar-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   padding-bottom: 16px;
+}
+
+.sidebar-header .back-btn {
+  position: absolute;
+  left: 0;
+  font-size: 18px;
+  color: #606266;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.sidebar-header .back-btn:hover {
+  color: #2262FB;
+  transform: translateX(-2px);
 }
 
 .catalog-title {
