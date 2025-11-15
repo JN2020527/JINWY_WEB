@@ -1254,9 +1254,10 @@ defineExpose({
 
 .resource-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px 16px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(5, minmax(0, 180px));
+  gap: 16px 64px;
+  margin-bottom: 16px;
+  justify-content: space-between;
 }
 
 .card-wrapper {
@@ -1272,14 +1273,17 @@ defineExpose({
 }
 
 .card-wrapper:hover .card-cover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
 }
 
 .card-cover {
   width: 100%;
-  height: 188px;
+  height: auto;
+  aspect-ratio: 3/4;
   background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
   position: relative;
   overflow: hidden;
   transition: all 0.3s;
@@ -1293,7 +1297,7 @@ defineExpose({
 .card-cover :deep(.el-image img) {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .image-slot {
@@ -1308,12 +1312,12 @@ defineExpose({
 }
 
 .card-title {
-  padding: 0;
-  font-size: 14px;
-  color: #303133;
+  padding: 6px 0 0 0;
+  font-size: 13px;
+  color: #606266;
   font-weight: 400;
-  min-height: 44px;
-  line-height: 1.5;
+  min-height: 36px;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
