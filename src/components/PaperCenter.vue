@@ -1418,7 +1418,7 @@ const downloadZip = async () => {
   background: #fff;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  padding: 16px;
+  padding: 16px 16px 8px;
 }
 
 .panel-header {
@@ -1455,9 +1455,15 @@ const downloadZip = async () => {
   align-items: center;
 }
 .panel-divider {
-  height: 1px;
-  background: #edf0f5;
+  height: 0;
+  background: transparent;
+  border: none;
   margin: 10px 0;
+}
+
+.template-panel > .panel-divider:last-child {
+  margin-top: 4px;
+  margin-bottom: 0;
 }
 .panel-subtitle {
   font-size: 12px;
@@ -1689,40 +1695,38 @@ const downloadZip = async () => {
 }
 
 .question-main {
-  position: relative;
   display: flex;
   align-items: flex-start;
 }
 
 .question-number {
-  display: inline-block;
+  min-width: 26px;
+  text-align: right;
   font-size: 14px;
   font-weight: 600;
   color: #333;
-  margin-right: 4px;
+  margin-right: 6px;
   flex-shrink: 0;
 }
 
 .question-score {
-  display: inline-block;
   font-size: 13px;
   color: #999;
   font-weight: 500;
   line-height: 1.8;
   white-space: nowrap;
-  margin-right: 4px;
+  margin-right: 12px;
   flex-shrink: 0;
 }
 
 .question-content-wrapper {
-  display: inline-block;
-  vertical-align: top;
-  /* 移除右侧边距，因为得分框已经在独立容器中 */
+  display: block;
+  flex: 1;
+  min-width: 0;
 }
 
 .question-content {
-  display: inline-block;
-  vertical-align: top;
+  display: block;
 }
 
 /* 得分框容器样式 */
