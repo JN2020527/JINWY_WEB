@@ -169,7 +169,7 @@ import ScreenPresentation from './ScreenPresentation.vue'
 
 // 教材版本列表
 const textbookList = ref([
-  { value: 'gundong-2026', label: '滚动迁移(2026) / 中考版' },
+  { value: 'gundong-2026', label: '中考资源/2026' },
   { value: 'jinwenyuan-2025', label: '晋文源(2025) / 七年级上册' },
   { value: 'xinbiaozhun-2024', label: '新课标(2024) / 必修一' }
 ])
@@ -183,80 +183,56 @@ const currentTab = ref(0)
 
 // 资源库（按章节存储）
 const resourceLibrary = {
-  'chapter-1': [
-    { id: 'r1-1', title: '2025晋文源语文中考模拟卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-22', downloads: 1, views: 6, size: '0.47MB' },
-    { id: 'r1-2', title: '第一章教学课件', category: '课件', fileType: 'PPT', date: '2025-10-20', downloads: 3, views: 12, size: '2.1MB' },
-    { id: 'r1-3', title: '第一章教案设计', category: '教案', fileType: 'DOC', date: '2025-10-18', downloads: 2, views: 8, size: '0.8MB' },
-    { id: 'r1-4', title: '第一章知识点讲解视频', category: '音视频', fileType: 'MP4', date: '2025-10-16', downloads: 15, views: 45, size: '38MB' },
-    { id: 'r1-5', title: '第一章学习资料合集', category: '综合', fileType: 'PDF', date: '2025-10-15', downloads: 8, views: 24, size: '1.5MB' }
+  'gundong': [
+    { id: 'gd-1', title: '2026滚动迁移 英语 主题词汇', category: '模拟卷', fileType: 'PDF', date: '2025-10-22', downloads: 15, views: 45, size: '1.2MB' },
+    { id: 'gd-2', title: '2026滚动迁移 英语 语法专项', category: '课件', fileType: 'PPT', date: '2025-10-20', downloads: 12, views: 38, size: '3.5MB' },
+    { id: 'gd-3', title: '2026滚动迁移 英语 主题复习', category: '教案', fileType: 'DOC', date: '2025-10-18', downloads: 8, views: 25, size: '1.8MB' },
+    { id: 'gd-4', title: '滚动迁移答题技巧视频', category: '音视频', fileType: 'MP4', date: '2025-10-16', downloads: 25, views: 78, size: '125MB' },
+    { id: 'gd-5', title: '滚动迁移题型分析', category: '模拟卷', fileType: 'PDF', date: '2025-10-15', downloads: 18, views: 52, size: '2.3MB' }
   ],
-  'chapter-2': [
-    { id: 'r2-1', title: '第二章知识点总结', category: '综合', fileType: 'PDF', date: '2025-10-21', downloads: 5, views: 15, size: '1.2MB' },
-    { id: 'r2-2', title: '第二章配套视频教程', category: '音视频', fileType: 'MP4', date: '2025-10-19', downloads: 8, views: 25, size: '45MB' },
-    { id: 'r2-3', title: '第二章互动教学课件', category: '课件', fileType: 'PPT', date: '2025-10-17', downloads: 6, views: 18, size: '3.5MB' },
-    { id: 'r2-4', title: '第二章教学设计方案', category: '教案', fileType: 'DOC', date: '2025-10-15', downloads: 4, views: 12, size: '0.9MB' }
+  'lingpao': [
+    { id: 'lp-1', title: '2026领跑卷 英语 第一卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-21', downloads: 22, views: 65, size: '1.5MB' },
+    { id: 'lp-2', title: '2026领跑卷 英语 第二卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-19', downloads: 20, views: 58, size: '1.6MB' },
+    { id: 'lp-3', title: '领跑卷解析课件', category: '课件', fileType: 'PPT', date: '2025-10-17', downloads: 15, views: 42, size: '4.2MB' },
+    { id: 'lp-4', title: '领跑卷精讲视频', category: '音视频', fileType: 'MP4', date: '2025-10-15', downloads: 28, views: 85, size: '156MB' }
   ],
-  'chapter-3': [
-    { id: 'r3-1', title: '第三章实践案例集', category: '教案', fileType: 'DOC', date: '2025-10-17', downloads: 4, views: 18, size: '1.5MB' },
-    { id: 'r3-2', title: '第三章练习题', category: '模拟卷', fileType: 'PDF', date: '2025-10-15', downloads: 6, views: 20, size: '0.6MB' },
-    { id: 'r3-3', title: '第三章精品课件', category: '课件', fileType: 'PPT', date: '2025-10-13', downloads: 7, views: 22, size: '4.2MB' },
-    { id: 'r3-4', title: '第三章微课视频', category: '音视频', fileType: 'MP4', date: '2025-10-11', downloads: 12, views: 35, size: '28MB' }
+  'haoti': [
+    { id: 'ht-1', title: '好题开练 阅读理解专项', category: '模拟卷', fileType: 'PDF', date: '2025-10-20', downloads: 18, views: 54, size: '1.1MB' },
+    { id: 'ht-2', title: '好题开练 完形填空专项', category: '模拟卷', fileType: 'PDF', date: '2025-10-18', downloads: 16, views: 48, size: '0.9MB' },
+    { id: 'ht-3', title: '好题开练 书面表达专项', category: '模拟卷', fileType: 'PDF', date: '2025-10-16', downloads: 14, views: 42, size: '0.8MB' },
+    { id: 'ht-4', title: '好题开练讲解课件', category: '课件', fileType: 'PPT', date: '2025-10-14', downloads: 12, views: 35, size: '3.8MB' },
+    { id: 'ht-5', title: '好题开练答题技巧', category: '音视频', fileType: 'MP4', date: '2025-10-12', downloads: 22, views: 68, size: '98MB' }
   ],
-  'chapter-4': [
-    { id: 'r4-1', title: '第四章进阶知识课件', category: '课件', fileType: 'PPT', date: '2025-10-14', downloads: 3, views: 10, size: '3.2MB' },
-    { id: 'r4-2', title: '第四章综合测试卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-12', downloads: 9, views: 27, size: '0.8MB' },
-    { id: 'r4-3', title: '第四章教学参考资料', category: '综合', fileType: 'PDF', date: '2025-10-10', downloads: 5, views: 16, size: '2.1MB' },
-    { id: 'r4-4', title: '第四章详解视频', category: '音视频', fileType: 'MP4', date: '2025-10-08', downloads: 11, views: 32, size: '42MB' }
+  'fangxiang': [
+    { id: 'fx-1', title: '2026方向卷 英语 第一卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-19', downloads: 20, views: 60, size: '1.4MB' },
+    { id: 'fx-2', title: '2026方向卷 英语 第二卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-17', downloads: 18, views: 55, size: '1.3MB' },
+    { id: 'fx-3', title: '方向卷考点分析', category: '教案', fileType: 'DOC', date: '2025-10-15', downloads: 10, views: 32, size: '1.5MB' },
+    { id: 'fx-4', title: '方向卷详解视频', category: '音视频', fileType: 'MP4', date: '2025-10-13', downloads: 24, views: 72, size: '145MB' }
   ],
-  'chapter-5': [
-    { id: 'r5-1', title: '第五章综合练习卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-12', downloads: 7, views: 22, size: '0.9MB' },
-    { id: 'r5-2', title: '第五章多媒体课件', category: '课件', fileType: 'PPT', date: '2025-10-10', downloads: 5, views: 17, size: '5.6MB' },
-    { id: 'r5-3', title: '第五章教学实施方案', category: '教案', fileType: 'DOC', date: '2025-10-08', downloads: 3, views: 11, size: '1.1MB' },
-    { id: 'r5-4', title: '第五章名师讲堂', category: '音视频', fileType: 'MP4', date: '2025-10-06', downloads: 14, views: 40, size: '56MB' }
+  'chongci660': [
+    { id: 'cc-1', title: '660冲刺卷 英语 第一卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-18', downloads: 25, views: 75, size: '1.6MB' },
+    { id: 'cc-2', title: '660冲刺卷 英语 第二卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-16', downloads: 23, views: 70, size: '1.7MB' },
+    { id: 'cc-3', title: '660冲刺卷 英语 第三卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-14', downloads: 21, views: 65, size: '1.5MB' },
+    { id: 'cc-4', title: '660冲刺卷精讲课件', category: '课件', fileType: 'PPT', date: '2025-10-12', downloads: 18, views: 52, size: '5.2MB' },
+    { id: 'cc-5', title: '660冲刺卷答题视频', category: '音视频', fileType: 'MP4', date: '2025-10-10', downloads: 30, views: 95, size: '178MB' }
   ],
-  'chapter-6': [
-    { id: 'r6-1', title: '第六章专题研究报告', category: '综合', fileType: 'PDF', date: '2025-10-10', downloads: 2, views: 9, size: '2.3MB' },
-    { id: 'r6-2', title: '第六章专项训练题', category: '模拟卷', fileType: 'PDF', date: '2025-10-08', downloads: 8, views: 24, size: '0.7MB' },
-    { id: 'r6-3', title: '第六章精讲课件', category: '课件', fileType: 'PPT', date: '2025-10-06', downloads: 6, views: 19, size: '3.8MB' }
-  ],
-  'chapter-7': [
-    { id: 'r7-1', title: '第七章拓展阅读材料', category: '综合', fileType: 'PDF', date: '2025-10-08', downloads: 3, views: 11, size: '1.8MB' },
-    { id: 'r7-2', title: '第七章互动课件', category: '课件', fileType: 'PPT', date: '2025-10-06', downloads: 4, views: 14, size: '4.5MB' },
-    { id: 'r7-3', title: '第七章教学指导', category: '教案', fileType: 'DOC', date: '2025-10-04', downloads: 2, views: 8, size: '1.2MB' },
-    { id: 'r7-4', title: '第七章讲解视频', category: '音视频', fileType: 'MP4', date: '2025-10-02', downloads: 10, views: 28, size: '35MB' }
-  ],
-  'chapter-8': [
-    { id: 'r8-1', title: '第八章难点突破视频', category: '音视频', fileType: 'MP4', date: '2025-10-06', downloads: 10, views: 30, size: '52MB' },
-    { id: 'r8-2', title: '第八章强化训练卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-04', downloads: 7, views: 21, size: '0.9MB' },
-    { id: 'r8-3', title: '第八章重点课件', category: '课件', fileType: 'PPT', date: '2025-10-02', downloads: 5, views: 16, size: '4.8MB' },
-    { id: 'r8-4', title: '第八章教学方案', category: '教案', fileType: 'DOC', date: '2025-09-30', downloads: 3, views: 10, size: '1.3MB' }
-  ],
-  'chapter-9': [
-    { id: 'r9-1', title: '第九章实战演练题库', category: '模拟卷', fileType: 'PDF', date: '2025-10-04', downloads: 9, views: 28, size: '1.1MB' },
-    { id: 'r9-2', title: '第九章实战课件', category: '课件', fileType: 'PPT', date: '2025-10-02', downloads: 6, views: 19, size: '5.2MB' },
-    { id: 'r9-3', title: '第九章实操视频', category: '音视频', fileType: 'MP4', date: '2025-09-30', downloads: 13, views: 38, size: '48MB' },
-    { id: 'r9-4', title: '第九章教学设计', category: '教案', fileType: 'DOC', date: '2025-09-28', downloads: 4, views: 13, size: '1.0MB' }
-  ],
-  'chapter-10': [
-    { id: 'r10-1', title: '第十章总复习课件', category: '课件', fileType: 'PPT', date: '2025-10-02', downloads: 5, views: 16, size: '2.8MB' },
-    { id: 'r10-2', title: '第十章综合复习卷', category: '模拟卷', fileType: 'PDF', date: '2025-09-30', downloads: 11, views: 33, size: '1.4MB' },
-    { id: 'r10-3', title: '第十章系统复习视频', category: '音视频', fileType: 'MP4', date: '2025-09-28', downloads: 16, views: 48, size: '62MB' },
-    { id: 'r10-4', title: '第十章总结资料', category: '综合', fileType: 'PDF', date: '2025-09-26', downloads: 7, views: 22, size: '2.5MB' }
+  'baixiao': [
+    { id: 'bx-1', title: '2026百校联考 英语 第一卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-17', downloads: 28, views: 82, size: '1.8MB' },
+    { id: 'bx-2', title: '2026百校联考 英语 第二卷', category: '模拟卷', fileType: 'PDF', date: '2025-10-15', downloads: 26, views: 78, size: '1.9MB' },
+    { id: 'bx-3', title: '百校联考题型分析', category: '教案', fileType: 'DOC', date: '2025-10-13', downloads: 15, views: 45, size: '2.1MB' },
+    { id: 'bx-4', title: '百校联考课件', category: '课件', fileType: 'PPT', date: '2025-10-11', downloads: 20, views: 58, size: '4.8MB' },
+    { id: 'bx-5', title: '百校联考讲解视频', category: '音视频', fileType: 'MP4', date: '2025-10-09', downloads: 32, views: 98, size: '165MB' }
   ]
 }
 
 // 教辅目录树
 const catalogTree = ref([
-  { id: 'chapter-1', label: '第一章', contentId: 'chapter-1' },
-  { id: 'chapter-2', label: '第二章', contentId: 'chapter-2' },
-  { id: 'chapter-3', label: '第三章', contentId: 'chapter-3' },
-  { id: 'chapter-4', label: '第四章', contentId: 'chapter-4' },
-  { id: 'chapter-5', label: '第五章', contentId: 'chapter-5' },
-  { id: 'chapter-6', label: '第六章', contentId: 'chapter-6' },
-  { id: 'chapter-7', label: '第七章', contentId: 'chapter-7' },
-  { id: 'chapter-8', label: '第八章', contentId: 'chapter-8' },
-  { id: 'chapter-9', label: '第九章', contentId: 'chapter-9' },
-  { id: 'chapter-10', label: '第十章', contentId: 'chapter-10' }
+  { id: 'gundong', label: '滚动迁移', contentId: 'gundong' },
+  { id: 'lingpao', label: '领跑卷', contentId: 'lingpao' },
+  { id: 'haoti', label: '好题开练', contentId: 'haoti' },
+  { id: 'fangxiang', label: '方向卷', contentId: 'fangxiang' },
+  { id: 'chongci660', label: '660冲刺卷', contentId: 'chongci660' },
+  { id: 'baixiao', label: '百校联考', contentId: 'baixiao' }
 ])
 
 // 当前显示的资源列表
@@ -291,6 +267,12 @@ const getFileIcon = (fileType) => {
   return iconMap[fileType] || new URL('@/assets/icron/文件类型-附件.svg', import.meta.url).href
 }
 
+// 切换节点展开/收起（当前是一级节点，直接选中）
+const toggleNode = (node) => {
+  // 直接选中节点，加载对应资源
+  selectCatalog(node)
+}
+
 // 选择目录节点
 const selectCatalog = (node) => {
   selectedCatalogId.value = node.id
@@ -303,7 +285,7 @@ const selectCatalog = (node) => {
     ElMessage.info('该章节暂无资源')
   }
   
-  // 切换章节时重置分类标签到"全部资源"
+  // 切换章节时重置分类标签到“全部资源”
   currentTab.value = 0
 }
 

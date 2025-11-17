@@ -71,7 +71,7 @@ const showPaperCenter = ref(false)
 const paperCenterConfig = ref(null)
 const previousMenuState = ref({ menu: 0, tab: 0 }) // 保存进入组卷中心前的菜单状态
 
-const menuNames = ['数字图书', '备考方案', '备课资源', '作业管理', '学情分析', '智能组卷', '学校管理', '我的']
+const menuNames = ['数字图书', '备考方案', '备考资源', '备考组卷', '作业管理', '学情分析', '学校管理', '我的']
 
 const getMenuName = (index) => {
   return menuNames[index] || '未知菜单'

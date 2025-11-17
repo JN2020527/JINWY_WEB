@@ -132,18 +132,18 @@ const myTabs = [
 const navItems = computed(() => {
   // 0: 数字图书 - 无tabs
   // 1: 备考方案 - 无tabs
-  // 2: 备课资源 - 无tabs
-  // 3: 作业管理 - 有tabs
+  // 2: 备考资源 - 无tabs
+  // 3: 备考组卷 - 有tabs
   if (props.currentMenu === 3) {
+    return smartPaperTabs
+  } 
+  // 4: 作业管理 - 有tabs
+  else if (props.currentMenu === 4) {
     return homeworkTabs
   } 
-  // 4: 学情分析 - 有tabs
-  else if (props.currentMenu === 4) {
-    return situationTabs
-  } 
-  // 5: 备考组卷 - 有tabs
+  // 5: 学情分析 - 有tabs
   else if (props.currentMenu === 5) {
-    return smartPaperTabs
+    return situationTabs
   } 
   // 6: 学校管理 - 有tabs
   else if (props.currentMenu === 6) {

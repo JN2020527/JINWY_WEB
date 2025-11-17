@@ -95,10 +95,10 @@ const subjects = ['语文', '数学', '英语', '物理', '化学', '道德与�
 const menuItems = [
   { label: '数字图书', icon: Collection },
   { label: '备考方案', icon: Reading },
-  { label: '备课资源', icon: EditPen },
+  { label: '备考资源', icon: EditPen },
+  { label: '备考组卷', icon: DocumentCopy },
   { label: '作业管理', icon: List },
   { label: '学情分析', icon: DataAnalysis },
-  { label: '备考组卷', icon: DocumentCopy },
   { label: '学校管理', icon: OfficeBuilding },
   { label: '我的', icon: User }
 ]

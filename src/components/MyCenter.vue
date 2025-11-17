@@ -697,9 +697,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Reading, EditPen, Document, Plus, Search, Tickets, Upload, Edit, ArrowDown, Delete, MoreFilled, Clock, Download, View, Star, FolderOpened } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useExamBasket } from '../store/examBasket'
 
 defineProps({
   currentTab: {
@@ -707,6 +708,9 @@ defineProps({
     default: 0
   }
 })
+
+// 使用备考篮的store
+const { myExamPrepList } = useExamBasket()
 
 // 我的备考 - 左侧分类
 const selectedCategory = ref('all')
@@ -787,41 +791,13 @@ const resourceTypes = ref([
   { label: '题卡作业', value: 'cardwork' }
 ])
 
-// 我的备考 - 表格数据
-const examPrepList = ref([
-  {
-    id: 1,
-    name: '2025年全国初中语文试卷',
-    type: '试题组卷',
-    stage: '初中',
-    subject: '语文',
-    editTime: '2025-10-30 16:32:55',
-    isLocked: false
-  },
-  {
-    id: 2,
-    name: '课标文言文',
-    type: '试题组卷',
-    stage: '初中',
-    subject: '语文',
-    editTime: '2025-10-30 14:32:55',
-    isLocked: false
-  },
-  {
-    id: 5,
-    name: '古诗文默写',
-    type: '试题组卷',
-    stage: '初中',
-    subject: '语文',
-    editTime: '2025-10-24 14:40:08',
-    isLocked: false
-  }
-])
+// 我的备考 - 表格数据（使用store中的数据）
+const examPrepList = myExamPrepList
 
-// 分页
+// 分页相关
 const currentPage = ref(1)
 const pageSize = ref(10)
-const total = ref(3)
+const total = computed(() => examPrepList.value.length)
 
 // 确认添加分组
 const handleConfirmAdd = () => {

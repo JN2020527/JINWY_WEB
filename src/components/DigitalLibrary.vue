@@ -244,7 +244,7 @@
           </el-button>
           <el-button class="btn-add-all" @click="handleAddAllToExam">
             <el-icon><Plus /></el-icon>
-            <span>一键加入备考</span>
+            <span>一键加入备考篮</span>
           </el-button>
         </div>
       </div>
@@ -337,7 +337,7 @@ import ScreenPresentation from './ScreenPresentation.vue'
 const emit = defineEmits(['goto-paper-center'])
 
 // 使用备考篮
-const { addToBasket } = useExamBasket()
+const { addToBasket, saveToMyExamPrep } = useExamBasket()
 
 // 图书列表相关
 const revisionStatus = ref('completed')
@@ -489,7 +489,7 @@ const selectCatalog = (node) => {
   }
 }
 
-// 收藏目录节点
+// 收藏目录节点（直接保存到我的备考）
 const handleCollectCatalog = (node) => {
   // 先选中该节点并加载内容
   selectCatalog(node)
@@ -500,10 +500,8 @@ const handleCollectCatalog = (node) => {
       return
     }
     
-    questionList.value.forEach(question => {
-      addToBasket(question)
-    })
-    ElMessage.success('已收藏！可在「我的」→「我的备考」中查看')
+    // 直接保存为作业，不经过备考篮
+    saveToMyExamPrep(node.label, questionList.value, '初中', '英语')
   }, 100)
 }
 
@@ -644,27 +642,25 @@ const handleAddCurrentToExam = () => {
 // 一键加入备考
 const handleAddAllToExam = () => {
   if (questionList.value.length === 0) {
-    ElMessage.warning('暂无内容可加入备考')
+    ElMessage.warning('暂无内容可加入备考篮')
     return
   }
   
   questionList.value.forEach(question => {
     addToBasket(question)
   })
-  ElMessage.success(`已将${questionList.value.length}个知识点加入备考！可在「我的」→「我的备考」中查看`)
+  ElMessage.success(`已将${questionList.value.length}个知识点加入备考篮！`)
 }
 
-// 收藏当前节
+// 收藏当前节（直接保存到我的备考）
  const handleCollectCurrentSection = () => {
   if (questionList.value.length === 0) {
     ElMessage.warning('暂无内容可收藏')
     return
   }
   
-  questionList.value.forEach(question => {
-    addToBasket(question)
-  })
-  ElMessage.success('已收藏！可在「我的」→「我的备考」中查看')
+  // 直接保存为作业，不经过备考篮
+  saveToMyExamPrep(currentCatalogName.value, questionList.value, '初中', '英语')
 }
 
 // 下载当前节（跳转到组卷中心）
