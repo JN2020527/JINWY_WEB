@@ -50,10 +50,10 @@
             <el-checkbox v-model="templateConfig.showQuestionScore">展示题目分数</el-checkbox>
             <el-checkbox v-model="templateConfig.useGroupIndependentNumbering">题型内排序</el-checkbox>
           </div>
+          </div>
           
-          <div class="panel-divider"></div>
-          
-          <!-- 分组与排序 -->
+          <!-- 分组与排序（独立面板） -->
+          <div class="sort-panel">
           <div class="panel-header">
             <span class="panel-title">分组与排序</span>
           </div>
@@ -63,12 +63,6 @@
               <div class="sort-tab disabled">按知识点</div>
               <div class="sort-tab disabled">按加入顺序</div>
             </div>
-          </div>
-          <div class="panel-section">
-            <el-radio-group v-model="sortOrder" class="sort-radio-group">
-              <el-radio value="add-order">加入顺序</el-radio>
-              <el-radio value="difficulty" disabled>由易到难</el-radio>
-            </el-radio-group>
           </div>
           
           <!-- 题型分组列表 -->
@@ -102,10 +96,6 @@
               清空试题
             </el-button>
           </div>
-          
-          <div class="panel-divider"></div>
-          
-          
         </div>
         </div>
 
@@ -375,9 +365,6 @@ const resetTemplate = () => {
 const applyTemplate = () => {
   ElMessage.success('模板设置已应用')
 }
-
-// 分组与排序状态
-const sortOrder = ref('add-order') // add-order | difficulty
 
 // 获取题组题号范围
 const getGroupQuestionRange = (group, groupIndex) => {
@@ -1397,7 +1384,7 @@ const downloadZip = async () => {
   width: 300px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   position: sticky;
   top: 0px;
   align-self: flex-start;
@@ -1520,6 +1507,15 @@ const downloadZip = async () => {
   padding: 16px 16px 8px;
 }
 
+/* 分组与排序面板（独立面板） */
+.sort-panel {
+  width: 100%;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 16px 16px 8px;
+}
+
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -1598,16 +1594,6 @@ const downloadZip = async () => {
 
 .sort-tab:not(.disabled):not(.active):hover {
   color: #2262FB;
-}
-
-.sort-radio-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.sort-radio-group :deep(.el-radio) {
-  margin-right: 0;
 }
 
 /* 题组列表样式 */
