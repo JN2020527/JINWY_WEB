@@ -67,10 +67,6 @@
           
           <!-- 题型分组列表 -->
           <div class="panel-section group-list-section">
-            <div class="group-section-header">
-              <span class="section-number">第I卷</span>
-              <span class="section-subtitle">选择题</span>
-            </div>
             <div 
               v-for="(group, index) in questionGroups" 
               :key="group.typeName"
@@ -1599,26 +1595,6 @@ const downloadZip = async () => {
 /* 题组列表样式 */
 .group-list-section {
   margin-top: 10px;
-}
-
-.group-section-header {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 10px;
-  padding: 6px 0;
-  border-bottom: 1px solid #e4e7ed;
-}
-
-.section-number {
-  font-size: 13px;
-  font-weight: 600;
-  color: #303133;
-}
-
-.section-subtitle {
-  font-size: 12px;
-  color: #909399;
 }
 
 .group-list-item {
