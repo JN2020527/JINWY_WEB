@@ -130,19 +130,27 @@ const myTabs = [
 
 // 根据当前菜单显示对应的tabs
 const navItems = computed(() => {
-  if (props.currentMenu === 0) {
-    return digitalTabs
-  } else if (props.currentMenu === 1) {
-    return prepareTabs
-  } else if (props.currentMenu === 2) {
+  // 0: 数字图书 - 无tabs
+  // 1: 备考方案 - 无tabs
+  // 2: 备课资源 - 无tabs
+  // 3: 作业管理 - 有tabs
+  if (props.currentMenu === 3) {
     return homeworkTabs
-  } else if (props.currentMenu === 3) {
+  } 
+  // 4: 学情分析 - 有tabs
+  else if (props.currentMenu === 4) {
     return situationTabs
-  } else if (props.currentMenu === 4) {
+  } 
+  // 5: 备考组卷 - 有tabs
+  else if (props.currentMenu === 5) {
     return smartPaperTabs
-  } else if (props.currentMenu === 5) {
+  } 
+  // 6: 学校管理 - 有tabs
+  else if (props.currentMenu === 6) {
     return schoolManageTabs
-  } else if (props.currentMenu === 6) {
+  } 
+  // 7: 我的 - 有tabs
+  else if (props.currentMenu === 7) {
     return myTabs
   }
   return []

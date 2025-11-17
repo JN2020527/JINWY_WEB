@@ -667,101 +667,18 @@ const handleAddAllToExam = () => {
   ElMessage.success('已收藏！可在「我的」→「我的备考」中查看')
 }
 
-// 下载当前节
-const handleDownloadCurrentSection = async () => {
+// 下载当前节（跳转到组卷中心）
+const handleDownloadCurrentSection = () => {
   if (!currentCatalogName.value || questionList.value.length === 0) {
-    ElMessage.warning('暂无内容可下载')
+    ElMessage.warning('请先选择内容再进入组卷中心')
     return
   }
-
-  try {
-    ElMessage.info('正在生成Word文档...')
-    
-    // 创建Word文档内容
-    let htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          @page {
-            size: A4;
-            margin: 2.54cm;
-          }
-          body {
-            font-family: "Times New Roman", "宋体", SimSun, serif;
-            font-size: 12pt;
-            line-height: 1.8;
-            margin: 0;
-            padding: 0;
-          }
-          .document-title {
-            text-align: center;
-            font-size: 18pt;
-            font-weight: bold;
-            margin-bottom: 20pt;
-          }
-          .content-item {
-            margin-bottom: 20pt;
-          }
-          .item-title {
-            font-size: 14pt;
-            font-weight: bold;
-            margin-bottom: 10pt;
-            color: #303133;
-          }
-          .item-content {
-            font-size: 12pt;
-            line-height: 1.8;
-            text-indent: 2em;
-          }
-          .item-meta {
-            font-size: 10pt;
-            color: #909399;
-            margin-top: 8pt;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="document-title">${currentCatalogName.value}</div>
-    `
-
-    // 遍历知识点
-    questionList.value.forEach((item, index) => {
-      htmlContent += `
-        <div class="content-item">
-          <div class="item-title">${index + 1}. ${item.title || '知识点' + (index + 1)}</div>
-          <div class="item-content">${item.content || item.description || ''}</div>
-          ${item.source ? `<div class="item-meta">来源：${item.source}</div>` : ''}
-        </div>
-      `
-    })
-
-    htmlContent += `
-      </body>
-      </html>
-    `
-
-    // 创建Blob对象
-    const blob = new Blob(['\ufeff' + htmlContent], {
-      type: 'application/msword;charset=utf-8'
-    })
-
-    // 创建下载链接
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${currentCatalogName.value}.doc`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-
-    ElMessage.success('Word文档下载成功！')
-  } catch (error) {
-    console.error('下载Word失败:', error)
-    ElMessage.error('下载Word文档失败，请重试')
-  }
+  
+  // 触发父组件跳转事件
+  emit('goto-paper-center', {
+    catalogName: currentCatalogName.value,
+    questions: questionList.value
+  })
 }
 
 // 跳转到组卷中心
