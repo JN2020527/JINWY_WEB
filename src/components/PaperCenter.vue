@@ -70,13 +70,35 @@
             <div 
               v-for="(group, index) in questionGroups" 
               :key="group.typeName"
-              class="group-list-item"
+              class="group-list-container"
+              draggable="true"
+              @dragstart="handleDragStart(index, $event)"
+              @dragenter="handleDragEnter(index, $event)"
+              @dragover="handleDragOver($event)"
+              @dragleave="handleDragLeave($event)"
+              @drop="handleDrop(index, $event)"
+              @dragend="handleDragEnd($event)"
+              :class="{ 'drag-over': dragOverIndex === index }"
             >
-              <div class="group-item-header">
-                <span class="group-number">{{ getChineseNumber(index + 1) }}、</span>
-                <span class="group-name">{{ group.typeName }}</span>
+              <!-- 题型标题行 -->
+              <div class="group-list-item">
+                <div class="group-item-header">
+                  <span class="group-number">{{ getChineseNumber(index + 1) }}、</span>
+                  <span class="group-name">{{ group.typeName }}</span>
+                </div>
+                <span class="drag-hint">拖动排序</span>
               </div>
-              <div class="group-item-range">{{ getGroupQuestionRange(group, index) }}</div>
+              
+              <!-- 题型下的题目列表 -->
+              <div class="question-mini-list">
+                <span 
+                  v-for="(question, qIndex) in group.questions"
+                  :key="question.id"
+                  class="question-mini-number"
+                >
+                  {{ getGlobalQuestionIndex(index, qIndex) }}
+                </span>
+              </div>
             </div>
             
             <!-- 自定义题型按钮 -->
@@ -403,6 +425,67 @@ const clearAllQuestions = async () => {
 // 添加自定义题型
 const addCustomType = () => {
   ElMessage.info('自定义题型功能开发中...')
+}
+
+// 拖拽排序相关状态
+const dragStartIndex = ref(null)
+const dragOverIndex = ref(null)
+
+// 拖拽开始
+const handleDragStart = (index, event) => {
+  dragStartIndex.value = index
+  event.dataTransfer.effectAllowed = 'move'
+  event.target.style.opacity = '0.5'
+}
+
+// 拖拽进入
+const handleDragEnter = (index, event) => {
+  event.preventDefault()
+  if (dragStartIndex.value !== index) {
+    dragOverIndex.value = index
+  }
+}
+
+// 拖拽经过
+const handleDragOver = (event) => {
+  event.preventDefault()
+  event.dataTransfer.dropEffect = 'move'
+}
+
+// 拖拽离开
+const handleDragLeave = (event) => {
+  event.preventDefault()
+}
+
+// 放置
+const handleDrop = (index, event) => {
+  event.preventDefault()
+  
+  if (dragStartIndex.value !== null && dragStartIndex.value !== index) {
+    // 交换位置
+    const groups = [...questionGroups.value]
+    const draggedItem = groups[dragStartIndex.value]
+    
+    // 移除被拖拽的项
+    groups.splice(dragStartIndex.value, 1)
+    
+    // 在目标位置插入
+    groups.splice(index, 0, draggedItem)
+    
+    // 更新数据
+    questionGroups.value = groups
+    
+    ElMessage.success('题型顺序已调整')
+  }
+  
+  dragOverIndex.value = null
+}
+
+// 拖拽结束
+const handleDragEnd = (event) => {
+  event.target.style.opacity = '1'
+  dragStartIndex.value = null
+  dragOverIndex.value = null
 }
 
 
@@ -1597,17 +1680,35 @@ const downloadZip = async () => {
   margin-top: 10px;
 }
 
+.group-list-container {
+  margin-bottom: 12px;
+  padding: 8px;
+  border-radius: 0;
+  border: 1px solid transparent;
+  transition: all 0.3s;
+  cursor: move;
+  user-select: none;
+}
+
+.group-list-container:hover {
+  border-color: #2262FB;
+  box-shadow: 0 2px 8px rgba(34, 98, 251, 0.1);
+}
+
+.group-list-container.drag-over {
+  border-color: #2262FB;
+  background: #f0f5ff;
+  border-style: dashed;
+  transform: scale(1.02);
+}
+
 .group-list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 6px 0;
   font-size: 13px;
-  border-bottom: 1px dashed #f0f0f0;
-}
-
-.group-list-item:last-child {
-  border-bottom: none;
+  transition: background 0.3s;
 }
 
 .group-item-header {
@@ -1625,12 +1726,47 @@ const downloadZip = async () => {
   color: #606266;
 }
 
+.drag-hint {
+  font-size: 12px;
+  color: #c0c4cc;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.group-list-container:hover .drag-hint {
+  opacity: 1;
+}
+
 .group-item-range {
   color: #909399;
   font-size: 12px;
   padding: 2px 8px;
   background: #f5f7fa;
   border-radius: 2px;
+}
+
+/* 题目小列表样式 */
+.question-mini-list {
+  padding-left: 16px;
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.question-mini-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+  color: #606266;
+  background: transparent;
+  border: 1px solid #2262FB;
+  border-radius: 3px;
+  cursor: default;
+  user-select: none;
 }
 
 /* 自定义题型按钮 */
