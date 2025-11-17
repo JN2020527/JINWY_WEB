@@ -233,10 +233,20 @@
             <span class="summary-value">共 {{ questionList.length }} 个内容块</span>
           </div>
         </div>
-        <el-button class="btn-add-all" @click="handleAddAllToExam">
-          <el-icon><Plus /></el-icon>
-          <span>一键加入备考</span>
-        </el-button>
+        <div class="header-actions">
+          <el-button class="btn-collect" @click="handleCollectCurrentSection">
+            <el-icon><Star /></el-icon>
+            <span>收藏本节</span>
+          </el-button>
+          <el-button class="btn-download" @click="handleDownloadCurrentSection">
+            <el-icon><Download /></el-icon>
+            <span>下载本节</span>
+          </el-button>
+          <el-button class="btn-add-all" @click="handleAddAllToExam">
+            <el-icon><Plus /></el-icon>
+            <span>一键加入备考</span>
+          </el-button>
+        </div>
       </div>
 
       <!-- 空状态提示 - 已选择目录但无内容 -->
@@ -338,7 +348,7 @@ const viewMode = ref('grid')
 const currentPage = ref(1)
 const pageSize = ref(12)
 
-const categoryTabs = ['滚动迁移', '复习重构']
+const categoryTabs = ['滚动迁移', '领跑卷', '好题开练', '方向卷', '660冲刺卷', '百校联考']
 
 const filteredResources = computed(() => {
   let result = mockResources
@@ -642,6 +652,116 @@ const handleAddAllToExam = () => {
     addToBasket(question)
   })
   ElMessage.success(`已将${questionList.value.length}个知识点加入备考！可在「我的」→「我的备考」中查看`)
+}
+
+// 收藏当前节
+ const handleCollectCurrentSection = () => {
+  if (questionList.value.length === 0) {
+    ElMessage.warning('暂无内容可收藏')
+    return
+  }
+  
+  questionList.value.forEach(question => {
+    addToBasket(question)
+  })
+  ElMessage.success('已收藏！可在「我的」→「我的备考」中查看')
+}
+
+// 下载当前节
+const handleDownloadCurrentSection = async () => {
+  if (!currentCatalogName.value || questionList.value.length === 0) {
+    ElMessage.warning('暂无内容可下载')
+    return
+  }
+
+  try {
+    ElMessage.info('正在生成Word文档...')
+    
+    // 创建Word文档内容
+    let htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          @page {
+            size: A4;
+            margin: 2.54cm;
+          }
+          body {
+            font-family: "Times New Roman", "宋体", SimSun, serif;
+            font-size: 12pt;
+            line-height: 1.8;
+            margin: 0;
+            padding: 0;
+          }
+          .document-title {
+            text-align: center;
+            font-size: 18pt;
+            font-weight: bold;
+            margin-bottom: 20pt;
+          }
+          .content-item {
+            margin-bottom: 20pt;
+          }
+          .item-title {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 10pt;
+            color: #303133;
+          }
+          .item-content {
+            font-size: 12pt;
+            line-height: 1.8;
+            text-indent: 2em;
+          }
+          .item-meta {
+            font-size: 10pt;
+            color: #909399;
+            margin-top: 8pt;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="document-title">${currentCatalogName.value}</div>
+    `
+
+    // 遍历知识点
+    questionList.value.forEach((item, index) => {
+      htmlContent += `
+        <div class="content-item">
+          <div class="item-title">${index + 1}. ${item.title || '知识点' + (index + 1)}</div>
+          <div class="item-content">${item.content || item.description || ''}</div>
+          ${item.source ? `<div class="item-meta">来源：${item.source}</div>` : ''}
+        </div>
+      `
+    })
+
+    htmlContent += `
+      </body>
+      </html>
+    `
+
+    // 创建Blob对象
+    const blob = new Blob(['\ufeff' + htmlContent], {
+      type: 'application/msword;charset=utf-8'
+    })
+
+    // 创建下载链接
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${currentCatalogName.value}.doc`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    ElMessage.success('Word文档下载成功！')
+  } catch (error) {
+    console.error('下载Word失败:', error)
+    ElMessage.error('下载Word文档失败，请重试')
+  }
 }
 
 // 跳转到组卷中心
@@ -1567,18 +1687,32 @@ defineExpose({
   color: #2262FB;
 }
 
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-collect,
+.btn-download,
 .btn-add-all {
   background: transparent;
   border: 1px solid #2262FB;
   color: #2262FB;
+  padding: 8px 16px;
+  font-size: 14px;
 }
 
+.btn-collect:hover,
+.btn-download:hover,
 .btn-add-all:hover {
   background: #f0f5ff;
   border-color: #2262FB;
   color: #2262FB;
 }
 
+.btn-collect:active,
+.btn-download:active,
 .btn-add-all:active {
   background: #e6f0ff;
   border-color: #2262FB;
