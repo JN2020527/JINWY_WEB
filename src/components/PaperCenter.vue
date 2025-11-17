@@ -53,6 +53,58 @@
           
           <div class="panel-divider"></div>
           
+          <!-- 分组与排序 -->
+          <div class="panel-header">
+            <span class="panel-title">分组与排序</span>
+          </div>
+          <div class="panel-section">
+            <div class="sort-tabs">
+              <div class="sort-tab active">按题型</div>
+              <div class="sort-tab disabled">按知识点</div>
+              <div class="sort-tab disabled">按加入顺序</div>
+            </div>
+          </div>
+          <div class="panel-section">
+            <el-radio-group v-model="sortOrder" class="sort-radio-group">
+              <el-radio value="add-order">加入顺序</el-radio>
+              <el-radio value="difficulty" disabled>由易到难</el-radio>
+            </el-radio-group>
+          </div>
+          
+          <!-- 题型分组列表 -->
+          <div class="panel-section group-list-section">
+            <div class="group-section-header">
+              <span class="section-number">第I卷</span>
+              <span class="section-subtitle">选择题</span>
+            </div>
+            <div 
+              v-for="(group, index) in questionGroups" 
+              :key="group.typeName"
+              class="group-list-item"
+            >
+              <div class="group-item-header">
+                <span class="group-number">{{ getChineseNumber(index + 1) }}、</span>
+                <span class="group-name">{{ group.typeName }}</span>
+              </div>
+              <div class="group-item-range">{{ getGroupQuestionRange(group, index) }}</div>
+            </div>
+            
+            <!-- 自定义题型按钮 -->
+            <div class="custom-type-btn" @click="addCustomType">
+              <el-icon><Plus /></el-icon>
+              <span>自定义题型</span>
+            </div>
+          </div>
+          
+          <!-- 清空按钮 -->
+          <div class="panel-section">
+            <el-button class="clear-button" @click="clearAllQuestions">
+              清空试题
+            </el-button>
+          </div>
+          
+          <div class="panel-divider"></div>
+          
           
         </div>
         </div>
@@ -261,7 +313,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Refresh, Delete, ArrowUp, ArrowDown, View, Document, Printer, Check, Edit, Top, Bottom, Menu } from '@element-plus/icons-vue'
+import { Refresh, Delete, ArrowUp, ArrowDown, View, Document, Printer, Check, Edit, Top, Bottom, Menu, Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import JSZip from 'jszip'
 import { jsPDF } from 'jspdf'
@@ -324,8 +376,53 @@ const applyTemplate = () => {
   ElMessage.success('模板设置已应用')
 }
 
+// 分组与排序状态
+const sortOrder = ref('add-order') // add-order | difficulty
 
- 
+// 获取题组题号范围
+const getGroupQuestionRange = (group, groupIndex) => {
+  if (group.questions.length === 0) return '非选择题'
+  
+  const startNum = getGlobalQuestionIndex(groupIndex, 0)
+  const endNum = getGlobalQuestionIndex(groupIndex, group.questions.length - 1)
+  
+  if (startNum === endNum) {
+    return startNum
+  }
+  return `${startNum}-${endNum}`
+}
+
+// 清空所有试题
+const clearAllQuestions = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '确定要清空所有试题吗？此操作不可恢复！',
+      '清空试题',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    // 清空所有题组的题目
+    questionGroups.value.forEach(group => {
+      group.questions = []
+      group.totalScore = 0
+    })
+    
+    ElMessage.success('已清空所有试题')
+  } catch {
+    // 用户取消操作
+  }
+}
+
+// 添加自定义题型
+const addCustomType = () => {
+  ElMessage.info('自定义题型功能开发中...')
+}
+
+
 
 
 // 更新组总分
@@ -1467,6 +1564,154 @@ const downloadZip = async () => {
   margin-top: 4px;
   margin-bottom: 0;
 }
+
+/* 分组与排序样式 */
+.sort-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #e4e7ed;
+}
+
+.sort-tab {
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #606266;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+  user-select: none;
+  position: relative;
+  bottom: -1px;
+}
+
+.sort-tab.active {
+  color: #2262FB;
+  border-bottom-color: #2262FB;
+  font-weight: 500;
+}
+
+.sort-tab.disabled {
+  color: #c0c4cc;
+  cursor: not-allowed;
+}
+
+.sort-tab:not(.disabled):not(.active):hover {
+  color: #2262FB;
+}
+
+.sort-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sort-radio-group :deep(.el-radio) {
+  margin-right: 0;
+}
+
+/* 题组列表样式 */
+.group-list-section {
+  margin-top: 10px;
+}
+
+.group-section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #e4e7ed;
+}
+
+.section-number {
+  font-size: 13px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.section-subtitle {
+  font-size: 12px;
+  color: #909399;
+}
+
+.group-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px dashed #f0f0f0;
+}
+
+.group-list-item:last-child {
+  border-bottom: none;
+}
+
+.group-item-header {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.group-number {
+  font-weight: 600;
+  color: #303133;
+}
+
+.group-name {
+  color: #606266;
+}
+
+.group-item-range {
+  color: #909399;
+  font-size: 12px;
+  padding: 2px 8px;
+  background: #f5f7fa;
+  border-radius: 2px;
+}
+
+/* 自定义题型按钮 */
+.custom-type-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px;
+  margin-top: 12px;
+  color: #2877FF;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px dashed #d9d9d9;
+  border-radius: 4px;
+  transition: all 0.3s;
+  user-select: none;
+}
+
+.custom-type-btn:hover {
+  color: #2262FB;
+  border-color: #2877FF;
+  background: #f5f7ff;
+}
+
+.custom-type-btn .el-icon {
+  font-size: 14px;
+}
+
+/* 清空按钮样式 */
+.clear-button {
+  width: 100%;
+  margin-top: 8px;
+  color: #2877FF;
+  border-color: #2877FF;
+}
+
+.clear-button:hover {
+  color: #fff;
+  background-color: #2877FF;
+  border-color: #2877FF;
+}
+
 .panel-subtitle {
   font-size: 12px;
   color: #606266;
