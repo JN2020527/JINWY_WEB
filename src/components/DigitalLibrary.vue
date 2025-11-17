@@ -2247,20 +2247,20 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid #f0f0f0;
-  gap: 20px;
+  gap: 16px;
 }
 
 .question-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 20px;
   flex: 1;
 }
 
 .meta-item {
-  font-size: 14px;
+  font-size: 13px;
   color: #909399;
 }
 
@@ -2275,9 +2275,9 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 8px 16px;
+  padding: 6px 14px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.3s;
   outline: none;
@@ -2298,7 +2298,7 @@ defineExpose({
 
 .btn-analysis .el-icon,
 .btn-add .el-icon {
-  font-size: 16px;
+  font-size: 15px;
 }
 
 @keyframes slideDown {
