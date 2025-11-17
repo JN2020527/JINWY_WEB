@@ -1270,12 +1270,59 @@ const handleCollectResource = (resource) => {
 }
 
 // 批量下载资源
-const handleBatchDownloadResources = () => {
+const handleBatchDownloadResources = async () => {
   if (resourceList.value.length === 0) {
     ElMessage.warning('暂无资源可下载')
     return
   }
-  ElMessage.success(`正在批量下载 ${resourceList.value.length} 个资源`)
+  
+  try {
+    ElMessage.info('正在生成压缩包...')
+    
+    // 动态导入 JSZip
+    const JSZip = (await import('jszip')).default
+    const zip = new JSZip()
+    
+    // 为每个资源创建一个模拟文件
+    resourceList.value.forEach((resource, index) => {
+      // 创建文本内容作为示例（实际应该下载真实文件）
+      const content = `资源名称：${resource.name}
+类型：${resource.type}
+大小：${resource.size}
+
+这是 ${resource.name} 的内容示例。
+实际应用中，这里应该是真实的文件内容。`
+      
+      // 根据文件类型确定扩展名
+      let ext = '.txt'
+      if (resource.fileType === 'PDF') ext = '.pdf'
+      else if (resource.fileType === 'DOC') ext = '.docx'
+      else if (resource.fileType === 'PPT') ext = '.pptx'
+      else if (resource.fileType === 'MP4') ext = '.mp4'
+      
+      // 添加文件到压缩包
+      const fileName = `${index + 1}_${resource.name}`
+      zip.file(fileName, content)
+    })
+    
+    // 生成压缩包
+    const blob = await zip.generateAsync({ type: 'blob' })
+    
+    // 创建下载链接
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${currentCatalogName.value}_配套资源.zip`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    
+    ElMessage.success(`已成功下载 ${resourceList.value.length} 个资源的压缩包`)
+  } catch (error) {
+    console.error('批量下载失败:', error)
+    ElMessage.error('批量下载失败，请重试')
+  }
 }
 
 // 批量收藏资源
@@ -1730,7 +1777,7 @@ defineExpose({
   gap: 0;
   position: relative;
   align-items: center;
-  padding: 0 20px;
+  padding: 0;
 }
 
 .tab-item {
@@ -1777,7 +1824,7 @@ defineExpose({
 }
 
 .tab-actions .el-button {
-  padding: 8px 16px;
+  padding: 8px 14px;
   font-size: 14px;
   border: 1px solid #2262FB;
   color: #2262FB;
@@ -1794,6 +1841,10 @@ defineExpose({
   background: #e6f0ff;
   border-color: #2262FB;
   color: #2262FB;
+}
+
+.tab-actions .el-button .el-icon {
+  font-size: 15px;
 }
 
 /* 配套资源内容区 */
