@@ -225,45 +225,62 @@
 
         <!-- 右侧内容区 -->
         <div class="right-content">
-      <!-- 内容标题区 - 只在有内容时显示 -->
-      <div v-if="currentCatalogName && questionList.length > 0" class="content-header-area">
-        <div class="title-summary-wrapper">
-          <div class="content-title-main">{{ currentCatalogName }}</div>
-          <div class="content-summary">
-            <span class="summary-value">共 {{ questionList.length }} 个内容块</span>
+      <!-- Tab 切换区 - 只要选中了目录就显示 -->
+      <div v-if="currentCatalogName" class="content-tabs">
+        <div class="tab-list">
+          <div 
+            v-for="(tab, index) in contentTabs" 
+            :key="index"
+            :class="['tab-item', { active: contentTab === index }]"
+            @click="contentTab = index"
+          >
+            <el-icon class="tab-icon">
+              <Reading v-if="index === 0" />
+              <FolderOpened v-else />
+            </el-icon>
+            <span>{{ tab }}</span>
+          </div>
+          
+          <!-- 试题&知识 Tab 的操作按钮 -->
+          <div v-if="contentTab === 0" class="tab-actions">
+            <el-button class="btn-collect" @click="handleCollectCurrentSection">
+              <el-icon><Star /></el-icon>
+              <span>收藏本节</span>
+            </el-button>
+            <el-button class="btn-download" @click="handleDownloadCurrentSection">
+              <el-icon><Download /></el-icon>
+              <span>下载本节</span>
+            </el-button>
+            <el-button class="btn-add-all" @click="handleAddAllToExam">
+              <el-icon><Plus /></el-icon>
+              <span>一键加入备考篮</span>
+            </el-button>
+          </div>
+          
+          <!-- 配套资源 Tab 的操作按钮 -->
+          <div v-else-if="contentTab === 1" class="tab-actions">
+            <el-button class="btn-batch-download" @click="handleBatchDownloadResources">
+              <el-icon><Download /></el-icon>
+              <span>批量下载</span>
+            </el-button>
+            <el-button class="btn-batch-collect" @click="handleBatchCollectResources">
+              <el-icon><Star /></el-icon>
+              <span>批量收藏</span>
+            </el-button>
           </div>
         </div>
-        <div class="header-actions">
-          <el-button class="btn-collect" @click="handleCollectCurrentSection">
-            <el-icon><Star /></el-icon>
-            <span>收藏本节</span>
-          </el-button>
-          <el-button class="btn-download" @click="handleDownloadCurrentSection">
-            <el-icon><Download /></el-icon>
-            <span>下载本节</span>
-          </el-button>
-          <el-button class="btn-add-all" @click="handleAddAllToExam">
-            <el-icon><Plus /></el-icon>
-            <span>一键加入备考篮</span>
-          </el-button>
-        </div>
-      </div>
-
-      <!-- 空状态提示 - 已选择目录但无内容 -->
-      <div v-else-if="currentCatalogName && questionList.length === 0" class="empty-state">
-        <el-icon class="empty-icon"><FolderOpened /></el-icon>
-        <div class="empty-title">{{ currentCatalogName }}</div>
-        <div class="empty-text">请在左侧展开此目录查看内容</div>
       </div>
 
       <!-- 初始状态提示 - 未选择任何目录 -->
-      <div v-else-if="!currentCatalogName" class="empty-state">
+      <div v-if="!currentCatalogName" class="empty-state">
         <el-icon class="empty-icon"><Reading /></el-icon>
         <div class="empty-text">请从左侧教辅目录中选择章节，开始学习</div>
       </div>
 
-      <!-- 题目列表 -->
-      <div class="question-list">
+      <!-- 题目列表 - 试题&知识 tab -->
+      <div v-if="contentTab === 0 && currentCatalogName" class="question-list">
+        <!-- 有内容时显示题目列表 -->
+        <template v-if="questionList.length > 0">
         <div 
           v-for="(question, index) in questionList" 
           :key="question.id"
@@ -307,6 +324,63 @@
             </div>
           </div>
         </div>
+        </template>
+        
+        <!-- 无内容时显示空状态 -->
+        <div v-else class="empty-state-inline">
+          <el-icon class="empty-icon-small"><FolderOpened /></el-icon>
+          <div class="empty-text-small">该章节暂无对应试题与知识</div>
+        </div>
+      </div>
+
+      <!-- 配套资源 tab -->
+      <div v-else-if="contentTab === 1 && currentCatalogName" class="resources-content">
+        <!-- 有资源时显示列表 -->
+        <div v-if="resourceList.length > 0" class="resource-list">
+          <div 
+            v-for="(resource, index) in resourceList" 
+            :key="index"
+            class="resource-item"
+          >
+            <!-- 左侧图标 -->
+            <div class="resource-icon">
+              <img :src="getFileIcon(resource.fileType)" class="file-icon" :alt="resource.type">
+            </div>
+            
+            <!-- 中间信息 -->
+            <div class="resource-info">
+              <div class="resource-title">{{ resource.name }}</div>
+              <div class="resource-meta">
+                <span class="meta-tag">{{ resource.type }}</span>
+                <span class="meta-text">
+                  <el-icon><Files /></el-icon>
+                  {{ resource.size }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- 右侧操作按钮 -->
+            <div class="resource-actions">
+              <el-button text @click="handleDownloadResource(resource)">
+                <el-icon><Download /></el-icon>
+                <span>下载</span>
+              </el-button>
+              <el-button text @click="handlePreviewResource(resource)">
+                <el-icon><View /></el-icon>
+                <span>预览</span>
+              </el-button>
+              <el-button text @click="handleCollectResource(resource)">
+                <el-icon><Star /></el-icon>
+                <span>收藏</span>
+              </el-button>
+            </div>
+          </div>
+        </div>
+        <!-- 无资源时显示空状态 -->
+        <div v-else class="resources-empty">
+          <el-icon class="empty-icon"><FolderOpened /></el-icon>
+          <div class="empty-text">该章节暂无配套资源</div>
+        </div>
       </div>
         </div>
       </div>
@@ -327,7 +401,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Search, Menu, Grid, Picture, ArrowLeft, Monitor, View, Plus, CaretRight, Star, Edit, Download, DocumentChecked, Delete, MoreFilled, FolderOpened, Reading } from '@element-plus/icons-vue'
+import { Search, Menu, Grid, Picture, ArrowLeft, Monitor, View, Plus, CaretRight, Star, Edit, Download, DocumentChecked, Delete, MoreFilled, FolderOpened, Reading, Document, Files } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { mockResources } from '../mock/data'
 import { useExamBasket } from '../store/examBasket'
@@ -338,6 +412,10 @@ const emit = defineEmits(['goto-paper-center'])
 
 // 使用备考篮
 const { addToBasket, saveToMyExamPrep } = useExamBasket()
+
+// 内容区 Tab 切换
+const contentTab = ref(0) // 0: 试题&知识, 1: 配套资源
+const contentTabs = ['试题&知识', '配套资源']
 
 // 图书列表相关
 const revisionStatus = ref('completed')
@@ -439,6 +517,9 @@ const selectedCatalogId = ref(null)
 // 当前选中的目录名称
 const currentCatalogName = ref('')
 
+// 配套资源列表
+const resourceList = ref([])
+
 // 递归收集节点及其所有子节点的contentId
 const collectContentIds = (node) => {
   const contentIds = []
@@ -477,14 +558,21 @@ const selectCatalog = (node) => {
   selectedCatalogId.value = node.id
   currentCatalogName.value = node.label
   
+  // 重置 Tab 到第一个（试题&知识）
+  contentTab.value = 0
+  
   // 只加载当前节点自己的内容，不包括子节点
   if (node.contentId) {
     // 根据当前节点的contentId加载内容
     loadContentByIds([node.contentId])
     const level = node.children ? (node.children[0]?.children ? '一级' : '二级') : '三级'
     console.log(`选择${level}目录:`, node.label, `共加载 ${questionList.value.length} 个知识点`)
+    
+    // 加载配套资源（模拟数据）
+    loadResourcesByContentId(node.contentId)
   } else {
     questionList.value = []
+    resourceList.value = []
     ElMessage.info('该节点暂无内容')
   }
 }
@@ -1126,6 +1214,79 @@ const loadContentByIds = (contentIds) => {
   questionList.value = allContents
 }
 
+// 根据contentId加载配套资源（模拟数据）
+const loadResourcesByContentId = (contentId) => {
+  // 模拟配套资源数据
+  const resourceMap = {
+    'lunyu': [
+      { name: '《论语》十二章教案.docx', type: 'Word文档', fileType: 'DOC', size: '2.3MB' },
+      { name: '《论语》十二章课件.pptx', type: 'PPT演示', fileType: 'PPT', size: '5.8MB' },
+      { name: '《论语》十二章课后练习.pdf', type: 'PDF文档', fileType: 'PDF', size: '1.2MB' }
+    ],
+    'jiezishu': [
+      { name: '《诫子书》教案.docx', type: 'Word文档', fileType: 'DOC', size: '1.8MB' },
+      { name: '《诫子书》课件.pptx', type: 'PPT演示', fileType: 'PPT', size: '4.5MB' }
+    ],
+    'ailiansuo': [
+      { name: '《爱莲说》教案.docx', type: 'Word文档', fileType: 'DOC', size: '2.1MB' },
+      { name: '《爱莲说》课件.pptx', type: 'PPT演示', fileType: 'PPT', size: '6.2MB' },
+      { name: '《爱莲说》拓展阅读.pdf', type: 'PDF文档', fileType: 'PDF', size: '3.5MB' }
+    ],
+    'unit-overview': [
+      { name: '课标文言文阅读单元概述.docx', type: 'Word文档', fileType: 'DOC', size: '3.2MB' },
+      { name: '单元总结课件.pptx', type: 'PPT演示', fileType: 'PPT', size: '7.5MB' }
+    ]
+  }
+  
+  resourceList.value = resourceMap[contentId] || []
+}
+
+// 根据文件类型获取对应的图标
+const getFileIcon = (fileType) => {
+  const iconMap = {
+    'PDF': new URL('../assets/icron/文件类型-pdf.svg', import.meta.url).href,
+    'PPT': new URL('../assets/icron/文件类型-ppt.svg', import.meta.url).href,
+    'DOC': new URL('../assets/icron/文件类型-文档.svg', import.meta.url).href,
+    'MP4': new URL('../assets/icron/文件类型-视频.svg', import.meta.url).href,
+    'EXCEL': new URL('../assets/icron/文件类型-excel.svg', import.meta.url).href,
+    'ZIP': new URL('../assets/icron/文件类型-压缩包.svg', import.meta.url).href
+  }
+  return iconMap[fileType] || new URL('../assets/icron/文件类型-附件.svg', import.meta.url).href
+}
+
+// 下载资源
+const handleDownloadResource = (resource) => {
+  ElMessage.success(`正在下载：${resource.name}`)
+}
+
+// 预览资源
+const handlePreviewResource = (resource) => {
+  ElMessage.info(`正在预览：${resource.name}`)
+}
+
+// 收藏资源
+const handleCollectResource = (resource) => {
+  ElMessage.success(`已收藏：${resource.name}`)
+}
+
+// 批量下载资源
+const handleBatchDownloadResources = () => {
+  if (resourceList.value.length === 0) {
+    ElMessage.warning('暂无资源可下载')
+    return
+  }
+  ElMessage.success(`正在批量下载 ${resourceList.value.length} 个资源`)
+}
+
+// 批量收藏资源
+const handleBatchCollectResources = () => {
+  if (resourceList.value.length === 0) {
+    ElMessage.warning('暂无资源可收藏')
+    return
+  }
+  ElMessage.success(`已批量收藏 ${resourceList.value.length} 个资源`)
+}
+
 // 点击图书卡片
 const handleBookClick = (book) => {
   currentBook.value = book
@@ -1557,79 +1718,211 @@ defineExpose({
   min-width: 0;
 }
 
-/* 内容标题区域 */
-.content-header-area {
+/* Tab 切换区域 */
+.content-tabs {
+  margin-bottom: 20px;
+  padding-top: 8px;
+  border-bottom: 2px solid #e4e7ed;
+}
+
+.tab-list {
+  display: flex;
+  gap: 0;
+  position: relative;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.tab-item {
+  padding: 10px 24px;
+  font-size: 14px;
+  color: #606266;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  position: relative;
+  background: transparent;
+  user-select: none;
+  border-radius: 4px 4px 0 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f0f0f0;
+  gap: 6px;
 }
 
-.title-summary-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex: 1;
+.tab-icon {
+  font-size: 15px;
 }
 
-.content-title-main {
-  font-size: 20px;
-  font-weight: 600;
-  color: #303133;
-  line-height: 1.5;
-  white-space: nowrap;
-}
-
-.content-summary {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-.summary-label {
-  font-size: 13px;
-  color: #909399;
-}
-
-.summary-value {
-  font-size: 13px;
-  font-weight: 500;
+.tab-item:hover {
   color: #2262FB;
+  background: #f5f7fa;
 }
 
-.header-actions {
+.tab-item.active {
+  color: #2262FB;
+  font-weight: 500;
+  border-bottom-color: #2262FB;
+  background: #f0f5ff;
+}
+
+/* Tab 操作按钮区 */
+.tab-actions {
+  margin-left: auto;
   display: flex;
   gap: 12px;
   align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: -2px;
 }
 
-.btn-collect,
-.btn-download,
-.btn-add-all {
-  background: transparent;
-  border: 1px solid #2262FB;
-  color: #2262FB;
+.tab-actions .el-button {
   padding: 8px 16px;
   font-size: 14px;
+  border: 1px solid #2262FB;
+  color: #2262FB;
+  background: transparent;
 }
 
-.btn-collect:hover,
-.btn-download:hover,
-.btn-add-all:hover {
+.tab-actions .el-button:hover {
   background: #f0f5ff;
   border-color: #2262FB;
   color: #2262FB;
 }
 
-.btn-collect:active,
-.btn-download:active,
-.btn-add-all:active {
+.tab-actions .el-button:active {
   background: #e6f0ff;
   border-color: #2262FB;
   color: #2262FB;
+}
+
+/* 配套资源内容区 */
+.resources-content {
+  min-height: 400px;
+}
+
+.resource-list {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.resource-item {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  background: #ffffff;
+  transition: all 0.3s;
+}
+
+.resource-item:hover {
+  border-color: #2262FB;
+  box-shadow: 0 2px 12px rgba(34, 98, 251, 0.1);
+}
+
+/* 左侧图标 */
+.resource-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  flex-shrink: 0;
+  margin-right: 16px;
+}
+
+.file-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  transition: transform 0.3s;
+}
+
+.resource-item:hover .file-icon {
+  transform: scale(1.1);
+}
+
+/* 中间信息区 */
+.resource-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.resource-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #303133;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resource-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: #909399;
+}
+
+.meta-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #f0f2f5;
+  color: #606266;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.meta-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.meta-text .el-icon {
+  font-size: 14px;
+}
+
+/* 右侧操作按钮 */
+.resource-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 16px;
+}
+
+.resource-actions .el-button {
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.resource-actions .el-button .el-icon {
+  font-size: 16px;
+}
+
+.resources-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  min-height: 400px;
+}
+
+.resources-empty .empty-icon {
+  font-size: 80px;
+  color: #c0c4cc;
+  margin-bottom: 20px;
+}
+
+.resources-empty .empty-text {
+  font-size: 14px;
+  color: #909399;
+  text-align: center;
 }
 
 /* 空状态样式 */
@@ -1660,6 +1953,28 @@ defineExpose({
   color: #909399;
   text-align: center;
   line-height: 1.6;
+}
+
+/* 内联空状态样式（用于Tab内容区） */
+.empty-state-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  min-height: 300px;
+}
+
+.empty-icon-small {
+  font-size: 60px;
+  color: #c0c4cc;
+  margin-bottom: 16px;
+}
+
+.empty-text-small {
+  font-size: 14px;
+  color: #909399;
+  text-align: center;
 }
 
 /* 筛选区域样式 */

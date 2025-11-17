@@ -156,7 +156,7 @@ const goToExam = () => {
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .tool-item {
@@ -173,7 +173,7 @@ const goToExam = () => {
 }
 
 .main-button .el-icon {
-  font-size: 20px;
+  font-size: 18px;
   transition: all 0.3s ease;
 }
 
@@ -198,9 +198,9 @@ const goToExam = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  width: 64px;
-  height: 64px;
+  gap: 3px;
+  width: 52px;
+  height: 52px;
   cursor: pointer;
   color: #606266;
   transition: all 0.3s;
@@ -211,11 +211,11 @@ const goToExam = () => {
 }
 
 .tool-button .el-icon {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .tool-text {
-  font-size: 12px;
+  font-size: 11px;
   white-space: nowrap;
 }
 
