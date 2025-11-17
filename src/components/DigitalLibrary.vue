@@ -310,12 +310,11 @@
           <div class="question-footer">
             <div class="question-meta">
               <span class="meta-item">类型：{{ question.type }}</span>
-              <span class="meta-item">年份：{{ question.year }}</span>
             </div>
             <div class="question-actions">
               <button class="btn-analysis" @click="toggleAnalysis(question)">
                 <el-icon><View /></el-icon>
-                <span>{{ question.showAnalysis ? '收起详解' : '知识详解' }}</span>
+                <span>{{ question.showAnalysis ? '收起详解' : '展开详解' }}</span>
               </button>
               <button class="btn-add" @click="addQuestionToBasket(question)">
                 <el-icon><Plus /></el-icon>
