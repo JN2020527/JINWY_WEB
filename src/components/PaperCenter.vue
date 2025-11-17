@@ -144,10 +144,12 @@
                       @click="toggleQuestionActive(question.id)"
                     >
                       <div class="question-main">
-                        <span v-if="templateConfig.showQuestionNumber && !group.hideNumber" class="question-number">{{ formatSerial(templateConfig.useGroupIndependentNumbering ? qIndex + 1 : getGlobalQuestionIndex(groupIndex, qIndex)) }}</span>
-                        <span v-if="templateConfig.showQuestionScore && !group.hideScore" class="question-score">（{{ question.score }}分）</span>
                         <div class="question-content-wrapper">
-                          <div class="question-content" v-html="question.content"></div>
+                          <div class="question-content">
+                            <span v-if="templateConfig.showQuestionNumber && !group.hideNumber" class="question-number">{{ formatSerial(templateConfig.useGroupIndependentNumbering ? qIndex + 1 : getGlobalQuestionIndex(groupIndex, qIndex)) }}</span>
+                            <span v-if="templateConfig.showQuestionScore && !group.hideScore" class="question-score">（{{ question.score }}分）</span>
+                            <span class="question-text" v-html="question.content"></span>
+                          </div>
                         </div>
                       </div>
                       
@@ -1695,38 +1697,39 @@ const downloadZip = async () => {
 }
 
 .question-main {
-  display: flex;
-  align-items: flex-start;
+  display: block;
 }
 
 .question-number {
-  min-width: 26px;
-  text-align: right;
+  display: inline;
   font-size: 14px;
   font-weight: 600;
   color: #333;
-  margin-right: 6px;
-  flex-shrink: 0;
+  margin-right: 4px;
 }
 
 .question-score {
+  display: inline;
   font-size: 13px;
   color: #999;
   font-weight: 500;
-  line-height: 1.8;
-  white-space: nowrap;
-  margin-right: 12px;
-  flex-shrink: 0;
+  margin-right: 8px;
 }
 
 .question-content-wrapper {
   display: block;
-  flex: 1;
-  min-width: 0;
+  width: 100%;
 }
 
 .question-content {
   display: block;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #606266;
+}
+
+.question-text {
+  display: inline;
 }
 
 /* 得分框容器样式 */
@@ -1762,8 +1765,10 @@ const downloadZip = async () => {
 
 /* 选择题选项样式 */
 .question-options {
-  margin-left: 24px;
+  margin-top: 8px;
+  margin-left: 0;
   margin-bottom: 8px;
+  padding-left: 0;
 }
 
 .option-item {
