@@ -27,9 +27,9 @@
           <DigitalLibrary v-if="currentLeftMenu === 0" ref="digitalLibraryRef" @goto-paper-center="handleGotoPaperCenter" />
           <PlatformSharing v-else-if="currentLeftMenu === 1" ref="platformSharingRef" @goto-paper-center="handleGotoPaperCenter" />
           <PrepareResource v-else-if="currentLeftMenu === 2" />
-          <HomeworkManage v-else-if="currentLeftMenu === 3" :current-tab="currentTab" />
-          <SituationAnalysis v-else-if="currentLeftMenu === 4" :current-tab="currentTab" />
-          <SmartPaper v-else-if="currentLeftMenu === 5" :current-tab="currentTab" @goto-paper-center="handleGotoPaperCenter" />
+          <SmartPaper v-else-if="currentLeftMenu === 3" :current-tab="currentTab" @goto-paper-center="handleGotoPaperCenter" />
+          <HomeworkManage v-else-if="currentLeftMenu === 4" :current-tab="currentTab" />
+          <SituationAnalysis v-else-if="currentLeftMenu === 5" :current-tab="currentTab" />
           <SchoolManage v-else-if="currentLeftMenu === 6" :current-tab="currentTab" />
           <MyCenter v-else-if="currentLeftMenu === 7" :current-tab="currentTab" />
           <div v-else class="empty-content">
