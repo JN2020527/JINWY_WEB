@@ -1768,7 +1768,7 @@ defineExpose({
 .content-tabs {
   margin-bottom: 20px;
   padding-top: 8px;
-  border-bottom: 2px solid #e4e7ed;
+  border-bottom: 1px solid #e4e7ed;
 }
 
 .tab-list {
