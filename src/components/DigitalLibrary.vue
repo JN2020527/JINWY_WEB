@@ -297,13 +297,16 @@
           
           <!-- 详细讲解区域 -->
           <div v-if="question.showAnalysis" class="analysis-section">
-            <div class="analysis-block">
+            <div class="analysis-block" v-if="question.answer">
               <div class="analysis-title">【答案】</div>
               <div class="analysis-content" v-html="question.answer"></div>
             </div>
             <div class="analysis-block" v-if="question.analysis">
               <div class="analysis-title">【解析】</div>
               <div class="analysis-content" v-html="question.analysis"></div>
+            </div>
+            <div class="analysis-block" v-if="!question.answer && !question.analysis">
+              <div class="analysis-content" style="color: #909399; text-align: center; padding: 20px 0;">暂无答案与解析</div>
             </div>
           </div>
 
@@ -1044,6 +1047,33 @@ const contentLibrary = {
       year: '2026',
       answer: '<strong>答案：</strong>必有我师焉；其不善者而改之',
       analysis: '体现谦虚好学的态度：善者从之、不善者为镜，进而自我改正。',
+      showAnalysis: false
+    },
+    {
+      id: 113,
+      content: '下列对《论语》十二章的理解，不正确的一项是：<br/>A. "学而时习之"强调了按时复习的重要性。<br/>B. "温故而知新"说明了复习旧知可以获得新知。<br/>C. "三人行，必有我师焉"表现了孔子谦虚好学的态度。<br/>D. "逝者如斯夫，不舍昼夜"感叹了时光流逝，劝人及时行乐。',
+      type: '课后练习',
+      year: '2026',
+      answer: '<strong>答案：</strong>D',
+      analysis: '',
+      showAnalysis: false
+    },
+    {
+      id: 114,
+      content: '请解释下列加点词语的意思：<br/>(1) 不亦<strong>说</strong>乎<br/>(2) 人不知而不<strong>愠</strong><br/>(3) 吾日三<strong>省</strong>吾身<br/>(4) <strong>好</strong>之者不如乐之者',
+      type: '课后练习',
+      year: '2026',
+      answer: '',
+      analysis: '(1) 说：同"悦"，愉快。<br/>(2) 愠：生气，恼怒。<br/>(3) 省：自我检查，反省。<br/>(4) 好：喜爱，爱好。',
+      showAnalysis: false
+    },
+    {
+      id: 115,
+      content: '默写《论语》十二章中关于"学习与思考关系"的句子。',
+      type: '课后练习',
+      year: '2026',
+      answer: '',
+      analysis: '',
       showAnalysis: false
     }
   ],
