@@ -68,29 +68,7 @@
       <div class="right-content">
         <!-- 筛选条件 -->
         <div class="filter-section">
-        <!-- 特色筛选 -->
-        <!-- 特色筛选 -->
-        <div class="feature-filter-wrapper">
-          <div class="feature-left-panel">
-            <div class="feature-title-box">
-              <span class="feature-title-text">山西特色</span>
-              <span class="feature-title-text">筛选</span>
-            </div>
-          </div>
-          <div class="feature-right-panel">
-            <div class="feature-row">
-              <el-radio-group v-model="filters.features" class="feature-radio-group">
-                <el-radio-button 
-                  v-for="item in featureOptions" 
-                  :key="item.value" 
-                  :label="item.value"
-                >
-                  {{ item.label }}
-                </el-radio-button>
-              </el-radio-group>
-            </div>
-          </div>
-        </div>
+
 
         <!-- 试题来源 -->
         <div class="filter-row">
@@ -116,6 +94,22 @@
               v-for="item in typeOptions" 
               :key="item.value"
               v-model="filters.type"
+              :label="item.value"
+              class="custom-radio"
+            >
+              {{ item.label }}
+            </el-radio>
+          </div>
+        </div>
+
+        <!-- 特色筛选 -->
+        <div class="filter-row">
+          <label class="filter-label">中考特色：</label>
+          <div class="filter-options">
+            <el-radio 
+              v-for="item in featureOptions" 
+              :key="item.value"
+              v-model="filters.features"
               :label="item.value"
               class="custom-radio"
             >
@@ -483,7 +477,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { CaretRight, Monitor, View, Plus, ArrowUp, ArrowDown, CollectionTag } from '@element-plus/icons-vue'
+import { CaretRight, Monitor, View, Plus, ArrowUp, ArrowDown } from '@element-plus/icons-vue'
 import ScreenPresentation from './ScreenPresentation.vue'
 import { ElMessage } from 'element-plus'
 
@@ -1408,101 +1402,7 @@ const resetConfig = () => {
 }
 
 .filter-row:last-child {
-  margin-bottom: 16px;
-}
-
-/* 特色筛选独特样式 */
-/* 特色筛选独特样式 - 仿参考图 */
-.feature-filter-wrapper {
-  display: flex;
-  background-color: #f0f8ff; /* 浅蓝色背景 */
-  border-radius: 4px;
-  margin-bottom: 20px;
-  overflow: hidden;
-  border-left: 4px solid #2262FB; /* 蓝色左边框 */
-}
-
-.feature-left-panel {
-  width: 100px;
-  background-color: rgba(34, 98, 251, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 0;
-  border-right: 1px solid rgba(34, 98, 251, 0.1);
-}
-
-.feature-title-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: #303133;
-  font-size: 16px;
-  line-height: 1.4;
-}
-
-.feature-title-text {
-  display: block;
-}
-
-.feature-right-panel {
-  flex: 1;
-  padding: 16px 24px;
-  display: flex;
-  align-items: center;
-}
-
-.feature-row {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.feature-radio-group :deep(.el-radio-button__inner) {
-  border: none;
-  background-color: transparent;
-  color: #606266;
-  border-radius: 4px;
-  margin-right: 8px;
-  padding: 6px 12px;
-  box-shadow: none !important;
-  transition: all 0.3s;
-  font-weight: normal;
-}
-
-.feature-radio-group :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-  background-color: transparent;
-  color: #2262FB;
-  font-weight: bold;
-  box-shadow: none !important;
-  position: relative;
-}
-
-/* 选中状态下添加底部指示条或背景 */
-.feature-radio-group :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner::after) {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 12px;
-  right: 12px;
-  height: 2px;
-  background-color: #2262FB;
-  border-radius: 2px;
-}
-
-.feature-radio-group :deep(.el-radio-button:first-child .el-radio-button__inner) {
-  border-radius: 4px;
-  border: none;
-}
-
-.feature-radio-group :deep(.el-radio-button:last-child .el-radio-button__inner) {
-  border-radius: 4px;
-}
-
-.feature-radio-group :deep(.el-radio-button__inner:hover) {
-  color: #2262FB;
+  margin-bottom: 0;
 }
 
 .filter-label {
