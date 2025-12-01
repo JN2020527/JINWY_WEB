@@ -72,6 +72,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Document, Grid, List, FullScreen, Back, ZoomIn, ZoomOut, ArrowLeft, ArrowRight, Edit } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const props = defineProps({
   visible: {
@@ -123,6 +124,11 @@ const zoomOut = () => {
 const prevQuestion = () => {
   if (props.currentIndex > 0) {
     emit('change-question', props.currentIndex - 1)
+  } else {
+    ElMessage.warning({
+      message: '已经是第一题了',
+      customClass: 'screen-message'
+    })
   }
 }
 
@@ -130,6 +136,11 @@ const prevQuestion = () => {
 const nextQuestion = () => {
   if (props.currentIndex < props.questions.length - 1) {
     emit('change-question', props.currentIndex + 1)
+  } else {
+    ElMessage.warning({
+      message: '已经是最后一题了',
+      customClass: 'screen-message'
+    })
   }
 }
 
@@ -353,6 +364,12 @@ const closePresentation = () => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+</style>
+
+<style>
+.screen-message {
+  z-index: 10000 !important;
 }
 </style>
 
