@@ -79,7 +79,6 @@
           </div>
           <div class="feature-right-panel">
             <div class="feature-row">
-              <span class="feature-label-text">筛选维度：</span>
               <el-radio-group v-model="filters.features" class="feature-radio-group">
                 <el-radio-button 
                   v-for="item in featureOptions" 
@@ -1459,13 +1458,6 @@ const resetConfig = () => {
   display: flex;
   align-items: center;
   width: 100%;
-}
-
-.feature-label-text {
-  font-size: 14px;
-  color: #606266;
-  margin-right: 16px;
-  font-weight: 500;
 }
 
 .feature-radio-group :deep(.el-radio-button__inner) {
