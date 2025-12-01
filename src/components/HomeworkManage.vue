@@ -242,9 +242,14 @@
                 v-for="homework in filteredHomeworkList" 
                 :key="homework.id"
                 class="homework-name-item"
-                :class="{ active: selectedHomeworkId === homework.id }"
-                @click="selectHomework(homework)"
+                :class="{ active: selectedHomeworkIds.includes(homework.id) }"
+                @click="toggleHomeworkSelection(homework)"
               >
+                <el-checkbox 
+                  :model-value="selectedHomeworkIds.includes(homework.id)"
+                  @click.stop="toggleHomeworkSelection(homework)"
+                  class="homework-checkbox"
+                />
                 <span class="homework-name-text">{{ homework.title }}</span>
               </div>
               <div v-if="filteredHomeworkList.length === 0" class="empty-hint">
@@ -502,8 +507,8 @@ const wrongDateRange = ref([])
 // 错题重练 - 年级/班级选择
 const selectedGradeClass = ref('')
 
-// 错题重练 - 选中的作业ID
-const selectedHomeworkId = ref(null)
+// 错题重练 - 选中的作业ID列表
+const selectedHomeworkIds = ref([])
 
 // 错题重练 - 作业列表数据（模拟数据）
 const wrongHomeworkList = ref([
@@ -585,10 +590,15 @@ const filteredHomeworkList = computed(() => {
   return result
 })
 
-// 错题重练 - 选择作业
-const selectHomework = (homework) => {
-  selectedHomeworkId.value = homework.id
-  console.log('选择作业:', homework.title)
+// 错题重练 - 选择作业（多选）
+const toggleHomeworkSelection = (homework) => {
+  const index = selectedHomeworkIds.value.indexOf(homework.id)
+  if (index > -1) {
+    selectedHomeworkIds.value.splice(index, 1)
+  } else {
+    selectedHomeworkIds.value.push(homework.id)
+  }
+  console.log('当前选中的作业ID:', selectedHomeworkIds.value)
 }
 
 // 错题重练 - 筛选条件
@@ -686,7 +696,6 @@ const openScreenPresentation = (question, index) => {
 .homework-manage {
   padding: 20px 24px;
   min-height: 100%;
-  background-color: #ffffff;
   border-radius: 5px 0 0 0;
 }
 
@@ -877,6 +886,9 @@ const openScreenPresentation = (question, index) => {
 .list-filters {
   margin-bottom: 24px;
   font-size: 18px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 4px;
 }
 
 .filter-row {
@@ -1304,6 +1316,17 @@ const openScreenPresentation = (question, index) => {
   font-weight: 600;
 }
 
+.homework-name-filter-container {
+  background: #ffffff;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  padding: 16px;
+}
+
 
 .sidebar-content {
   flex: 1;
@@ -1340,9 +1363,39 @@ const openScreenPresentation = (question, index) => {
   background: #f5f7fa;
 }
 
-.catalog-node.active {
+.homework-name-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 4px;
+  margin-bottom: 4px; /* 减少间距 */
+}
+
+.homework-name-item:hover {
+  background: #f5f7fa;
+}
+
+.homework-name-item.active {
   background: #ecf5ff;
+}
+
+.homework-checkbox {
+  margin-right: 12px; /* Checkbox与文字的间距 */
+  height: auto;
+}
+
+.homework-name-text {
+  font-size: 14px;
+  color: #606266;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.homework-name-item.active .homework-name-text {
   color: #2262FB;
+  font-weight: 500;
 }
 
 .catalog-node .expand-icon-wrapper {
