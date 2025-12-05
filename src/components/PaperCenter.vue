@@ -50,99 +50,10 @@
             <el-checkbox v-model="templateConfig.showQuestionScore">展示题目分数</el-checkbox>
             <el-checkbox v-model="templateConfig.useGroupIndependentNumbering">题型内排序</el-checkbox>
           </div>
-          </div>
           
-          <!-- 分组与排序（独立面板） -->
-          <div class="sort-panel">
-          <div class="panel-header">
-            <span class="panel-title">分组与排序</span>
-          </div>
-          <div class="panel-section">
-            <div class="sort-tabs">
-              <div class="sort-tab" :class="{ active: currentSortTab === 'type' }" @click="currentSortTab = 'type'">按题型</div>
-              <div class="sort-tab disabled">按知识点</div>
-              <div class="sort-tab" :class="{ active: currentSortTab === 'order' }" @click="currentSortTab = 'order'">按加入顺序</div>
-            </div>
-          </div>
+          <div class="panel-divider"></div>
           
-          <!-- 按题型显示 -->
-          <div v-if="currentSortTab === 'type'" class="panel-section group-list-section">
-            <div 
-              v-for="(group, index) in questionGroups" 
-              :key="group.typeName"
-              class="group-list-container"
-              draggable="true"
-              @dragstart="handleDragStart(index, $event)"
-              @dragenter="handleDragEnter(index, $event)"
-              @dragover="handleDragOver($event)"
-              @dragleave="handleDragLeave($event)"
-              @drop="handleDrop(index, $event)"
-              @dragend="handleDragEnd($event)"
-              :class="{ 'drag-over': dragOverIndex === index }"
-            >
-              <!-- 题型标题行 -->
-              <div class="group-list-item">
-                <div class="group-item-header">
-                  <span class="group-number">{{ getChineseNumber(index + 1) }}、</span>
-                  <span class="group-name">{{ group.typeName }}</span>
-                </div>
-                <span class="drag-hint">拖动排序</span>
-              </div>
-              
-              <!-- 题型下的题目列表 -->
-              <div class="question-mini-list">
-                <span 
-                  v-for="(question, qIndex) in group.questions"
-                  :key="question.id"
-                  class="question-mini-number"
-                  draggable="true"
-                  @dragstart="handleQuestionDragStart(index, qIndex, $event)"
-                  @dragenter="handleQuestionDragEnter(index, qIndex, $event)"
-                  @dragover="handleQuestionDragOver($event)"
-                  @drop="handleQuestionDrop(index, qIndex, $event)"
-                  @dragend="handleQuestionDragEnd($event)"
-                  :class="{ 'question-drag-over': dragQuestionOver.groupIndex === index && dragQuestionOver.qIndex === qIndex }"
-                >
-                  {{ getGlobalQuestionIndex(index, qIndex) }}
-                </span>
-              </div>
-            </div>
-            
-            <!-- 自定义题型按钮 -->
-            <div class="custom-type-btn" @click="addCustomType">
-              <el-icon><Plus /></el-icon>
-              <span>自定义题型</span>
-            </div>
-          </div>
           
-          <!-- 按加入顺序显示 -->
-          <div v-if="currentSortTab === 'order'" class="panel-section group-list-section">
-            <div class="all-questions-container">
-              <div class="question-mini-list">
-                <span 
-                  v-for="(item, idx) in allQuestionsList"
-                  :key="item.question.id"
-                  class="question-mini-number"
-                  draggable="true"
-                  @dragstart="handleQuestionDragStart(item.groupIndex, item.qIndex, $event)"
-                  @dragenter="handleQuestionDragEnter(item.groupIndex, item.qIndex, $event)"
-                  @dragover="handleQuestionDragOver($event)"
-                  @drop="handleQuestionDrop(item.groupIndex, item.qIndex, $event)"
-                  @dragend="handleQuestionDragEnd($event)"
-                  :class="{ 'question-drag-over': dragQuestionOver.groupIndex === item.groupIndex && dragQuestionOver.qIndex === item.qIndex }"
-                >
-                  {{ idx + 1 }}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          <!-- 清空按钮 -->
-          <div class="panel-section">
-            <el-button class="clear-button" @click="clearAllQuestions">
-              清空试题
-            </el-button>
-          </div>
         </div>
         </div>
 
@@ -195,7 +106,7 @@
                 :class="{ selected: group.selected }"
               >
                 <!-- 题型标题 -->
-                <div class="group-header" v-if="currentSortTab === 'type'">
+                <div class="group-header">
                   <div class="group-title" v-if="templateConfig.showGroupNote" @click="toggleGroupSelection(group)">
                     <span class="title-text">{{ getChineseNumber(groupIndex + 1) }}、{{ group.typeName }}</span>
                     <span class="title-meta" v-if="!group.hideScore">（共 {{ group.questions.length }} 题，{{ group.totalScore }} 分）</span>
@@ -233,12 +144,10 @@
                       @click="toggleQuestionActive(question.id)"
                     >
                       <div class="question-main">
+                        <span v-if="templateConfig.showQuestionNumber && !group.hideNumber" class="question-number">{{ formatSerial(templateConfig.useGroupIndependentNumbering ? qIndex + 1 : getGlobalQuestionIndex(groupIndex, qIndex)) }}</span>
+                        <span v-if="templateConfig.showQuestionScore && !group.hideScore" class="question-score">（{{ question.score }}分）</span>
                         <div class="question-content-wrapper">
-                          <div class="question-content">
-                            <span v-if="templateConfig.showQuestionNumber && !group.hideNumber" class="question-number">{{ formatSerial(templateConfig.useGroupIndependentNumbering ? qIndex + 1 : getGlobalQuestionIndex(groupIndex, qIndex)) }}</span>
-                            <span v-if="templateConfig.showQuestionScore && !group.hideScore" class="question-score">（{{ question.score }}分）</span>
-                            <span class="question-text" v-html="question.content"></span>
-                          </div>
+                          <div class="question-content" v-html="question.content"></div>
                         </div>
                       </div>
                       
@@ -350,7 +259,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Refresh, Delete, ArrowUp, ArrowDown, View, Document, Printer, Check, Edit, Top, Bottom, Menu, Plus } from '@element-plus/icons-vue'
+import { Refresh, Delete, ArrowUp, ArrowDown, View, Document, Printer, Check, Edit, Top, Bottom, Menu } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import JSZip from 'jszip'
 import { jsPDF } from 'jspdf'
@@ -413,216 +322,8 @@ const applyTemplate = () => {
   ElMessage.success('模板设置已应用')
 }
 
-// 获取题组题号范围
-const getGroupQuestionRange = (group, groupIndex) => {
-  if (group.questions.length === 0) return '非选择题'
-  
-  const startNum = getGlobalQuestionIndex(groupIndex, 0)
-  const endNum = getGlobalQuestionIndex(groupIndex, group.questions.length - 1)
-  
-  if (startNum === endNum) {
-    return startNum
-  }
-  return `${startNum}-${endNum}`
-}
 
-// 清空所有试题
-const clearAllQuestions = async () => {
-  try {
-    await ElMessageBox.confirm(
-      '确定要清空所有试题吗？此操作不可恢复！',
-      '清空试题',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    // 清空所有题组的题目
-    questionGroups.value.forEach(group => {
-      group.questions = []
-      group.totalScore = 0
-    })
-    
-    ElMessage.success('已清空所有试题')
-  } catch {
-    // 用户取消操作
-  }
-}
-
-// 添加自定义题型
-const addCustomType = () => {
-  ElMessage.info('自定义题型功能开发中...')
-}
-
-// 拖拽排序相关状态
-const dragStartIndex = ref(null)
-const dragOverIndex = ref(null)
-
-// 题目拖拽状态
-const dragQuestionStart = ref({ groupIndex: null, qIndex: null })
-const dragQuestionOver = ref({ groupIndex: null, qIndex: null })
-
-// 当前tab状态
-const currentSortTab = ref('type') // 'type' | 'knowledge' | 'order'
-
-// 所有题目列表（按加入顺序）
-const allQuestionsList = computed(() => {
-  const list = []
-  questionGroups.value.forEach((group, groupIndex) => {
-    group.questions.forEach((question, qIndex) => {
-      list.push({
-        question,
-        groupIndex,
-        qIndex
-      })
-    })
-  })
-  return list
-})
-
-// 拖拽开始
-const handleDragStart = (index, event) => {
-  dragStartIndex.value = index
-  event.dataTransfer.effectAllowed = 'move'
-  // 使用setTimeout让transition生效
-  setTimeout(() => {
-    event.target.style.opacity = '0.4'
-    event.target.style.transform = 'scale(0.98)'
-  }, 0)
-}
-
-// 拖拽进入
-const handleDragEnter = (index, event) => {
-  event.preventDefault()
-  if (dragStartIndex.value !== index) {
-    dragOverIndex.value = index
-  }
-}
-
-// 拖拽经过
-const handleDragOver = (event) => {
-  event.preventDefault()
-  event.dataTransfer.dropEffect = 'move'
-}
-
-// 拖拽离开
-const handleDragLeave = (event) => {
-  event.preventDefault()
-}
-
-// 放置
-const handleDrop = (index, event) => {
-  event.preventDefault()
-  
-  if (dragStartIndex.value !== null && dragStartIndex.value !== index) {
-    // 交换位置
-    const groups = [...questionGroups.value]
-    const draggedItem = groups[dragStartIndex.value]
-    
-    // 移除被拖拽的项
-    groups.splice(dragStartIndex.value, 1)
-    
-    // 在目标位置插入
-    groups.splice(index, 0, draggedItem)
-    
-    // 更新数据
-    questionGroups.value = groups
-    
-    ElMessage.success('题型顺序已调整')
-  }
-  
-  dragOverIndex.value = null
-}
-
-// 拖拽结束
-const handleDragEnd = (event) => {
-  event.target.style.opacity = '1'
-  event.target.style.transform = 'scale(1)'
-  dragStartIndex.value = null
-  dragOverIndex.value = null
-}
-
-// 题目拖拽开始
-const handleQuestionDragStart = (groupIndex, qIndex, event) => {
-  event.stopPropagation() // 阻止事件冒泡到题型容器
-  dragQuestionStart.value = { groupIndex, qIndex }
-  event.dataTransfer.effectAllowed = 'move'
-  setTimeout(() => {
-    event.target.style.opacity = '0.4'
-    event.target.style.transform = 'scale(0.95)'
-  }, 0)
-}
-
-// 题目拖拽进入
-const handleQuestionDragEnter = (groupIndex, qIndex, event) => {
-  event.preventDefault()
-  event.stopPropagation()
-  const { groupIndex: startGroupIndex, qIndex: startQIndex } = dragQuestionStart.value
-  if (startGroupIndex !== groupIndex || startQIndex !== qIndex) {
-    dragQuestionOver.value = { groupIndex, qIndex }
-  }
-}
-
-// 题目拖拽经过
-const handleQuestionDragOver = (event) => {
-  event.preventDefault()
-  event.stopPropagation()
-  event.dataTransfer.dropEffect = 'move'
-}
-
-// 题目放置
-const handleQuestionDrop = (targetGroupIndex, targetQIndex, event) => {
-  event.preventDefault()
-  event.stopPropagation()
-  
-  const { groupIndex: sourceGroupIndex, qIndex: sourceQIndex } = dragQuestionStart.value
-  
-  if (sourceGroupIndex !== null && sourceQIndex !== null) {
-    // 同一题型内拖拽
-    if (sourceGroupIndex === targetGroupIndex) {
-      if (sourceQIndex !== targetQIndex) {
-        const group = questionGroups.value[sourceGroupIndex]
-        const questions = [...group.questions]
-        const [movedQuestion] = questions.splice(sourceQIndex, 1)
-        questions.splice(targetQIndex, 0, movedQuestion)
-        group.questions = questions
-        ElMessage.success('题目顺序已调整')
-      }
-    } 
-    // 跨题型拖拽
-    else {
-      const sourceGroup = questionGroups.value[sourceGroupIndex]
-      const targetGroup = questionGroups.value[targetGroupIndex]
-      
-      // 从源题型移除
-      const [movedQuestion] = sourceGroup.questions.splice(sourceQIndex, 1)
-      
-      // 添加到目标题型
-      targetGroup.questions.splice(targetQIndex, 0, movedQuestion)
-      
-      // 更新题型总分
-      updateGroupTotalScore(sourceGroup)
-      updateGroupTotalScore(targetGroup)
-      
-      ElMessage.success(`题目已移至「${targetGroup.typeName}」`)
-    }
-  }
-  
-  dragQuestionOver.value = { groupIndex: null, qIndex: null }
-}
-
-// 题目拖拽结束
-const handleQuestionDragEnd = (event) => {
-  event.stopPropagation()
-  event.target.style.opacity = '1'
-  event.target.style.transform = 'scale(1)'
-  dragQuestionStart.value = { groupIndex: null, qIndex: null }
-  dragQuestionOver.value = { groupIndex: null, qIndex: null }
-}
-
-
+ 
 
 
 // 更新组总分
@@ -1597,7 +1298,7 @@ const downloadZip = async () => {
   width: 300px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   position: sticky;
   top: 0px;
   align-self: flex-start;
@@ -1717,16 +1418,7 @@ const downloadZip = async () => {
   background: #fff;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  padding: 16px 16px 8px;
-}
-
-/* 分组与排序面板（独立面板） */
-.sort-panel {
-  width: 100%;
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  padding: 16px 16px 8px;
+  padding: 16px;
 }
 
 .panel-header {
@@ -1768,211 +1460,6 @@ const downloadZip = async () => {
   border: none;
   margin: 10px 0;
 }
-
-.template-panel > .panel-divider:last-child {
-  margin-top: 4px;
-  margin-bottom: 0;
-}
-
-/* 分组与排序样式 */
-.sort-tabs {
-  display: flex;
-  gap: 0;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #e4e7ed;
-}
-
-.sort-tab {
-  padding: 6px 12px;
-  font-size: 13px;
-  color: #606266;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s;
-  user-select: none;
-  position: relative;
-  bottom: -1px;
-}
-
-.sort-tab.active {
-  color: #2262FB;
-  border-bottom-color: #2262FB;
-  font-weight: 500;
-}
-
-.sort-tab.disabled {
-  color: #c0c4cc;
-  cursor: not-allowed;
-}
-
-.sort-tab:not(.disabled):not(.active):hover {
-  color: #2262FB;
-}
-
-/* 题组列表样式 */
-.group-list-section {
-  margin-top: 10px;
-  position: relative;
-}
-
-.group-list-section > .group-list-container {
-  will-change: transform;
-}
-
-/* 所有题目容器（按加入顺序） */
-.all-questions-container {
-  padding: 8px;
-}
-
-.all-questions-container .question-mini-list {
-  padding-left: 0;
-  margin-top: 0;
-}
-
-.group-list-container {
-  margin-bottom: 12px;
-  padding: 8px;
-  border-radius: 0;
-  border: 1px solid transparent;
-  transition: all 0.3s ease, opacity 0.2s ease, transform 0.3s ease;
-  cursor: move;
-  user-select: none;
-}
-
-.group-list-container:hover {
-  border-color: #2262FB;
-  box-shadow: 0 2px 8px rgba(34, 98, 251, 0.1);
-}
-
-.group-list-container.drag-over {
-  border-color: #2262FB;
-  background: #f0f5ff;
-  border-style: dashed;
-  border-width: 2px;
-  box-shadow: 0 4px 12px rgba(34, 98, 251, 0.15);
-}
-
-.group-list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  font-size: 13px;
-  transition: all 0.3s ease;
-}
-
-.group-item-header {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.group-number {
-  font-weight: 600;
-  color: #303133;
-}
-
-.group-name {
-  color: #606266;
-}
-
-.drag-hint {
-  font-size: 12px;
-  color: #c0c4cc;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.group-list-container:hover .drag-hint {
-  opacity: 1;
-}
-
-.group-item-range {
-  color: #909399;
-  font-size: 12px;
-  padding: 2px 8px;
-  background: #f5f7fa;
-  border-radius: 2px;
-}
-
-/* 题目小列表样式 */
-.question-mini-list {
-  padding-left: 16px;
-  margin-top: 6px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.question-mini-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  font-size: 12px;
-  color: #606266;
-  background: transparent;
-  border: 1px solid #2262FB;
-  border-radius: 3px;
-  cursor: move;
-  user-select: none;
-  transition: all 0.3s ease;
-}
-
-.question-mini-number:hover {
-  background: #2262FB;
-  color: #fff;
-}
-
-.question-mini-number.question-drag-over {
-  background: #f0f5ff;
-  border-style: dashed;
-  border-width: 2px;
-  box-shadow: 0 2px 8px rgba(34, 98, 251, 0.2);
-}
-
-/* 自定义题型按钮 */
-.custom-type-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 10px;
-  margin-top: 12px;
-  color: #2877FF;
-  font-size: 13px;
-  cursor: pointer;
-  border: 1px dashed #d9d9d9;
-  border-radius: 4px;
-  transition: all 0.3s;
-  user-select: none;
-}
-
-.custom-type-btn:hover {
-  color: #2262FB;
-  border-color: #2877FF;
-  background: #f5f7ff;
-}
-
-.custom-type-btn .el-icon {
-  font-size: 14px;
-}
-
-/* 清空按钮样式 */
-.clear-button {
-  width: 100%;
-  margin-top: 8px;
-  color: #2877FF;
-  border-color: #2877FF;
-}
-
-.clear-button:hover {
-  color: #fff;
-  background-color: #2877FF;
-  border-color: #2877FF;
-}
-
 .panel-subtitle {
   font-size: 12px;
   color: #606266;
@@ -2203,39 +1690,40 @@ const downloadZip = async () => {
 }
 
 .question-main {
+  position: relative;
   display: block;
 }
 
 .question-number {
-  display: inline;
+  position: absolute;
+  left: 0;
+  top: 0;
+  min-width: 26px;
+  text-align: right;
   font-size: 14px;
   font-weight: 600;
   color: #333;
-  margin-right: 4px;
 }
 
 .question-score {
-  display: inline;
+  position: absolute;
+  right: 0;
+  top: 0;
   font-size: 13px;
   color: #999;
   font-weight: 500;
-  margin-right: 8px;
+  line-height: 1.8;
+  white-space: nowrap;
 }
 
 .question-content-wrapper {
   display: block;
-  width: 100%;
+  padding-left: 30px;
+  padding-right: 88px;
 }
 
 .question-content {
   display: block;
-  font-size: 14px;
-  line-height: 1.8;
-  color: #606266;
-}
-
-.question-text {
-  display: inline;
 }
 
 /* 得分框容器样式 */
@@ -2271,10 +1759,8 @@ const downloadZip = async () => {
 
 /* 选择题选项样式 */
 .question-options {
-  margin-top: 8px;
-  margin-left: 0;
+  margin-left: 24px;
   margin-bottom: 8px;
-  padding-left: 0;
 }
 
 .option-item {
