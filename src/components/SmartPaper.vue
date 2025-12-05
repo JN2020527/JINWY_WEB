@@ -732,22 +732,7 @@ const typeOptions = [
   { label: '语言表达', value: 'language-expression' },
   { label: '名著阅读', value: 'classics-reading' },
   { label: '综合性学习', value: 'comprehensive' },
-  { label: '作文', value: 'composition' },
-  { label: '其他', value: 'other' },
-  { label: '单选题', value: 'single-choice' },
-  { label: '多选题', value: 'multiple-choice' },
-  { label: '翻译', value: 'translation' },
-  { label: '问答题', value: 'qa' },
-  { label: '非选择题', value: 'non-choice' },
-  { label: '知识梳理', value: 'knowledge-sort' },
-  { label: '核心命题点', value: 'core-point' },
-  { label: '随堂检测', value: 'class-test' },
-  { label: '基础巩固练', value: 'basic-practice' },
-  { label: '能力提升练', value: 'ability-improve' },
-  { label: '课外迁移练·读书学习', value: 'extra-reading' },
-  { label: '课外迁移练·文人雅趣', value: 'extra-culture' },
-  { label: '古诗文阅读', value: 'ancient-reading' },
-  { label: '课标文言文对比阅读', value: 'contrast-reading' }
+  { label: '作文', value: 'composition' }
 ]
 
 // 试题难度选项

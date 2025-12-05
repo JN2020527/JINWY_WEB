@@ -912,9 +912,7 @@ const typeOptions = [
   { label: '名句名篇默写', value: 'famous-sentences' },
   { label: '诗歌鉴赏', value: 'poetry' },
   { label: '语言表达', value: 'language-expression' },
-  { label: '作文', value: 'composition' },
-  { label: '单选题', value: 'single-choice' },
-  { label: '问答题', value: 'qa' }
+  { label: '作文', value: 'composition' }
 ]
 
 // 试题难度选项
