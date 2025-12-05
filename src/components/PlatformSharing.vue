@@ -263,7 +263,7 @@
       </div>
 
       <!-- 题目列表 -->
-      <div class="question-list">
+      <div class="question-list-container">
         <div 
           v-for="(question, index) in questionList" 
           :key="question.id"
@@ -1776,21 +1776,28 @@ defineExpose({
   font-weight: 500;
 }
 
-/* 题目列表 */
-.question-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* 题目列表容器 */
+.question-list-container {
+  background: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #e4e7ed;
+  padding: 20px;
+  overflow: hidden; /* 确保圆角生效 */
 }
 
 .question-item {
-  background: #ffffff;
+  background: #ffffff; /* 保持白色背景 */
   border: 1px solid #e4e7ed;
   border-radius: 4px;
-  padding: 20px;
+  padding: 30px; /* 增加内边距 */
+  margin-bottom: 20px;
   transition: all 0.3s;
   position: relative;
-  overflow: hidden;
+  overflow: visible; 
+}
+
+.question-item:last-child {
+  margin-bottom: 0;
 }
 
 .new-tag {

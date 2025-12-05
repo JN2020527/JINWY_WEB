@@ -278,7 +278,7 @@
       </div>
 
       <!-- 题目列表 - 试题&知识 tab -->
-      <div v-if="contentTab === 0 && currentCatalogName" class="question-list">
+      <div v-if="contentTab === 0 && currentCatalogName" class="question-list-container">
         <!-- 有内容时显示题目列表 -->
         <template v-if="questionList.length > 0">
         <div 
@@ -2147,21 +2147,29 @@ defineExpose({
   font-weight: 500;
 }
 
-/* 题目列表 */
-.question-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* 题目列表容器 */
+.question-list-container {
+  background: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #e4e7ed;
+  padding: 20px;
+  overflow: hidden;
+  margin-bottom: 20px; /* 保持底部间距 */
 }
 
 .question-item {
   background: #ffffff;
   border: 1px solid #e4e7ed;
   border-radius: 4px;
-  padding: 20px;
+  padding: 30px;
+  margin-bottom: 20px;
   transition: all 0.3s;
   position: relative;
   overflow: hidden;
+}
+
+.question-item:last-child {
+  margin-bottom: 0;
 }
 
 .new-tag {

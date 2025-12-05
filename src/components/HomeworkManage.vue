@@ -329,7 +329,7 @@
           </div>
         </div>
 
-        <div class="question-list">
+        <div class="question-list-container">
           <div 
             v-for="(question, index) in wrongQuestionList" 
             :key="question.id"
@@ -1566,20 +1566,28 @@ const openScreenPresentation = (question, index) => {
   font-weight: 500;
 }
 
-.question-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* 题目列表容器 */
+.question-list-container {
+  background: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #e4e7ed;
+  padding: 20px;
+  overflow: hidden;
 }
 
 .question-item {
   background: #ffffff;
   border: 1px solid #e4e7ed;
   border-radius: 4px;
-  padding: 20px;
+  padding: 30px;
+  margin-bottom: 20px;
   transition: all 0.3s;
   position: relative;
   overflow: hidden;
+}
+
+.question-item:last-child {
+  margin-bottom: 0;
 }
 
 .new-tag {
