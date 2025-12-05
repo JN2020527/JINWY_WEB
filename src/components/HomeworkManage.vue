@@ -337,10 +337,12 @@
           >
             <div class="new-tag" v-if="index === 0">本月上新</div>
             <div class="question-header">
-              <div class="feature-tags" v-if="question.tags && question.tags.length > 0">
-                <span class="feature-tag">{{ question.tags[0] }}</span>
+              <div class="question-main">
+                <div class="feature-tags" v-if="question.tags && question.tags.length > 0">
+                  <span class="feature-tag">{{ question.tags[0] }}</span>
+                </div>
+                <div class="question-text" v-html="question.content"></div>
               </div>
-              <div class="question-text" v-html="question.content"></div>
             </div>
             
             <!-- 答案解析区域 -->
@@ -660,9 +662,9 @@ const wrongQuestionList = ref([
     id: 1,
     content: '根据例句仿句子，要求句式相同，修辞一致。<br/>例句：我是你河边上破旧的老水车，数百年来纺着疲惫的歌。',
     type: '语言表达',
-    year: '2024',
-    region: '全国',
-    source: '平台题库',
+    year: '2025',
+    region: '山西',
+    source: '原创好题',
     tags: ['教材母题', '新题型'],
     answer: '我是你黑夜中点亮的灯塔，为你照亮前行的路',
     analysis: '本题考查仿写句子的能力，需要保持句式结构和修辞手法的一致性。',
@@ -672,9 +674,9 @@ const wrongQuestionList = ref([
     id: 2,
     content: '在中国古代文学中，"山水"是一个重要的文学意象。请简要分析"山水"意象在古代文学中的作用。',
     type: '现代文阅读',
-    year: '2023',
+    year: '2025',
     region: '山西',
-    source: '中考真题',
+    source: '原创好题',
     tags: ['大单元', '跨学科'],
     answer: '"山水"意象在古代文学中具有多重作用：1.寄托情感；2.表达志向；3.营造意境。',
     analysis: '山水意象是中国古代文学的重要组成部分，常用来表达作者的情感、志向和人生态度。',
@@ -1606,12 +1608,15 @@ const openScreenPresentation = (question, index) => {
   gap: 12px;
 }
 
+.question-main {
+  flex: 1;
+  min-width: 0;
+}
+
 .feature-tags {
-  display: flex;
-  margin-right: 0;
-  align-items: center;
-  flex-shrink: 0;
-  padding-top: 2px;
+  float: left;
+  margin-right: 8px;
+  margin-top: 3px;
 }
 
 .feature-tag {

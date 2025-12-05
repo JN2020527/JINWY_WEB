@@ -159,10 +159,12 @@
         >
           <div class="new-tag" v-if="index === 0">本周上新</div>
           <div class="question-header">
-            <div class="feature-tags" v-if="question.tags && question.tags.length > 0">
-              <span class="feature-tag">{{ question.tags[0] }}</span>
+            <div class="question-main">
+              <div class="feature-tags" v-if="question.tags && question.tags.length > 0">
+                <span class="feature-tag">{{ question.tags[0] }}</span>
+              </div>
+              <div class="question-text" v-html="question.content"></div>
             </div>
-            <div class="question-text" v-html="question.content"></div>
           </div>
           
           <!-- 答案解析区域 -->
@@ -766,9 +768,9 @@ const questionList = ref([
     id: 1,
     content: '根据例句的形式另选一组意象仿写，表达对祖国的拳拳赤子之心，至少仿写两句。<br/><br/>例句：我是你河边上破旧的老水车，数百年来纺着疲惫的歌。',
     type: '语言表达',
-    year: '年',
-    region: '全国',
-    source: '平台题库',
+    year: '2025',
+    region: '山西',
+    source: '原创好题',
     tags: ['新题型', '跨学科'],
     answer: '我是你天空中飞翔的小鸟，时时刻刻搏击着风雨。我是你衣服上小小的纽扣，永远倾听着你心脏跳动的声音。',
     analysis: '',
@@ -778,9 +780,9 @@ const questionList = ref([
     id: 2,
     content: '阅读下面的文字，完成下列小题。<br/><br/>在中国古代文学中，"山水"是一个重要的文学意象。古人常常借助山水来抒发情感，表达志向。请简要分析"山水"意象在古代文学中的作用。',
     type: '现代文阅读',
-    year: '2023',
+    year: '2025',
     region: '山西',
-    source: '中考真题',
+    source: '原创好题',
     tags: ['教材母题'],
     answer: '山水意象在古代文学中主要有以下作用：1.寄托情感，表达作者的喜怒哀乐；2.象征品格，表现高洁的情操和志向；3.营造意境，增强作品的艺术感染力。',
     analysis: '山水是中国古代文学中最常见的意象之一，文人墨客常常通过描写山水来抒发内心情感，表达人生志向，同时也体现了中国传统文化中"天人合一"的思想。',
@@ -790,9 +792,9 @@ const questionList = ref([
     id: 3,
     content: '请用"虽然...但是..."的句式造句，要求句子通顺，语意完整。',
     type: '语言表达',
-    year: '2024',
-    region: '全国',
-    source: '平台题库',
+    year: '2025',
+    region: '山西',
+    source: '原创好题',
     tags: ['大单元'],
     answer: '虽然天气很冷，但是同学们仍然坚持早起锻炼身体。',
     analysis: '此题考查关联词的使用，"虽然...但是..."表示转折关系，前后分句意思相反或相对。',
@@ -802,9 +804,9 @@ const questionList = ref([
     id: 4,
     content: '下列句子中，标点符号使用正确的一项是（　　）<br/>A. 今天，我们学习了《背影》这篇课文。<br/>B. 你是去图书馆？还是去操场？<br/>C. 他问我："你吃饭了吗"？<br/>D. 这是一个美丽的、富饶的、历史悠久的城市。',
     type: '语言知识',
-    year: '2023',
-    region: '北京',
-    source: '模拟试题',
+    year: '2025',
+    region: '山西',
+    source: '原创好题',
     answer: 'A',
     analysis: 'A项标点符号使用正确。B项应为"你是去图书馆，还是去操场？"C项问号应在引号内。D项最后一个顿号应删除。',
     showAnalysis: false
@@ -813,9 +815,9 @@ const questionList = ref([
     id: 5,
     content: '阅读下面的诗歌，回答问题。<br/><br/>《春望》<br/>国破山河在，城春草木深。<br/>感时花溅泪，恨别鸟惊心。<br/>烽火连三月，家书抵万金。<br/>白头搔更短，浑欲不胜簪。<br/><br/>问：请赏析"白头搔更短，浑欲不胜簪"的表现手法。',
     type: '古诗词鉴赏',
-    year: '2024',
-    region: '全国',
-    source: '平台题库',
+    year: '2025',
+    region: '山西',
+    source: '原创好题',
     answer: '运用了细节描写和夸张的手法，通过"搔"这一动作和"更短"的夸张描写，生动形象地表现了诗人因忧国忧民而愁白了头发的形象，深刻地表达了诗人内心的痛苦和焦虑。',
     analysis: '这两句诗是全诗的点睛之笔，诗人通过自己白发的细节描写，将个人的遭遇与国家的命运紧密联系在一起，表达了深沉的爱国情怀。',
     showAnalysis: false
@@ -1507,12 +1509,15 @@ const resetConfig = () => {
   gap: 12px;
 }
 
+.question-main {
+  flex: 1;
+  min-width: 0;
+}
+
 .feature-tags {
-  display: flex;
-  margin-right: 0;
-  align-items: center;
-  flex-shrink: 0;
-  padding-top: 2px;
+  float: left;
+  margin-right: 8px;
+  margin-top: 3px;
 }
 
 .feature-tag {
