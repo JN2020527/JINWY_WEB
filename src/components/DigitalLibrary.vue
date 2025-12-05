@@ -286,13 +286,13 @@
           :key="question.id"
           class="question-item"
         >
+          <div class="new-tag" v-if="index < 2">本周上新</div>
           <div class="question-header">
             <div class="question-number">{{ String(index + 1).padStart(2, '0') }}</div>
+            <div class="feature-tags" v-if="question.tags && question.tags.length > 0">
+              <span class="feature-tag">{{ question.tags[0] }}</span>
+            </div>
             <div class="question-text" v-html="question.content"></div>
-            <button class="btn-screen" title="大屏演示" @click="handleScreenShow(question)">
-              <el-icon><Monitor /></el-icon>
-              <span>大屏演示</span>
-            </button>
           </div>
           
           <!-- 详细讲解区域 -->
@@ -315,6 +315,10 @@
               <span class="meta-item">类型：{{ question.type }}</span>
             </div>
             <div class="question-actions">
+              <button class="btn-screen" title="大屏演示" @click="handleScreenShow(question)">
+                <el-icon><Monitor /></el-icon>
+                <span>大屏演示</span>
+              </button>
               <button class="btn-analysis" @click="toggleAnalysis(question)">
                 <el-icon><View /></el-icon>
                 <span>{{ question.showAnalysis ? '收起详解' : '展开详解' }}</span>
@@ -944,6 +948,7 @@ const contentLibrary = {
       content: '<strong>【原文节选】</strong><br/>子曰："学而时习之，不亦说乎？有朋自远方来，不亦乐乎？人不知而不愠，不亦君子乎？"<br/><br/><strong>【重点字词】</strong><br/>• 时习：按时温习<br/>• 说（yuè）：通"悦"，愉快<br/>• 愠（yùn）：生气，发怒<br/><br/><strong>【句子翻译】</strong><br/>孔子说："学习了（知识）并且按时温习它，不也是很愉快的吗？有志同道合的人从远方来，不也是很快乐的吗？别人不了解自己却不生气，不也是君子吗？"',
       type: '重点句段讲解',
       year: '2026',
+      tags: ['教材母题'],
       answer: '这三句话阐述了学习的乐趣、交友的快乐以及修养的境界，体现了孔子"学而不厌，诲人不倦"的教育思想和宽容大度的君子之风。<br/><br/>第一句强调学习要及时复习，温故知新，学习本身就是快乐的事情；第二句说明朋友之间的交流能够促进学习，增进友谊；第三句则体现了君子的修养，即使不被理解也不会生气，保持平和的心态。',
       analysis: '1. 运用设问句式，引人思考，三个"不亦...乎"构成排比，增强语势，富有感染力。<br/><br/>2. 内容层层递进，从学习到交友再到修养，体现了孔子完整的人格培养观念。<br/><br/>3. 这三句话不仅适用于古代的学习，对今天的我们同样具有重要的指导意义，教导我们要勤于学习、善于交友、宽容待人。',
     showAnalysis: false
@@ -953,6 +958,7 @@ const contentLibrary = {
       content: '<strong>【原文节选】</strong><br/>子曰："温故而知新，可以为师矣。"<br/><br/><strong>【重点字词】</strong><br/>• 温：温习，复习<br/>• 故：旧的知识<br/>• 新：新的理解、体会<br/>• 为师：成为老师<br/><br/><strong>【句子翻译】</strong><br/>孔子说："温习旧知识从而得到新的理解和体会，凭借这一点就可以做老师了。"',
       type: '重点句段讲解',
       year: '2026',
+      tags: ['新题型'],
       answer: '这句话强调了温习旧知识的重要性。通过不断复习已学的知识，能够获得新的理解和体会，达到这样的程度，就可以做老师了。<br/><br/>体现了孔子对学习方法的重视，认为学习不仅要不断获取新知识，还要善于温习旧知识，在温习中加深理解，产生新的感悟。',
       analysis: '1. "温故"和"知新"形成对比，说明学习是一个循环往复、螺旋上升的过程。<br/><br/>2. 提出了"温故知新"的学习方法，对今天的学习仍然有重要的指导意义。<br/><br/>3. 最后一句"可以为师矣"说明达到这种境界就具备了做老师的资格，体现了孔子对教师的高标准要求。',
     showAnalysis: false
@@ -962,6 +968,7 @@ const contentLibrary = {
       content: '<strong>【原文节选】</strong><br/>子曰："学而不思则罔，思而不学则殆。"<br/><br/><strong>【重点字词】</strong><br/>• 罔（wǎng）：迷惑，感到迷茫而无所得<br/>• 殆（dài）：疑惑，危险<br/><br/><strong>【句子翻译】</strong><br/>孔子说："只学习却不思考，就会迷惑而无所得；只空想却不学习，就会疑惑而无所获。"',
       type: '重点句段讲解',
       year: '2026',
+      tags: ['跨学科', '项目化'],
       answer: '这句话阐述了学习和思考的辩证关系，强调二者必须相互结合。只学习不思考，知识就不能消化理解；只思考不学习，就会陷入空想，没有根基。<br/><br/>学习和思考是认识过程中的两个阶段，学习是思考的基础，思考是学习的深化。',
       analysis: '1. 运用对比手法，将"学而不思"和"思而不学"两种片面做法进行比较，说明两者的弊端。<br/><br/>2. 提出了"学思结合"的学习方法，这是认识和掌握知识的根本方法。<br/><br/>3. 对今天的学习有重要启示：既要认真学习，又要善于思考，将学习和思考有机统一起来。',
       showAnalysis: false
@@ -2151,6 +2158,22 @@ defineExpose({
   border-radius: 4px;
   padding: 20px;
   transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.new-tag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, #F56C6C, #E64242);
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 0 0 0 8px;
+  z-index: 2;
+  box-shadow: -1px 1px 4px rgba(245, 108, 108, 0.2);
+  font-weight: 500;
 }
 
 .question-item:hover {
@@ -2164,6 +2187,25 @@ defineExpose({
   display: flex;
   gap: 12px;
   align-items: flex-start;
+}
+
+.feature-tags {
+  display: flex;
+  margin-right: 12px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.feature-tag {
+  font-size: 12px;
+  padding: 1px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  color: #2262FB;
+  background-color: #ecf5ff;
+  border: 1px solid #d9ecff;
 }
 
 .question-number {
@@ -2185,8 +2227,6 @@ defineExpose({
   font-size: 14px;
   line-height: 1.8;
   color: #303133;
-  /* 预留按钮宽度 + 12px 间距 */
-  padding-right: 132px;
 }
 
 .question-text :deep(br) {
@@ -2196,25 +2236,22 @@ defineExpose({
 }
 
 .btn-screen {
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  background-color: #2262FB;
-  color: #ffffff;
-  border: none;
+  gap: 4px;
+  padding: 8px 16px;
   border-radius: 4px;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
   outline: none;
+  background-color: transparent;
+  color: #2262FB;
+  border: none;
 }
 
 .btn-screen:hover {
-  background-color: #4a7dfc;
+  background-color: #f0f5ff;
 }
 
 .btn-screen .el-icon {

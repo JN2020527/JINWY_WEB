@@ -157,12 +157,12 @@
           :key="question.id"
           class="question-item"
         >
+          <div class="new-tag" v-if="index === 0">本周上新</div>
           <div class="question-header">
+            <div class="feature-tags" v-if="question.tags && question.tags.length > 0">
+              <span class="feature-tag">{{ question.tags[0] }}</span>
+            </div>
             <div class="question-text" v-html="question.content"></div>
-            <button class="btn-screen" title="大屏演示" @click="openScreenPresentation(question, index)">
-              <el-icon><Monitor /></el-icon>
-              <span>大屏演示</span>
-            </button>
           </div>
           
           <!-- 答案解析区域 -->
@@ -183,6 +183,10 @@
               <span class="meta-item">试题来源：{{ question.source }}</span>
             </div>
             <div class="question-actions">
+              <button class="btn-screen" title="大屏演示" @click="openScreenPresentation(question, index)">
+                <el-icon><Monitor /></el-icon>
+                <span>大屏演示</span>
+              </button>
               <button class="btn-analysis" @click="toggleAnalysis(question)">
                 <el-icon><View /></el-icon>
                 <span>{{ question.showAnalysis ? '收起解析' : '答案解析' }}</span>
@@ -765,6 +769,7 @@ const questionList = ref([
     year: '年',
     region: '全国',
     source: '平台题库',
+    tags: ['新题型', '跨学科'],
     answer: '我是你天空中飞翔的小鸟，时时刻刻搏击着风雨。我是你衣服上小小的纽扣，永远倾听着你心脏跳动的声音。',
     analysis: '',
     showAnalysis: false
@@ -776,6 +781,7 @@ const questionList = ref([
     year: '2023',
     region: '山西',
     source: '中考真题',
+    tags: ['教材母题'],
     answer: '山水意象在古代文学中主要有以下作用：1.寄托情感，表达作者的喜怒哀乐；2.象征品格，表现高洁的情操和志向；3.营造意境，增强作品的艺术感染力。',
     analysis: '山水是中国古代文学中最常见的意象之一，文人墨客常常通过描写山水来抒发内心情感，表达人生志向，同时也体现了中国传统文化中"天人合一"的思想。',
     showAnalysis: false
@@ -787,6 +793,7 @@ const questionList = ref([
     year: '2024',
     region: '全国',
     source: '平台题库',
+    tags: ['大单元'],
     answer: '虽然天气很冷，但是同学们仍然坚持早起锻炼身体。',
     analysis: '此题考查关联词的使用，"虽然...但是..."表示转折关系，前后分句意思相反或相对。',
     showAnalysis: false
@@ -1470,6 +1477,22 @@ const resetConfig = () => {
   border-radius: 4px;
   padding: 20px;
   transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.new-tag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, #F56C6C, #E64242);
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 0 0 0 8px;
+  z-index: 2;
+  box-shadow: -1px 1px 4px rgba(245, 108, 108, 0.2);
+  font-weight: 500;
 }
 
 .question-item:hover {
@@ -1479,35 +1502,54 @@ const resetConfig = () => {
 .question-header {
   position: relative;
   margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.feature-tags {
+  display: flex;
+  margin-right: 0;
+  align-items: center;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.feature-tag {
+  font-size: 12px;
+  padding: 1px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  color: #2262FB;
+  background-color: #ecf5ff;
+  border: 1px solid #d9ecff;
 }
 
 .question-text {
   font-size: 14px;
   line-height: 1.8;
   color: #303133;
-  padding-right: 120px;
 }
 
 .btn-screen {
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  background-color: #2262FB;
-  color: #ffffff;
-  border: none;
+  gap: 4px;
+  padding: 8px 16px;
   border-radius: 4px;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
   outline: none;
+  background-color: transparent;
+  color: #2262FB;
+  border: none;
 }
 
 .btn-screen:hover {
-  background-color: #4a7dfc;
+  background-color: #f0f5ff;
 }
 
 .btn-screen .el-icon {

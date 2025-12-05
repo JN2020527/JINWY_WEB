@@ -335,12 +335,12 @@
             :key="question.id"
             class="question-item"
           >
+            <div class="new-tag" v-if="index === 0">本月上新</div>
             <div class="question-header">
+              <div class="feature-tags" v-if="question.tags && question.tags.length > 0">
+                <span class="feature-tag">{{ question.tags[0] }}</span>
+              </div>
               <div class="question-text" v-html="question.content"></div>
-              <button class="btn-screen" title="大屏演示" @click="openScreenPresentation(question, index)">
-                <el-icon><Monitor /></el-icon>
-                <span>大屏演示</span>
-              </button>
             </div>
             
             <!-- 答案解析区域 -->
@@ -361,6 +361,10 @@
                 <span class="meta-item">试题来源：{{ question.source }}</span>
               </div>
               <div class="question-actions">
+                <button class="btn-screen" title="大屏演示" @click="openScreenPresentation(question, index)">
+                  <el-icon><Monitor /></el-icon>
+                  <span>大屏演示</span>
+                </button>
                 <button class="btn-analysis" @click="toggleWrongAnalysis(question)">
                   <el-icon><View /></el-icon>
                   <span>{{ question.showAnalysis ? '收起解析' : '答案解析' }}</span>
@@ -659,6 +663,7 @@ const wrongQuestionList = ref([
     year: '2024',
     region: '全国',
     source: '平台题库',
+    tags: ['教材母题', '新题型'],
     answer: '我是你黑夜中点亮的灯塔，为你照亮前行的路',
     analysis: '本题考查仿写句子的能力，需要保持句式结构和修辞手法的一致性。',
     showAnalysis: false
@@ -670,6 +675,7 @@ const wrongQuestionList = ref([
     year: '2023',
     region: '山西',
     source: '中考真题',
+    tags: ['大单元', '跨学科'],
     answer: '"山水"意象在古代文学中具有多重作用：1.寄托情感；2.表达志向；3.营造意境。',
     analysis: '山水意象是中国古代文学的重要组成部分，常用来表达作者的情感、志向和人生态度。',
     showAnalysis: false
@@ -1570,6 +1576,22 @@ const openScreenPresentation = (question, index) => {
   border-radius: 4px;
   padding: 20px;
   transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.new-tag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, #F56C6C, #E64242);
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 0 0 0 8px;
+  z-index: 2;
+  box-shadow: -1px 1px 4px rgba(245, 108, 108, 0.2);
+  font-weight: 500;
 }
 
 .question-item:hover {
@@ -1579,35 +1601,54 @@ const openScreenPresentation = (question, index) => {
 .question-header {
   position: relative;
   margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.feature-tags {
+  display: flex;
+  margin-right: 0;
+  align-items: center;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.feature-tag {
+  font-size: 12px;
+  padding: 1px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  color: #2262FB;
+  background-color: #ecf5ff;
+  border: 1px solid #d9ecff;
 }
 
 .question-text {
   font-size: 14px;
   line-height: 1.8;
   color: #303133;
-  padding-right: 120px;
 }
 
 .btn-screen {
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  background-color: #2262FB;
-  color: #ffffff;
-  border: none;
+  gap: 4px;
+  padding: 8px 16px;
   border-radius: 4px;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
   outline: none;
+  background-color: transparent;
+  color: #2262FB;
+  border: none;
 }
 
 .btn-screen:hover {
-  background-color: #4a7dfc;
+  background-color: #f0f5ff;
 }
 
 .btn-screen .el-icon {
