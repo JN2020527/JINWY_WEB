@@ -1,29 +1,6 @@
 // Mock 数据
 export const mockResources = [
-  {
-    id: 1,
-    name: '2026 山西滚动 英语 主题词汇',
-    stage: '初中/英语',
-    version: '人教版/全一册',
-    cover: 'https://sxjwy-img.oss-cn-beijing.aliyuncs.com//teaching/13/132/cover.jpg',
-    category: '二轮'
-  },
-  {
-    id: 2,
-    name: '2026 山西滚动 英语 语法专项',
-    stage: '初中/英语',
-    version: '人教版/全一册',
-    cover: 'https://sxjwy-img.oss-cn-beijing.aliyuncs.com//teaching/13/131/cover.jpg',
-    category: '二轮'
-  },
-  {
-    id: 3,
-    name: '2026 山西滚动 英语 主题复习',
-    stage: '初中/英语',
-    version: '人教版/全一册',
-    cover: 'https://sxjwy-img.oss-cn-beijing.aliyuncs.com//teaching/13/127/cover.jpg',
-    category: '二轮'
-  },
+
   {
     id: 4,
     name: '（山西学用）2026版英语 记背手册',

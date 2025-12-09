@@ -14,18 +14,23 @@
 
     <!-- 全局搜索 -->
     <div class="search-section">
-      <div class="search-box">
+      <div class="search-box ai-search-box">
+        <div class="ai-badge">
+          <el-icon><MagicStick /></el-icon> AI 智能助手
+        </div>
         <el-input
           v-model="searchKeyword"
-          placeholder="搜索试卷、试题、教辅资源..."
+          placeholder="AI 帮我找：2026数学压轴题..."
           class="global-search-input"
           size="large"
         >
           <template #prefix>
-            <el-icon class="search-icon"><Search /></el-icon>
+            <el-icon class="search-icon ai-icon"><MagicStick /></el-icon>
           </template>
           <template #append>
-            <el-button type="primary" @click="handleSearch">搜索</el-button>
+            <el-button type="primary" @click="handleSearch" class="ai-search-btn">
+              AI 搜索
+            </el-button>
           </template>
         </el-input>
         <div class="hot-search">
@@ -44,16 +49,32 @@
         </div>
         <el-button link type="primary">查看全部 <el-icon><ArrowRight /></el-icon></el-button>
       </div>
-      <div class="prep-plan-cards">
-        <div class="plan-card" v-for="(plan, index) in prepPlans" :key="index">
-          <div class="plan-icon" :class="`icon-${index + 1}`">
-            <span class="round-num">{{ index + 1 }}</span>
+      <div class="prep-timeline">
+        <div class="timeline-track"></div>
+        <div 
+          class="timeline-item" 
+          v-for="(plan, index) in prepPlans" 
+          :key="index"
+          :class="plan.status"
+        >
+          <div class="timeline-node">
+            <div class="node-icon">
+              <el-icon><component :is="plan.icon" /></el-icon>
+            </div>
+            <div class="node-status" v-if="plan.status === 'process'">进行中</div>
           </div>
-          <div class="plan-info">
+          <div class="timeline-content">
+            <div class="time-badge">{{ plan.time }}</div>
             <h3>{{ plan.title }}</h3>
-            <p class="time">{{ plan.time }}</p>
             <p class="desc">{{ plan.desc }}</p>
-            <el-button type="primary" plain size="small" class="action-btn">立即查看</el-button>
+            <el-button 
+              :type="plan.status === 'process' ? 'primary' : 'default'" 
+              :plain="plan.status !== 'process'"
+              size="small" 
+              class="action-btn"
+            >
+              {{ plan.status === 'process' ? '立即开始' : '查看详情' }}
+            </el-button>
           </div>
         </div>
       </div>
@@ -120,32 +141,53 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Search, Reading, Timer, ArrowRight, Document, View, DataAnalysis, Picture } from '@element-plus/icons-vue'
+import { Search, Reading, Timer, ArrowRight, Document, View, DataAnalysis, Picture, EditPen, Trophy, MagicStick } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const searchKeyword = ref('')
-const hotTags = ['2024真题', '数学模拟', '英语听力', '物理实验']
+const hotTags = ['2026真题', '数学模拟', '英语听力', '物理实验']
 
 const carouselItems = [
-  { id: 1, title: '2024中考冲刺计划启动', desc: '全方位助力中考，提分攻略大公开', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+  { id: 1, title: '2026中考冲刺计划启动', desc: '全方位助力中考，提分攻略大公开', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
   { id: 2, title: '名师在线答疑', desc: '每周三晚8点，专家坐镇解答疑难', color: 'linear-gradient(135deg, #2af598 0%, #009efd 100%)' },
   { id: 3, title: '新课标资源更新', desc: '紧跟最新教学大纲，优质资源同步上线', color: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)' },
 ]
 
 const prepPlans = [
-  { title: '一轮复习：夯实基础', time: '9月 - 1月', desc: '全面梳理知识点，构建知识网络，扫除盲点。' },
-  { title: '二轮复习：专题突破', time: '2月 - 4月', desc: '针对重点难点进行专题训练，提升解题能力。' },
-  { title: '三轮复习：模拟冲刺', time: '5月 - 6月', desc: '全真模拟考试，查漏补缺，调整心态，适应考场。' },
+  { 
+    id: 1,
+    title: '一轮复习：夯实基础', 
+    time: '9月 - 1月', 
+    desc: '全面梳理知识点，构建知识网络，扫除盲点。',
+    status: 'process', // process, wait, finish
+    icon: 'Reading'
+  },
+  { 
+    id: 2,
+    title: '二轮复习：专题突破', 
+    time: '2月 - 4月', 
+    desc: '针对重点难点进行专题训练，提升解题能力。',
+    status: 'wait',
+    icon: 'EditPen'
+  },
+  { 
+    id: 3,
+    title: '三轮复习：模拟冲刺', 
+    time: '5月 - 6月', 
+    desc: '全真模拟考试，查漏补缺，调整心态，适应考场。',
+    status: 'wait',
+    icon: 'Trophy'
+  },
 ]
 
 const policyItems = [
   { 
     id: 1, 
-    title: '2024年中考改革新动向：体育分值权重增加', 
+    title: '2026年中考改革新动向：体育分值权重增加', 
     desc: '教育部最新通知，各地将逐步提高中考体育分值，旨在促进青少年身心健康发展。本文深度解读新政背后的意义及应对策略。', 
     type: '政策解读',
     typeClass: 'tag-policy',
-    date: '2023-12-09',
+    date: '2025-12-09',
     img: true
   },
   { 
@@ -154,16 +196,16 @@ const policyItems = [
     desc: '志愿填报是中考的关键一环，如何根据自身成绩和兴趣选择合适的学校？资深教育专家为您支招。', 
     type: '报考指南',
     typeClass: 'tag-guide',
-    date: '2023-12-08',
+    date: '2025-12-08',
     img: true
   },
   { 
     id: 3, 
-    title: '2024年中考英语听力考试说明发布', 
+    title: '2026年中考英语听力考试说明发布', 
     desc: '市教育局发布最新英语听力考试说明，明确了考试题型、时长及分值分布，考生需注意这些变化。', 
     type: '考试通知',
     typeClass: 'tag-notice',
-    date: '2023-12-05',
+    date: '2025-12-05',
     img: false
   },
   { 
@@ -172,18 +214,18 @@ const policyItems = [
     desc: '面对中考，很多同学会出现焦虑情绪。本文分享几种实用的心理调节方法，助你轻松备考。', 
     type: '心理辅导',
     typeClass: 'tag-psych',
-    date: '2023-12-01',
+    date: '2025-12-01',
     img: true
   }
 ]
 
 const recentResources = [
-  { id: 1, title: '2024年某市中考数学模拟试卷（一）', subject: '数学', date: '2023-12-08', views: 1205 },
-  { id: 2, title: '初中英语核心词汇专项训练', subject: '英语', date: '2023-12-07', views: 890 },
-  { id: 3, title: '九年级物理电学实验总结', subject: '物理', date: '2023-12-06', views: 650 },
-  { id: 4, title: '2023年中考语文满分作文赏析', subject: '语文', date: '2023-12-05', views: 2100 },
-  { id: 5, title: '化学方程式配平技巧详解', subject: '化学', date: '2023-12-04', views: 540 },
-  { id: 6, title: '道德与法治时事热点汇总', subject: '道法', date: '2023-12-03', views: 1500 },
+  { id: 1, title: '2026年某市中考数学模拟试卷（一）', subject: '数学', date: '2025-12-08', views: 1205 },
+  { id: 2, title: '初中英语核心词汇专项训练', subject: '英语', date: '2025-12-07', views: 890 },
+  { id: 3, title: '九年级物理电学实验总结', subject: '物理', date: '2025-12-06', views: 650 },
+  { id: 4, title: '2026年中考语文满分作文赏析', subject: '语文', date: '2025-12-05', views: 2100 },
+  { id: 5, title: '化学方程式配平技巧详解', subject: '化学', date: '2025-12-04', views: 540 },
+  { id: 6, title: '道德与法治时事热点汇总', subject: '道法', date: '2025-12-03', views: 1500 },
 ]
 
 const handleSearch = () => {
@@ -236,24 +278,67 @@ const handleSearch = () => {
   width: 100%;
   max-width: 700px;
   text-align: center;
+  position: relative;
+}
+
+.ai-badge {
+  position: absolute;
+  top: -24px;
+  left: 20px;
+  background: #2262FB;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
 }
 
 .global-search-input :deep(.el-input__wrapper) {
   border-radius: 24px 0 0 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 2px solid transparent;
+  background-image: linear-gradient(#fff, #fff), linear-gradient(135deg, #2262FB 0%, #2262FB 100%);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  transition: all 0.3s;
+}
+
+.global-search-input :deep(.el-input__wrapper:hover),
+.global-search-input :deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 4px 20px rgba(34, 98, 251, 0.2);
 }
 
 .global-search-input :deep(.el-input-group__append) {
   border-radius: 0 24px 24px 0;
-  background-color: #2262FB;
-  border-color: #2262FB;
+  background: #2262FB;
+  border: none;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(34, 98, 251, 0.2);
+  box-shadow: 0 4px 12px rgba(34, 98, 251, 0.3);
+  overflow: hidden;
 }
 
-.global-search-input :deep(.el-button:hover) {
-  background-color: #1a53db;
-  border-color: #1a53db;
+.ai-search-btn {
+  background: transparent !important;
+  border: none !important;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.ai-icon {
+  font-size: 18px;
+  background: #2262FB;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .hot-search {
@@ -315,74 +400,156 @@ const handleSearch = () => {
   gap: 20px;
 }
 
-.plan-card {
-  background: #f9fafc;
-  border-radius: 12px;
-  padding: 24px;
+/* 备考方案 - 时间轴样式 */
+.prep-timeline {
   display: flex;
-  gap: 20px;
-  transition: all 0.3s;
-  border: 1px solid #ebeef5;
+  justify-content: space-between;
   position: relative;
-  overflow: hidden;
+  padding: 20px 0;
 }
 
-.plan-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-  border-color: #c6e2ff;
+.timeline-track {
+  position: absolute;
+  top: 45px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: #e4e7ed;
+  z-index: 0;
 }
 
-.plan-icon {
+.timeline-item {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 10px;
+}
+
+.timeline-node {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.node-icon {
   width: 50px;
   height: 50px;
-  border-radius: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #c0c4cc;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  font-weight: bold;
-  flex-shrink: 0;
+  color: #909399;
+  transition: all 0.3s;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
-.icon-1 { background: #e1f3d8; color: #67c23a; }
-.icon-2 { background: #faecd8; color: #e6a23c; }
-.icon-3 { background: #fde2e2; color: #f56c6c; }
-
-.plan-info {
-  flex: 1;
+.node-status {
+  position: absolute;
+  top: -10px;
+  right: -20px;
+  background: #f56c6c;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  white-space: nowrap;
+  animation: bounce 2s infinite;
 }
 
-.plan-info h3 {
-  margin: 0 0 8px 0;
-  font-size: 18px;
-  color: #303133;
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
-.plan-info .time {
-  font-size: 13px;
-  color: #2262FB;
-  background: rgba(34, 98, 251, 0.1);
+.timeline-content {
+  width: 100%;
+  max-width: 280px;
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  transition: all 0.3s;
+  border: 1px solid transparent;
+}
+
+.time-badge {
   display: inline-block;
+  background: #e9e9eb;
+  color: #909399;
+  font-size: 12px;
   padding: 2px 8px;
   border-radius: 4px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
-.plan-info .desc {
-  font-size: 14px;
+.timeline-content h3 {
+  font-size: 16px;
+  color: #303133;
+  margin: 0 0 8px 0;
+}
+
+.timeline-content .desc {
+  font-size: 13px;
   color: #606266;
   line-height: 1.5;
-  margin-bottom: 15px;
-  height: 42px;
+  margin-bottom: 12px;
+  height: 40px;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
-.action-btn {
-  width: 100%;
+/* 状态样式：进行中 */
+.timeline-item.process .node-icon {
+  border-color: #2262FB;
+  background: #2262FB;
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(34, 98, 251, 0.2);
+  transform: scale(1.1);
+}
+
+.timeline-item.process .timeline-content {
+  background: #ecf5ff;
+  border-color: #b3d8ff;
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(34, 98, 251, 0.1);
+}
+
+.timeline-item.process .time-badge {
+  background: rgba(34, 98, 251, 0.1);
+  color: #2262FB;
+}
+
+.timeline-item.process h3 {
+  color: #2262FB;
+  font-weight: bold;
+}
+
+/* 状态样式：已完成 (预留) */
+.timeline-item.finish .node-icon {
+  border-color: #67c23a;
+  color: #67c23a;
+}
+
+/* 悬停效果 */
+.timeline-item:hover .node-icon {
+  border-color: #2262FB;
+  color: #2262FB;
+}
+
+.timeline-item.process:hover .node-icon {
+  color: #fff;
+}
+
+.timeline-item:hover .timeline-content {
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 /* 双栏布局 */

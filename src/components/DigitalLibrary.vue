@@ -290,9 +290,7 @@
           <div class="question-header">
             <div class="question-number">{{ String(index + 1).padStart(2, '0') }}</div>
             <div class="question-main">
-              <div class="feature-tags" v-if="question.tags && question.tags.length > 0">
-                <span class="feature-tag">{{ question.tags[0] }}</span>
-              </div>
+
               <div class="question-text" v-html="question.content"></div>
             </div>
           </div>
