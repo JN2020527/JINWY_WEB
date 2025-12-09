@@ -20,7 +20,7 @@
         </div>
         <el-input
           v-model="searchKeyword"
-          placeholder="AI 帮我找：2026数学压轴题..."
+          placeholder="AI 帮我找：2025数学压轴题..."
           class="global-search-input"
           size="large"
         >
@@ -145,7 +145,7 @@ import { Search, Reading, Timer, ArrowRight, Document, View, DataAnalysis, Pictu
 import { ElMessage } from 'element-plus'
 
 const searchKeyword = ref('')
-const hotTags = ['2026真题', '数学模拟', '英语听力', '物理实验']
+const hotTags = ['2025真题', '数学模拟', '英语听力', '物理实验']
 
 const carouselItems = [
   { id: 1, title: '2026中考冲刺计划启动', desc: '全方位助力中考，提分攻略大公开', color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
