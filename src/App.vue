@@ -24,14 +24,15 @@
         
         <!-- 正常菜单内容 -->
         <template v-else>
-          <DigitalLibrary v-if="currentLeftMenu === 0" ref="digitalLibraryRef" @goto-paper-center="handleGotoPaperCenter" />
-          <PlatformSharing v-else-if="currentLeftMenu === 1" ref="platformSharingRef" @goto-paper-center="handleGotoPaperCenter" />
-          <PrepareResource v-else-if="currentLeftMenu === 2" />
-          <SmartPaper v-else-if="currentLeftMenu === 3" :current-tab="currentTab" @goto-paper-center="handleGotoPaperCenter" />
-          <HomeworkManage v-else-if="currentLeftMenu === 4" :current-tab="currentTab" />
-          <SituationAnalysis v-else-if="currentLeftMenu === 5" :current-tab="currentTab" />
-          <SchoolManage v-else-if="currentLeftMenu === 6" :current-tab="currentTab" />
-          <MyCenter v-else-if="currentLeftMenu === 7" :current-tab="currentTab" />
+          <Home v-if="currentLeftMenu === 0" />
+          <DigitalLibrary v-else-if="currentLeftMenu === 1" ref="digitalLibraryRef" @goto-paper-center="handleGotoPaperCenter" />
+          <PlatformSharing v-else-if="currentLeftMenu === 2" ref="platformSharingRef" @goto-paper-center="handleGotoPaperCenter" />
+          <PrepareResource v-else-if="currentLeftMenu === 3" />
+          <SmartPaper v-else-if="currentLeftMenu === 4" :current-tab="currentTab" @goto-paper-center="handleGotoPaperCenter" />
+          <HomeworkManage v-else-if="currentLeftMenu === 5" :current-tab="currentTab" />
+          <SituationAnalysis v-else-if="currentLeftMenu === 6" :current-tab="currentTab" />
+          <SchoolManage v-else-if="currentLeftMenu === 7" :current-tab="currentTab" />
+          <MyCenter v-else-if="currentLeftMenu === 8" :current-tab="currentTab" />
           <div v-else class="empty-content">
             <p>{{ getMenuName(currentLeftMenu) }}</p>
           </div>
@@ -47,6 +48,7 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import Header from './components/Header.vue'
 import LeftNav from './components/LeftNav.vue'
+import Home from './components/Home.vue'
 import DigitalLibrary from './components/DigitalLibrary.vue'
 import PlatformSharing from './components/PlatformSharing.vue'
 import PrepareResource from './components/PrepareResource.vue'
@@ -71,7 +73,7 @@ const showPaperCenter = ref(false)
 const paperCenterConfig = ref(null)
 const previousMenuState = ref({ menu: 0, tab: 0 }) // 保存进入组卷中心前的菜单状态
 
-const menuNames = ['数字图书', '备考方案', '备考资源', '备考组卷', '作业管理', '学情分析', '学校管理', '我的']
+const menuNames = ['首页', '数字图书', '备考方案', '备考资源', '备考组卷', '作业管理', '学情分析', '学校管理', '我的']
 
 const getMenuName = (index) => {
   return menuNames[index] || '未知菜单'
@@ -87,12 +89,12 @@ const handleMenuChange = (menuIndex) => {
   // 如果点击的是当前已选中的菜单
   if (currentLeftMenu.value === menuIndex) {
     // 如果是数字图书，重置其状态
-    if (menuIndex === 0 && digitalLibraryRef.value) {
+    if (menuIndex === 1 && digitalLibraryRef.value) {
       digitalLibraryRef.value.resetState()
       ElMessage.success('已重置数字图书页面')
     }
     // 如果是备考方案，重置其状态
-    else if (menuIndex === 1 && platformSharingRef.value) {
+    else if (menuIndex === 2 && platformSharingRef.value) {
       platformSharingRef.value.resetState()
       ElMessage.success('已重置备考方案页面')
     }

@@ -69,7 +69,7 @@
 import { ref } from 'vue'
 import { 
   Reading, EditPen, List, DataAnalysis, 
-  DocumentCopy, OfficeBuilding, User, ArrowDown, ArrowLeft, Collection 
+  DocumentCopy, OfficeBuilding, User, ArrowDown, ArrowLeft, Collection, House
 } from '@element-plus/icons-vue'
 
 const props = defineProps({
@@ -93,6 +93,7 @@ const stages = ['初中']
 const subjects = ['语文', '数学', '英语', '物理', '化学', '道德与法治', '历史', '生物学', '地理']
 
 const menuItems = [
+  { label: '首页', icon: House },
   { label: '数字图书', icon: Collection },
   { label: '备考方案', icon: Reading },
   { label: '备考资源', icon: EditPen },
