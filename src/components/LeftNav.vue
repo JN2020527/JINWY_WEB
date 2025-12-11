@@ -47,8 +47,8 @@
       <li 
         v-for="(item, index) in menuItems" 
         :key="index"
-        :class="['nav-item', { active: props.currentMenu === index }]"
-        @click="handleMenuClick(index)"
+        :class="['nav-item', { active: props.currentMenu === item.key }]"
+        @click="handleMenuClick(item.key)"
       >
         <el-icon class="nav-icon">
           <component :is="item.icon" />
@@ -75,8 +75,8 @@ import {
 const props = defineProps({
   collapsed: Boolean,
   currentMenu: {
-    type: Number,
-    default: 0
+    type: String,
+    default: 'home'
   }
 })
 
@@ -85,23 +85,23 @@ const emit = defineEmits(['toggle', 'menuChange'])
 const currentStage = ref('初中')
 const currentSubject = ref('英语')
 
-const handleMenuClick = (index) => {
-  emit('menuChange', index)
+const handleMenuClick = (key) => {
+  emit('menuChange', key)
 }
 
 const stages = ['初中']
 const subjects = ['语文', '数学', '英语', '物理', '化学', '道德与法治', '历史', '生物学', '地理']
 
 const menuItems = [
-  { label: '首页', icon: House },
-  { label: '数字图书', icon: Collection },
-  { label: '备考方案', icon: Reading },
-  { label: '备考资源', icon: EditPen },
-  { label: '备考组卷', icon: DocumentCopy },
-  { label: '作业管理', icon: List },
-  { label: '学情分析', icon: DataAnalysis },
-  { label: '学校管理', icon: OfficeBuilding },
-  { label: '我的', icon: User }
+  { key: 'home', label: '首页', icon: House },
+  { key: 'digital-library', label: '数字图书', icon: Collection },
+  { key: 'prep-plan', label: '备考方案', icon: Reading },
+  { key: 'prep-resource', label: '备考资源', icon: EditPen },
+  { key: 'prep-paper', label: '备考组卷', icon: DocumentCopy },
+  { key: 'homework', label: '作业管理', icon: List },
+  { key: 'analysis', label: '学情分析', icon: DataAnalysis },
+  { key: 'school', label: '学校管理', icon: OfficeBuilding },
+  { key: 'my', label: '我的', icon: User }
 ]
 </script>
 

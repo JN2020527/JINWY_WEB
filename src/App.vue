@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <Header 
-      :show-tabs="!showPaperCenter && currentLeftMenu >= 3 && currentLeftMenu <= 7"
+      :show-tabs="!showPaperCenter && ['prep-paper', 'homework', 'analysis', 'school', 'my'].includes(currentLeftMenu)"
       :current-tab="currentTab"
       :current-menu="currentLeftMenu"
       @tab-change="currentTab = $event"
@@ -24,15 +24,15 @@
         
         <!-- 正常菜单内容 -->
         <template v-else>
-          <Home v-if="currentLeftMenu === 0" />
-          <DigitalLibrary v-else-if="currentLeftMenu === 1" ref="digitalLibraryRef" @goto-paper-center="handleGotoPaperCenter" />
-          <PlatformSharing v-else-if="currentLeftMenu === 2" ref="platformSharingRef" @goto-paper-center="handleGotoPaperCenter" />
-          <PrepareResource v-else-if="currentLeftMenu === 3" />
-          <SmartPaper v-else-if="currentLeftMenu === 4" :current-tab="currentTab" @goto-paper-center="handleGotoPaperCenter" />
-          <HomeworkManage v-else-if="currentLeftMenu === 5" :current-tab="currentTab" />
-          <SituationAnalysis v-else-if="currentLeftMenu === 6" :current-tab="currentTab" />
-          <SchoolManage v-else-if="currentLeftMenu === 7" :current-tab="currentTab" />
-          <MyCenter v-else-if="currentLeftMenu === 8" :current-tab="currentTab" />
+          <Home v-if="currentLeftMenu === 'home'" />
+          <DigitalLibrary v-else-if="currentLeftMenu === 'digital-library'" ref="digitalLibraryRef" @goto-paper-center="handleGotoPaperCenter" />
+          <PlatformSharing v-else-if="currentLeftMenu === 'prep-plan'" ref="platformSharingRef" @goto-paper-center="handleGotoPaperCenter" />
+          <PrepareResource v-else-if="currentLeftMenu === 'prep-resource'" />
+          <SmartPaper v-else-if="currentLeftMenu === 'prep-paper'" :current-tab="currentTab" @goto-paper-center="handleGotoPaperCenter" />
+          <HomeworkManage v-else-if="currentLeftMenu === 'homework'" :current-tab="currentTab" />
+          <SituationAnalysis v-else-if="currentLeftMenu === 'analysis'" :current-tab="currentTab" />
+          <SchoolManage v-else-if="currentLeftMenu === 'school'" :current-tab="currentTab" />
+          <MyCenter v-else-if="currentLeftMenu === 'my'" :current-tab="currentTab" />
           <div v-else class="empty-content">
             <p>{{ getMenuName(currentLeftMenu) }}</p>
           </div>
@@ -61,7 +61,7 @@ import FloatTools from './components/FloatTools.vue'
 import PaperCenter from './components/PaperCenter.vue'
 
 const leftNavCollapsed = ref(false)
-const currentLeftMenu = ref(0) // 当前选中的左侧菜单，默认选中"数字图书"
+const currentLeftMenu = ref('home') // 当前选中的左侧菜单，默认选中"首页"
 const currentTab = ref(0) // 当前选中的顶部tab
 
 // 组件引用
@@ -71,15 +71,25 @@ const platformSharingRef = ref(null)
 // 组卷中心相关状态
 const showPaperCenter = ref(false)
 const paperCenterConfig = ref(null)
-const previousMenuState = ref({ menu: 0, tab: 0 }) // 保存进入组卷中心前的菜单状态
+const previousMenuState = ref({ menu: 'home', tab: 0 }) // 保存进入组卷中心前的菜单状态
 
-const menuNames = ['首页', '数字图书', '备考方案', '备考资源', '备考组卷', '作业管理', '学情分析', '学校管理', '我的']
-
-const getMenuName = (index) => {
-  return menuNames[index] || '未知菜单'
+const menuMap = {
+  'home': '首页',
+  'digital-library': '数字图书',
+  'prep-plan': '备考方案',
+  'prep-resource': '备考资源',
+  'prep-paper': '备考组卷',
+  'homework': '作业管理',
+  'analysis': '学情分析',
+  'school': '学校管理',
+  'my': '我的'
 }
 
-const handleMenuChange = (menuIndex) => {
+const getMenuName = (key) => {
+  return menuMap[key] || '未知菜单'
+}
+
+const handleMenuChange = (menuKey) => {
   // 如果在组卷中心，点击菜单时先关闭组卷中心
   if (showPaperCenter.value) {
     showPaperCenter.value = false
@@ -87,21 +97,21 @@ const handleMenuChange = (menuIndex) => {
   }
   
   // 如果点击的是当前已选中的菜单
-  if (currentLeftMenu.value === menuIndex) {
+  if (currentLeftMenu.value === menuKey) {
     // 如果是数字图书，重置其状态
-    if (menuIndex === 1 && digitalLibraryRef.value) {
+    if (menuKey === 'digital-library' && digitalLibraryRef.value) {
       digitalLibraryRef.value.resetState()
       ElMessage.success('已重置数字图书页面')
     }
     // 如果是备考方案，重置其状态
-    else if (menuIndex === 2 && platformSharingRef.value) {
+    else if (menuKey === 'prep-plan' && platformSharingRef.value) {
       platformSharingRef.value.resetState()
       ElMessage.success('已重置备考方案页面')
     }
     return
   }
   
-  currentLeftMenu.value = menuIndex
+  currentLeftMenu.value = menuKey
   // 切换菜单时，重置tab为第一个
   currentTab.value = 0
 }

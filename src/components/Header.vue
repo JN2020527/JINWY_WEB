@@ -71,8 +71,8 @@ const props = defineProps({
     default: 0
   },
   currentMenu: {
-    type: Number,
-    default: 0
+    type: String,
+    default: 'home'
   }
 })
 
@@ -130,27 +130,28 @@ const myTabs = [
 
 // 根据当前菜单显示对应的tabs
 const navItems = computed(() => {
-  // 0: 数字图书 - 无tabs
-  // 1: 备考方案 - 无tabs
-  // 2: 备考资源 - 无tabs
-  // 3: 备考组卷 - 有tabs
-  if (props.currentMenu === 3) {
+  // 'home': 首页 - 无tabs
+  // 'digital-library': 数字图书 - 无tabs
+  // 'prep-plan': 备考方案 - 无tabs
+  // 'prep-resource': 备考资源 - 无tabs
+  // 'prep-paper': 备考组卷 - 有tabs
+  if (props.currentMenu === 'prep-paper') {
     return smartPaperTabs
   } 
-  // 4: 作业管理 - 有tabs
-  else if (props.currentMenu === 4) {
+  // 'homework': 作业管理 - 有tabs
+  else if (props.currentMenu === 'homework') {
     return homeworkTabs
   } 
-  // 5: 学情分析 - 有tabs
-  else if (props.currentMenu === 5) {
+  // 'analysis': 学情分析 - 有tabs
+  else if (props.currentMenu === 'analysis') {
     return situationTabs
   } 
-  // 6: 学校管理 - 有tabs
-  else if (props.currentMenu === 6) {
+  // 'school': 学校管理 - 有tabs
+  else if (props.currentMenu === 'school') {
     return schoolManageTabs
   } 
-  // 7: 我的 - 有tabs
-  else if (props.currentMenu === 7) {
+  // 'my': 我的 - 有tabs
+  else if (props.currentMenu === 'my') {
     return myTabs
   }
   return []
