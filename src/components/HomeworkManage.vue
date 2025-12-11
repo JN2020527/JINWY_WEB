@@ -710,6 +710,9 @@ const openScreenPresentation = (question, index) => {
 /* 作业扫描样式 */
 .scan-content {
   width: 100%;
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
 }
 
 .scan-header {

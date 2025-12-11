@@ -46,7 +46,7 @@
     <ul class="nav-list">
       <li 
         v-for="(item, index) in menuItems" 
-        :key="index"
+        :key="item.key"
         :class="['nav-item', { active: props.currentMenu === item.key }]"
         @click="handleMenuClick(item.key)"
       >
