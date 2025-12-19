@@ -730,15 +730,14 @@ const sourceOptions = [
 // 试题类型选项
 const typeOptions = [
   { label: '全部', value: 'all' },
-  { label: '字词书写', value: 'word-writing' },
+  { label: '积累运用', value: 'accumulation' },
+  { label: '默写', value: 'dictation' },
+  { label: '综合性学习', value: 'comprehensive' },
   { label: '现代文阅读', value: 'modern-reading' },
   { label: '文言文阅读', value: 'classical-reading' },
-  { label: '名句名篇默写', value: 'famous-sentences' },
-  { label: '诗歌鉴赏', value: 'poetry' },
-  { label: '语言表达', value: 'language-expression' },
-  { label: '名著阅读', value: 'classics-reading' },
-  { label: '综合性学习', value: 'comprehensive' },
-  { label: '作文', value: 'composition' }
+  { label: '诗歌阅读', value: 'poetry-reading' },
+  { label: '整本书阅读', value: 'whole-book-reading' },
+  { label: '写作', value: 'writing' }
 ]
 
 // 试题难度选项
@@ -767,7 +766,7 @@ const questionList = ref([
   {
     id: 1,
     content: '根据例句的形式另选一组意象仿写，表达对祖国的拳拳赤子之心，至少仿写两句。<br/><br/>例句：我是你河边上破旧的老水车，数百年来纺着疲惫的歌。',
-    type: '语言表达',
+    type: '积累运用',
     year: '2025',
     region: '山西',
     source: '原创好题',
@@ -791,7 +790,7 @@ const questionList = ref([
   {
     id: 3,
     content: '请用"虽然...但是..."的句式造句，要求句子通顺，语意完整。',
-    type: '语言表达',
+    type: '积累运用',
     year: '2025',
     region: '山西',
     source: '原创好题',
