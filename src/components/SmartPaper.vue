@@ -158,7 +158,19 @@
             <el-dropdown trigger="hover" @command="(val) => filters.difficulty = val" class="filter-dropdown">
               <span class="el-dropdown-link borderless-select">
                 {{ getLabel(difficultyOptions, filters.difficulty, '试题难度') }}
-                <el-icon class="el-icon--right"><arrow-down /></el-icon>
+                <el-icon 
+                  class="el-icon--right" 
+                  v-if="filters.difficulty === 'all'"
+                >
+                  <arrow-down />
+                </el-icon>
+                <el-icon 
+                  class="el-icon--right clear-icon" 
+                  v-else
+                  @click.stop="filters.difficulty = 'all'"
+                >
+                  <Close />
+                </el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -172,7 +184,19 @@
             <el-dropdown trigger="hover" @command="(val) => filters.year = val" class="filter-dropdown">
               <span class="el-dropdown-link borderless-select">
                 {{ getLabel(yearOptions, filters.year, '年份') }}
-                <el-icon class="el-icon--right"><arrow-down /></el-icon>
+                <el-icon 
+                  class="el-icon--right" 
+                  v-if="filters.year === 'all'"
+                >
+                  <arrow-down />
+                </el-icon>
+                <el-icon 
+                  class="el-icon--right clear-icon" 
+                  v-else
+                  @click.stop="filters.year = 'all'"
+                >
+                  <Close />
+                </el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -186,7 +210,19 @@
             <el-dropdown trigger="hover" @command="(val) => filters.region = val" class="filter-dropdown">
               <span class="el-dropdown-link borderless-select">
                 {{ getLabel(regionOptions, filters.region, '地区') }}
-                <el-icon class="el-icon--right"><arrow-down /></el-icon>
+                <el-icon 
+                  class="el-icon--right" 
+                  v-if="filters.region === 'all'"
+                >
+                  <arrow-down />
+                </el-icon>
+                <el-icon 
+                  class="el-icon--right clear-icon" 
+                  v-else
+                  @click.stop="filters.region = 'all'"
+                >
+                  <Close />
+                </el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -1885,6 +1921,16 @@ const resetConfig = () => {
 
 .borderless-select:hover {
   background-color: #EBEEF5;
+}
+
+.clear-icon {
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.clear-icon:hover {
+  color: #F56C6C;
+  transform: scale(1.2);
 }
 
 .borderless-select .el-icon {
