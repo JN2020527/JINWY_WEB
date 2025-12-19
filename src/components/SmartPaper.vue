@@ -214,6 +214,7 @@
             v-for="(question, index) in questionList" 
             :key="question.id"
             class="question-item"
+            @click="toggleAnalysis(question)"
           >
             <div class="new-tag" v-if="index === 0">本周上新</div>
             <div class="question-header">
@@ -222,7 +223,9 @@
                   <span class="feature-tag" v-if="question.tags && question.tags.length > 0">{{ question.tags[0] }}</span>
                   <div class="meta-items">
                     <span class="meta-item">难度：{{ question.difficulty }}</span>
+                    <span class="meta-divider">|</span>
                     <span class="meta-item">题型：{{ question.type }}</span>
+                    <span class="meta-divider">|</span>
                     <span class="meta-item">试题来源：{{ question.source }}</span>
                   </div>
                 </div>
@@ -242,19 +245,15 @@
 
             <div class="question-footer">
               <div class="footer-info">
-                <span class="info-item">上新时间：{{ question.uploadTime }}</span>
+                <span class="info-item">更新时间：{{ question.uploadTime }}</span>
                 <span class="info-item">组卷次数：{{ question.usageCount }}次</span>
               </div>
               <div class="question-actions">
-                <button class="btn-screen" title="大屏演示" @click="openScreenPresentation(question, index)">
-                  <el-icon><Monitor /></el-icon>
-                  <span>大屏演示</span>
-                </button>
-                <button class="btn-analysis" @click="toggleAnalysis(question)">
+                <button class="btn-analysis" @click.stop="toggleAnalysis(question)">
                   <el-icon><View /></el-icon>
                   <span>{{ question.showAnalysis ? '收起解析' : '答案解析' }}</span>
                 </button>
-                <button class="btn-add">
+                <button class="btn-add" @click.stop>
                   <el-icon><Plus /></el-icon>
                   <span>加入组卷</span>
                 </button>
@@ -907,7 +906,7 @@ const questionList = ref([
     answer: '我是你天空中飞翔的小鸟，时时刻刻搏击着风雨。我是你衣服上小小的纽扣，永远倾听着你心脏跳动的声音。',
     analysis: '',
     showAnalysis: false,
-    uploadTime: '2023-11-15',
+    uploadTime: '2025-12-08',
     usageCount: 1250
   },
   {
@@ -920,7 +919,7 @@ const questionList = ref([
     answer: '山水意象在古代文学中主要有以下作用：1.寄托情感，表达作者的喜怒哀乐；2.象征品格，表现高洁的情操和志向；3.营造意境，增强作品的艺术感染力。',
     analysis: '山水是中国古代文学中最常见的意象之一，文人墨客常常通过描写山水来抒发内心情感，表达人生志向，同时也体现了中国传统文化中"天人合一"的思想。',
     showAnalysis: false,
-    uploadTime: '2023-11-10',
+    uploadTime: '2025-12-05',
     usageCount: 890
   },
   {
@@ -933,7 +932,7 @@ const questionList = ref([
     answer: '虽然天气很冷，但是同学们仍然坚持早起锻炼身体。',
     analysis: '此题考查关联词的使用，"虽然...但是..."表示转折关系，前后分句意思相反或相对。',
     showAnalysis: false,
-    uploadTime: '2023-10-25',
+    uploadTime: '2025-11-28',
     usageCount: 2100
   },
   {
@@ -944,7 +943,9 @@ const questionList = ref([
     source: '2025年山西百校联考试卷',
     answer: 'A',
     analysis: 'A项标点符号使用正确。B项应为"你是去图书馆，还是去操场？"C项问号应在引号内。D项最后一个顿号应删除。',
-    showAnalysis: false
+    showAnalysis: false,
+    uploadTime: '2025-11-25',
+    usageCount: 1580
   },
   {
     id: 5,
@@ -954,7 +955,9 @@ const questionList = ref([
     source: '2025年山西百校联考试卷',
     answer: '运用了细节描写和夸张的手法，通过"搔"这一动作和"更短"的夸张描写，生动形象地表现了诗人因忧国忧民而愁白了头发的形象，深刻地表达了诗人内心的痛苦和焦虑。',
     analysis: '这两句诗是全诗的点睛之笔，诗人通过自己白发的细节描写，将个人的遭遇与国家的命运紧密联系在一起，表达了深沉的爱国情怀。',
-    showAnalysis: false
+    showAnalysis: false,
+    uploadTime: '2025-11-22',
+    usageCount: 1320
   }
 ])
 
@@ -1637,6 +1640,7 @@ const resetConfig = () => {
   transition: all 0.3s;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .new-tag {
@@ -1681,13 +1685,18 @@ const resetConfig = () => {
 
 .meta-items {
   display: flex;
-  gap: 16px;
+  gap: 8px;
   font-size: 12px;
   color: #909399;
 }
 
 .meta-item {
   white-space: nowrap;
+}
+
+.meta-divider {
+  color: #DCDFE6;
+  margin: 0 2px;
 }
 
 .feature-tag {
