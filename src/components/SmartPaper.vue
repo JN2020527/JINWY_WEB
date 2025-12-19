@@ -1792,15 +1792,32 @@ const resetConfig = () => {
 
 .reset-btn {
   margin-left: auto;
-  font-size: 14px;
+  font-size: 14px !important;
   color: #909399;
   font-weight: normal;
-  padding-right: 0;
+  padding: 0 12px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  border: none !important;
+  background-color: #F5F7FA !important;
+  border-radius: 5px;
+  width: auto !important;
+  min-width: auto !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
 }
 
 .reset-btn:hover {
-  color: #409EFF;
-  background-color: transparent;
+  color: #606266;
+  background-color: #EBEEF5 !important;
+}
+
+.reset-btn:active {
+  color: #303133;
+  background-color: #DCDFE6 !important;
+  transition: none;
 }
 
 .reset-btn .el-icon {
