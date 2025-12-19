@@ -1594,15 +1594,16 @@ const resetConfig = () => {
 }
 
 .feature-tag {
+  display: inline-block;
   font-size: 12px;
-  padding: 1px 10px;
-  border-radius: 12px;
-  font-weight: 500;
+  padding: 2px 10px;
+  border-radius: 8px 0 8px 0; /* Asymmetric corners */
+  font-weight: 600;
   line-height: 20px;
   white-space: nowrap;
   color: #2262FB;
-  background-color: #ecf5ff;
-  border: 1px solid #d9ecff;
+  background: #ECF5FF;
+  border: none;
 }
 
 .question-text {
