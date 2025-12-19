@@ -201,7 +201,7 @@
 
       <div class="question-list-container">
         <div class="list-header">
-          <span>试题总数：<strong>{{ questionList.length }}</strong></span>
+          <span>试题总数：<strong>{{ sortedQuestionList.length }}</strong></span>
           
           <!-- 重置按钮 -->
           <el-button link @click="resetFilters" class="reset-btn">
@@ -211,12 +211,12 @@
         </div>
         <div class="question-list">
           <div 
-            v-for="(question, index) in questionList" 
+            v-for="(question, index) in sortedQuestionList" 
             :key="question.id"
             class="question-item"
             @click="toggleAnalysis(question)"
           >
-            <div class="new-tag" v-if="index === 0">本周上新</div>
+            <div class="new-tag" v-if="getNewTag(question.uploadTime)">{{ getNewTag(question.uploadTime) }}</div>
             <div class="question-header">
               <div class="question-main">
                 <div class="tags-row">
@@ -958,8 +958,68 @@ const questionList = ref([
     showAnalysis: false,
     uploadTime: '2025-11-22',
     usageCount: 1320
+  },
+  {
+    id: 6,
+    content: '下列词语中，加点字的注音完全正确的一项是（　　）<br/>A. 憎恶(zēng)　　酝酿(niàng)　　锲而不舍(qiè)<br/>B. 狭隘(ài)　　　　栖息(qī)　　　　鲜为人知(xiǎn)<br/>C. 贮蓄(zhù)　　　　绽放(zhàn)　　　惟妙惟肖(xiào)<br/>D. 伫立(zhù)　　　　蓦然(mù)　　　　咄咄逼人(duō)',
+    type: '积累运用',
+    difficulty: '容易题',
+    source: '2025年山西百校联考试卷',
+    tags: ['新题型'],
+    answer: 'C',
+    analysis: 'A项"憎恶"应读"zēng wù"；B项"鲜为人知"的"鲜"应读"xiǎn"；D项"蓦然"应读"mò rán"。只有C项注音完全正确。',
+    showAnalysis: false,
+    uploadTime: '2025-12-16',
+    usageCount: 856
+  },
+  {
+    id: 7,
+    content: '请根据下面的情境，写一段不少于80字的对话。<br/><br/>情境：小明在图书馆遇到了同学小红，小红正在为即将到来的演讲比赛做准备，显得有些紧张。小明想要鼓励她。',
+    type: '写作',
+    difficulty: '中档题',
+    source: '2025年山西百校联考试卷',
+    tags: ['跨学科'],
+    answer: '小明：小红，你在准备演讲比赛啊？看起来有点紧张呢。<br/>小红：是啊，我担心自己表现不好。<br/>小明：别担心！你平时口才就很好，而且准备得这么充分，一定没问题的。记住，自信是成功的一半！<br/>小红：谢谢你的鼓励，我会加油的！',
+    analysis: '此题考查情境对话写作能力，要求学生能够根据具体情境，运用恰当的语言进行交流，体现人物的情感和态度。',
+    showAnalysis: false,
+    uploadTime: '2025-10-15',
+    usageCount: 2340
+  },
+  {
+    id: 8,
+    content: '下列句子中，没有语病的一项是（　　）<br/>A. 通过这次活动，使我们深刻认识到保护环境的重要性。<br/>B. 能否培养学生的创新能力，是衡量教育成功的重要标准。<br/>C. 我们要继承和发扬老一辈革命家的光荣传统。<br/>D. 在学习上，老师要求我们独立思考，不要盲目地依赖别人。',
+    type: '语言知识',
+    difficulty: '中档题',
+    source: '2025年山西百校联考试卷',
+    answer: 'D',
+    analysis: 'A项缺少主语，应删除"通过"或"使"；B项"能否"与"是"不对应，应改为"培养学生的创新能力，是衡量教育成功的重要标准"；C项"继承"与"传统"搭配不当，应为"继承传统，发扬精神"。只有D项没有语病。',
+    showAnalysis: false,
+    uploadTime: '2025-11-05',
+    usageCount: 1890
+  },
+  {
+    id: 9,
+    content: '阅读下面的文言文，回答问题。<br/><br/>陈太丘与友期行，期日中。过中不至，太丘舍去，去后乃至。元方时年七岁，门外戏。客问元方："尊君在不？"答曰："待君久不至，已去。"客人怒曰："非人哉！与人期行，相委而去。"元方曰："君与家君期日中。日中不至，则是无信；对子骂父，则是无礼。"客人惭，下车引之，元方入门不顾。<br/><br/>问：请用现代汉语翻译"日中不至，则是无信；对子骂父，则是无礼。"',
+    type: '文言文阅读',
+    difficulty: '难题',
+    source: '2025年山西百校联考试卷',
+    tags: ['教材母题'],
+    answer: '约定的时间是正午，您却没有到，这就是不讲信用；当着儿子的面骂他的父亲，这就是没有礼貌。',
+    analysis: '此题考查文言文翻译能力。翻译时要注意"日中"（正午）、"则是"（就是）、"对子"（当着儿子的面）等关键词的准确翻译，同时要保持句子的通顺。',
+    showAnalysis: false,
+    uploadTime: '2025-10-28',
+    usageCount: 1650
   }
 ])
+
+// 排序后的题目列表（按更新时间倒序，最新的在前）
+const sortedQuestionList = computed(() => {
+  return [...questionList.value].sort((a, b) => {
+    const dateA = new Date(a.uploadTime || '2000-01-01')
+    const dateB = new Date(b.uploadTime || '2000-01-01')
+    return dateB - dateA // 降序排列，最新的在前
+  })
+})
 
 // 大屏演示相关
 const showScreenPresentation = ref(false)
@@ -987,6 +1047,30 @@ const changePresentationQuestion = (index) => {
 // 切换答案解析显示状态
 const toggleAnalysis = (question) => {
   question.showAnalysis = !question.showAnalysis
+}
+
+// 获取题目的"上新"标签
+const getNewTag = (uploadTime) => {
+  if (!uploadTime) return null
+  
+  const today = new Date('2025-12-19')
+  const uploadDate = new Date(uploadTime)
+  
+  // 计算时间差（天数）
+  const diffTime = today - uploadDate
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+  
+  // 7天内为"7日上新"
+  if (diffDays <= 7) {
+    return '7日上新'
+  }
+  
+  // 30天内为"30日上新"
+  if (diffDays <= 30) {
+    return '30日上新'
+  }
+  
+  return null
 }
 
 // ==================== 快速组卷相关 ====================
@@ -1241,6 +1325,10 @@ const resetConfig = () => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  max-height: calc(100vh - 40px);
 }
 
 /* 教材版本筛选容器 */
@@ -1261,7 +1349,6 @@ const resetConfig = () => {
   flex-direction: column;
   flex: 1;
   overflow: hidden;
-  max-height: calc(100vh - 380px);
   padding: 16px;
 }
 
