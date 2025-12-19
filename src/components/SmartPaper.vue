@@ -102,6 +102,22 @@
           </div>
         </div>
 
+        <!-- 子题型（仅当选择"积累运用"时显示） -->
+        <div class="filter-row sub-type-row" v-if="filters.type === 'accumulation'">
+          <label class="filter-label">子题型：</label>
+          <div class="filter-options">
+            <div 
+              v-for="item in subTypeOptions" 
+              :key="item.value"
+              class="sub-type-tag"
+              :class="{ active: filters.subType === item.value }"
+              @click="filters.subType = item.value"
+            >
+              {{ item.label }}
+            </div>
+          </div>
+        </div>
+
         <!-- 特色筛选 -->
         <div class="filter-row">
           <label class="filter-label">中考特色：</label>
@@ -699,6 +715,7 @@ const filters = ref({
   source: 'platform',
   features: 'all',
   type: 'all',
+  subType: 'all',
   difficulty: 'all',
   year: 'all'
 })
@@ -710,6 +727,16 @@ const quickFilters = ref({
   difficulty: 'all',
   year: 'all'
 })
+
+// 子题型选项
+const subTypeOptions = [
+  { label: '全部', value: 'all' },
+  { label: '选择', value: 'choice' },
+  { label: '填空', value: 'fill' },
+  { label: '书写', value: 'writing' },
+  { label: '简答', value: 'short-answer' },
+  { label: '综合', value: 'comprehensive' }
+]
 
 // 特色筛选选项
 const featureOptions = [
@@ -1895,6 +1922,50 @@ const resetConfig = () => {
 .reset-btn {
   width: 160px;
   font-size: 16px;
+}
+.sub-type-row {
+  background-color: #f5f7fa; /* Light background to distinguish */
+  padding: 10px 20px;
+  border-radius: 4px;
+  margin-top: 4px; /* Connect visually to the row above */
+  margin-bottom: 15px;
+  position: relative; /* For pseudo-element */
+  align-items: center; /* Vertically align label and options */
+}
+
+/* Connector arrow */
+.sub-type-row::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 215px; /* Adjust to point to 'Accumulation' */
+  border-width: 0 8px 8px;
+  border-style: solid;
+  border-color: transparent transparent #f5f7fa;
+}
+
+.sub-type-tag {
+  display: inline-block;
+  padding: 0 12px;
+  margin-right: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #606266;
+  background-color: transparent;
+  border: none;
+  transition: all 0.3s;
+  line-height: 24px;
+}
+
+.sub-type-tag:hover {
+  color: #2262FB;
+}
+
+.sub-type-tag.active {
+  color: #2262FB;
+  font-weight: 600;
+  background-color: transparent;
+  border: none;
 }
 </style>
 
