@@ -86,6 +86,22 @@
           </div>
         </div>
 
+        <!-- 题源类型 -->
+        <div class="filter-row" v-if="filters.source === 'platform'">
+          <label class="filter-label">题源类型：</label>
+          <div class="filter-options">
+            <el-radio 
+              v-for="item in sourceTypeOptions" 
+              :key="item.value"
+              v-model="filters.sourceType"
+              :label="item.value"
+              class="custom-radio"
+            >
+              {{ item.label }}
+            </el-radio>
+          </div>
+        </div>
+
         <!-- 试题类型 -->
         <div class="filter-row">
           <label class="filter-label">试题类型：</label>
@@ -165,6 +181,22 @@
             </el-radio>
           </div>
         </div>
+
+        <!-- 地区 -->
+        <div class="filter-row">
+          <label class="filter-label">地区：</label>
+          <div class="filter-options">
+            <el-radio 
+              v-for="item in regionOptions" 
+              :key="item.value"
+              v-model="filters.region"
+              :label="item.value"
+              class="custom-radio"
+            >
+              {{ item.label }}
+            </el-radio>
+          </div>
+        </div>
       </div>
 
       <div class="question-list-container">
@@ -183,9 +215,8 @@
                 <div class="tags-row">
                   <span class="feature-tag" v-if="question.tags && question.tags.length > 0">{{ question.tags[0] }}</span>
                   <div class="meta-items">
+                    <span class="meta-item">难度：{{ question.difficulty }}</span>
                     <span class="meta-item">题型：{{ question.type }}</span>
-                    <span class="meta-item">年份：{{ question.year }}</span>
-                    <span class="meta-item">所属地区：{{ question.region }}</span>
                     <span class="meta-item">试题来源：{{ question.source }}</span>
                   </div>
                 </div>
@@ -722,11 +753,13 @@ const toggleParentSelection = (parentNode) => {
 // 筛选条件（选题组卷）
 const filters = ref({
   source: 'platform',
+  sourceType: 'all',
   features: 'all',
   type: 'all',
   subType: 'all',
   difficulty: 'all',
-  year: 'all'
+  year: 'all',
+  region: 'all'
 })
 
 // 筛选条件（快速组卷）
@@ -786,6 +819,16 @@ const sourceOptions = [
   { label: '本校上传', value: 'school' }
 ]
 
+// 题源类型选项
+const sourceTypeOptions = [
+  { label: '全部', value: 'all' },
+  { label: '中考真题', value: 'entrance-exam' },
+  { label: '仿真模拟', value: 'simulation' },
+  { label: '名校试题', value: 'famous-school' },
+  { label: '原创好题', value: 'original' },
+  { label: '阶段性测试', value: 'stage-test' }
+]
+
 // 试题类型选项
 const typeOptions = [
   { label: '全部', value: 'all' },
@@ -802,11 +845,9 @@ const typeOptions = [
 // 试题难度选项
 const difficultyOptions = [
   { label: '全部', value: 'all' },
-  { label: '容易', value: 'easy' },
-  { label: '较易', value: 'fairly-easy' },
-  { label: '一般', value: 'medium' },
-  { label: '较难', value: 'fairly-hard' },
-  { label: '困难', value: 'hard' }
+  { label: '易', value: 'easy' },
+  { label: '中', value: 'medium' },
+  { label: '难', value: 'hard' }
 ]
 
 // 年份选项
@@ -820,15 +861,21 @@ const yearOptions = [
   { label: '更早', value: 'earlier' }
 ]
 
+// 地区选项
+const regionOptions = [
+  { label: '全部', value: 'all' },
+  { label: '山西', value: 'shanxi' },
+  { label: '全国', value: 'national' }
+]
+
 // 模拟题目数据
 const questionList = ref([
   {
     id: 1,
     content: '根据例句的形式另选一组意象仿写，表达对祖国的拳拳赤子之心，至少仿写两句。<br/><br/>例句：我是你河边上破旧的老水车，数百年来纺着疲惫的歌。',
     type: '积累运用',
-    year: '2025',
-    region: '山西',
-    source: '原创好题',
+    difficulty: '中',
+    source: '2025年山西百校联考试卷',
     tags: ['新题型', '跨学科'],
     answer: '我是你天空中飞翔的小鸟，时时刻刻搏击着风雨。我是你衣服上小小的纽扣，永远倾听着你心脏跳动的声音。',
     analysis: '',
@@ -840,9 +887,8 @@ const questionList = ref([
     id: 2,
     content: '阅读下面的文字，完成下列小题。<br/><br/>在中国古代文学中，"山水"是一个重要的文学意象。古人常常借助山水来抒发情感，表达志向。请简要分析"山水"意象在古代文学中的作用。',
     type: '现代文阅读',
-    year: '2025',
-    region: '山西',
-    source: '原创好题',
+    difficulty: '难',
+    source: '2025年山西百校联考试卷',
     tags: ['教材母题'],
     answer: '山水意象在古代文学中主要有以下作用：1.寄托情感，表达作者的喜怒哀乐；2.象征品格，表现高洁的情操和志向；3.营造意境，增强作品的艺术感染力。',
     analysis: '山水是中国古代文学中最常见的意象之一，文人墨客常常通过描写山水来抒发内心情感，表达人生志向，同时也体现了中国传统文化中"天人合一"的思想。',
@@ -854,9 +900,8 @@ const questionList = ref([
     id: 3,
     content: '请用"虽然...但是..."的句式造句，要求句子通顺，语意完整。',
     type: '积累运用',
-    year: '2025',
-    region: '山西',
-    source: '原创好题',
+    difficulty: '易',
+    source: '2025年山西百校联考试卷',
     tags: ['大单元'],
     answer: '虽然天气很冷，但是同学们仍然坚持早起锻炼身体。',
     analysis: '此题考查关联词的使用，"虽然...但是..."表示转折关系，前后分句意思相反或相对。',
@@ -868,9 +913,8 @@ const questionList = ref([
     id: 4,
     content: '下列句子中，标点符号使用正确的一项是（　　）<br/>A. 今天，我们学习了《背影》这篇课文。<br/>B. 你是去图书馆？还是去操场？<br/>C. 他问我："你吃饭了吗"？<br/>D. 这是一个美丽的、富饶的、历史悠久的城市。',
     type: '语言知识',
-    year: '2025',
-    region: '山西',
-    source: '原创好题',
+    difficulty: '中',
+    source: '2025年山西百校联考试卷',
     answer: 'A',
     analysis: 'A项标点符号使用正确。B项应为"你是去图书馆，还是去操场？"C项问号应在引号内。D项最后一个顿号应删除。',
     showAnalysis: false
@@ -879,9 +923,8 @@ const questionList = ref([
     id: 5,
     content: '阅读下面的诗歌，回答问题。<br/><br/>《春望》<br/>国破山河在，城春草木深。<br/>感时花溅泪，恨别鸟惊心。<br/>烽火连三月，家书抵万金。<br/>白头搔更短，浑欲不胜簪。<br/><br/>问：请赏析"白头搔更短，浑欲不胜簪"的表现手法。',
     type: '古诗词鉴赏',
-    year: '2025',
-    region: '山西',
-    source: '原创好题',
+    difficulty: '难',
+    source: '2025年山西百校联考试卷',
     answer: '运用了细节描写和夸张的手法，通过"搔"这一动作和"更短"的夸张描写，生动形象地表现了诗人因忧国忧民而愁白了头发的形象，深刻地表达了诗人内心的痛苦和焦虑。',
     analysis: '这两句诗是全诗的点睛之笔，诗人通过自己白发的细节描写，将个人的遭遇与国家的命运紧密联系在一起，表达了深沉的爱国情怀。',
     showAnalysis: false
