@@ -195,12 +195,6 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-
-            <!-- 重置按钮 -->
-            <el-button link @click="resetFilters" class="reset-btn">
-              <el-icon><RefreshRight /></el-icon>
-              重置筛选
-            </el-button>
           </div>
         </div>
       </div>
@@ -208,6 +202,12 @@
       <div class="question-list-container">
         <div class="list-header">
           <span>试题总数：<strong>{{ questionList.length }}</strong></span>
+          
+          <!-- 重置按钮 -->
+          <el-button link @click="resetFilters" class="reset-btn">
+            <el-icon><RefreshRight /></el-icon>
+            重置筛选
+          </el-button>
         </div>
         <div class="question-list">
           <div 
@@ -1605,6 +1605,9 @@ const resetConfig = () => {
   margin-bottom: 16px;
   font-size: 14px;
   color: #606266;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .list-header strong {
@@ -1789,9 +1792,10 @@ const resetConfig = () => {
 
 .reset-btn {
   margin-left: auto;
-  font-size: 13px;
+  font-size: 14px;
   color: #909399;
   font-weight: normal;
+  padding-right: 0;
 }
 
 .reset-btn:hover {
