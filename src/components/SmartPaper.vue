@@ -102,8 +102,8 @@
           </div>
         </div>
 
-        <!-- 子题型（仅当选择"积累运用"时显示） -->
-        <div class="filter-row sub-type-row" v-if="filters.type === 'accumulation'">
+        <!-- 子题型（动态显示） -->
+        <div class="filter-row sub-type-row" v-if="subTypeOptions.length > 0" :style="{ '--arrow-left': arrowLeft }">
           <label class="filter-label">子题型：</label>
           <div class="filter-options">
             <div 
@@ -167,52 +167,57 @@
         </div>
       </div>
 
-      <div class="question-list">
-        <div 
-          v-for="(question, index) in questionList" 
-          :key="question.id"
-          class="question-item"
-        >
-          <div class="new-tag" v-if="index === 0">本周上新</div>
-          <div class="question-header">
-            <div class="question-main">
-              <div class="feature-tags" v-if="question.tags && question.tags.length > 0">
-                <span class="feature-tag">{{ question.tags[0] }}</span>
+      <div class="question-list-container">
+        <div class="list-header">
+          <span>试题总数：<strong>{{ questionList.length }}</strong></span>
+        </div>
+        <div class="question-list">
+          <div 
+            v-for="(question, index) in questionList" 
+            :key="question.id"
+            class="question-item"
+          >
+            <div class="new-tag" v-if="index === 0">本周上新</div>
+            <div class="question-header">
+              <div class="question-main">
+                <div class="feature-tags" v-if="question.tags && question.tags.length > 0">
+                  <span class="feature-tag">{{ question.tags[0] }}</span>
+                </div>
+                <div class="question-text" v-html="question.content"></div>
               </div>
-              <div class="question-text" v-html="question.content"></div>
             </div>
-          </div>
-          
-          <!-- 答案解析区域 -->
-          <div v-if="question.showAnalysis" class="analysis-section">
-            <div class="analysis-item">
-              <strong>答案：</strong>{{ question.answer }}
+            
+            <!-- 答案解析区域 -->
+            <div v-if="question.showAnalysis" class="analysis-section">
+              <div class="analysis-item">
+                <strong>答案：</strong>{{ question.answer }}
+              </div>
+              <div class="analysis-item" v-if="question.analysis">
+                <strong>解析：</strong>{{ question.analysis }}
+              </div>
             </div>
-            <div class="analysis-item" v-if="question.analysis">
-              <strong>解析：</strong>{{ question.analysis }}
-            </div>
-          </div>
 
-          <div class="question-footer">
-            <div class="question-meta">
-              <span class="meta-item">题型：{{ question.type }}</span>
-              <span class="meta-item">年份：{{ question.year }}</span>
-              <span class="meta-item">所属地区：{{ question.region }}</span>
-              <span class="meta-item">试题来源：{{ question.source }}</span>
-            </div>
-            <div class="question-actions">
-              <button class="btn-screen" title="大屏演示" @click="openScreenPresentation(question, index)">
-                <el-icon><Monitor /></el-icon>
-                <span>大屏演示</span>
-              </button>
-              <button class="btn-analysis" @click="toggleAnalysis(question)">
-                <el-icon><View /></el-icon>
-                <span>{{ question.showAnalysis ? '收起解析' : '答案解析' }}</span>
-              </button>
-              <button class="btn-add">
-                <el-icon><Plus /></el-icon>
-                <span>加入组卷</span>
-              </button>
+            <div class="question-footer">
+              <div class="question-meta">
+                <span class="meta-item">题型：{{ question.type }}</span>
+                <span class="meta-item">年份：{{ question.year }}</span>
+                <span class="meta-item">所属地区：{{ question.region }}</span>
+                <span class="meta-item">试题来源：{{ question.source }}</span>
+              </div>
+              <div class="question-actions">
+                <button class="btn-screen" title="大屏演示" @click="openScreenPresentation(question, index)">
+                  <el-icon><Monitor /></el-icon>
+                  <span>大屏演示</span>
+                </button>
+                <button class="btn-analysis" @click="toggleAnalysis(question)">
+                  <el-icon><View /></el-icon>
+                  <span>{{ question.showAnalysis ? '收起解析' : '答案解析' }}</span>
+                </button>
+                <button class="btn-add">
+                  <el-icon><Plus /></el-icon>
+                  <span>加入组卷</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -729,14 +734,37 @@ const quickFilters = ref({
 })
 
 // 子题型选项
-const subTypeOptions = [
-  { label: '全部', value: 'all' },
-  { label: '选择', value: 'choice' },
-  { label: '填空', value: 'fill' },
-  { label: '书写', value: 'writing' },
-  { label: '简答', value: 'short-answer' },
-  { label: '综合', value: 'comprehensive' }
-]
+// 子题型映射
+const subTypeMap = {
+  'accumulation': [
+    { label: '全部', value: 'all' },
+    { label: '选择', value: 'choice' },
+    { label: '填空', value: 'fill' },
+    { label: '书写', value: 'writing' },
+    { label: '简答', value: 'short-answer' },
+    { label: '综合', value: 'comprehensive' }
+  ],
+  'dictation': [
+    { label: '全部', value: 'all' },
+    { label: '句子默写', value: 'sentence' },
+    { label: '情景默写', value: 'contextual' }
+  ]
+}
+
+// 子题型选项（计算属性）
+const subTypeOptions = computed(() => {
+  return subTypeMap[filters.value.type] || []
+})
+
+// 箭头位置映射（根据试题类型调整）
+const arrowPositionMap = {
+  'accumulation': '215px',
+  'dictation': '305px' // 估算值：215 + 90
+}
+
+const arrowLeft = computed(() => {
+  return arrowPositionMap[filters.value.type] || '215px'
+})
 
 // 特色筛选选项
 const featureOptions = [
@@ -1493,6 +1521,25 @@ const resetConfig = () => {
   font-weight: 500;
 }
 
+.list-header {
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #606266;
+}
+
+.list-header strong {
+  color: #2262FB;
+  margin: 0 4px;
+  font-size: 16px;
+}
+
+.question-list-container {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 4px;
+  border: 1px solid #e4e7ed;
+}
+
 .question-list {
   display: flex;
   flex-direction: column;
@@ -1938,10 +1985,11 @@ const resetConfig = () => {
   content: '';
   position: absolute;
   top: -8px;
-  left: 215px; /* Adjust to point to 'Accumulation' */
+  left: var(--arrow-left, 215px); /* Use variable with fallback */
   border-width: 0 8px 8px;
   border-style: solid;
   border-color: transparent transparent #f5f7fa;
+  transition: left 0.3s; /* Smooth transition */
 }
 
 .sub-type-tag {
