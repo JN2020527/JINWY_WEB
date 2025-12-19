@@ -437,6 +437,10 @@ const categoryTabs = ['滚动迁移', '领跑卷', '好题开练', '方向卷', 
 const filteredResources = computed(() => {
   let result = mockResources
   
+  // 数字图书所有tab都不显示一轮、二轮、三轮
+  const excludeCategories = ['一轮', '二轮', '三轮']
+  result = result.filter(item => !excludeCategories.includes(item.category))
+
   if (searchKeyword.value) {
     result = result.filter(item => 
       item.name.toLowerCase().includes(searchKeyword.value.toLowerCase())

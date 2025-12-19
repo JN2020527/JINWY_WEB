@@ -1,30 +1,9 @@
 // Mock 数据
 export const mockResources = [
 
-  {
-    id: 4,
-    name: '（山西学用）2026版英语 记背手册',
-    stage: '初中/英语',
-    version: '人教版/全一册',
-    cover: 'https://sxjwy-img.oss-cn-beijing.aliyuncs.com//teaching/13/100/cover.jpg',
-    category: '一轮'
-  },
-  {
-    id: 5,
-    name: '（山西学用）2026版 英语 主书',
-    stage: '初中/英语',
-    version: '人教版/全一册',
-    cover: 'https://sxjwy-img.oss-cn-beijing.aliyuncs.com//teaching/13/69/cover.jpg',
-    category: '一轮'
-  },
-  {
-    id: 6,
-    name: '（山西学用）2026版 英语 主题听力册',
-    stage: '初中/英语',
-    version: '人教版/全一册',
-    cover: 'https://sxjwy-img.oss-cn-beijing.aliyuncs.com//teaching/13/60/cover.jpg',
-    category: '一轮'
-  },
+
+
+
   {
     id: 7,
     name: '（山西学用）2026版  英语 课后小卷',
@@ -32,6 +11,62 @@ export const mockResources = [
     version: '人教版/全一册',
     cover: 'https://sxjwy-img.oss-cn-beijing.aliyuncs.com//teaching/13/44/cover.jpg',
     category: '冲刺'
+  },
+  {
+    id: 101,
+    name: '中考总复习 一轮·古诗文',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/cover_gushiwen.jpg',
+    category: '一轮'
+  },
+  {
+    id: 102,
+    name: '中考总复习 一轮·语言文字积累与梳理',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/cover_yuyan.jpg',
+    category: '一轮'
+  },
+  {
+    id: 103,
+    name: '中考总复习 一轮·整本书阅读',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/cover_zhengben.jpg',
+    category: '一轮'
+  },
+  {
+    id: 104,
+    name: '中考总复习 一轮·写作',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/cover_xiezuo.jpg',
+    category: '一轮'
+  },
+  {
+    id: 105,
+    name: '中考总复习 一轮·现代文读写',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/cover_xiandaiwen.jpg',
+    category: '一轮'
+  },
+  {
+    id: 201,
+    name: '中考总复习 二轮',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/cover_erlun.jpg',
+    category: '二轮'
+  },
+  {
+    id: 301,
+    name: '中考总复习 三轮',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/cover_sanlun.jpg',
+    category: '三轮'
   }
 ]
 

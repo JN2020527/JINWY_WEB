@@ -352,7 +352,7 @@ const viewMode = ref('grid')
 const currentPage = ref(1)
 const pageSize = ref(12)
 
-const categoryTabs = ['一轮', '二轮', '冲刺']
+const categoryTabs = ['一轮', '二轮', '三轮']
 
 const filteredResources = computed(() => {
   let result = mockResources
