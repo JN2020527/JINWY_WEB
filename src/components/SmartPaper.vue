@@ -150,51 +150,24 @@
           </div>
         </div>
 
-        <!-- 试题难度 -->
+        <!-- 更多筛选 -->
         <div class="filter-row">
-          <label class="filter-label">试题难度：</label>
+          <label class="filter-label">更多：</label>
           <div class="filter-options">
-            <el-radio 
-              v-for="item in difficultyOptions" 
-              :key="item.value"
-              v-model="filters.difficulty"
-              :label="item.value"
-              class="custom-radio"
-            >
-              {{ item.label }}
-            </el-radio>
-          </div>
-        </div>
+            <el-select v-model="filters.difficulty" placeholder="试题难度" class="borderless-select" style="width: 120px; margin-right: 10px;">
+              <el-option label="全部难度" value="all" />
+              <el-option v-for="item in difficultyOptions.filter(o => o.value !== 'all')" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+            
+            <el-select v-model="filters.year" placeholder="年份" class="borderless-select" style="width: 120px; margin-right: 10px;">
+              <el-option label="全部年份" value="all" />
+              <el-option v-for="item in yearOptions.filter(o => o.value !== 'all')" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
 
-        <!-- 年份 -->
-        <div class="filter-row">
-          <label class="filter-label">年份：</label>
-          <div class="filter-options">
-            <el-radio 
-              v-for="item in yearOptions" 
-              :key="item.value"
-              v-model="filters.year"
-              :label="item.value"
-              class="custom-radio"
-            >
-              {{ item.label }}
-            </el-radio>
-          </div>
-        </div>
-
-        <!-- 地区 -->
-        <div class="filter-row">
-          <label class="filter-label">地区：</label>
-          <div class="filter-options">
-            <el-radio 
-              v-for="item in regionOptions" 
-              :key="item.value"
-              v-model="filters.region"
-              :label="item.value"
-              class="custom-radio"
-            >
-              {{ item.label }}
-            </el-radio>
+            <el-select v-model="filters.region" placeholder="地区" class="borderless-select" style="width: 120px;">
+              <el-option label="全部地区" value="all" />
+              <el-option v-for="item in regionOptions.filter(o => o.value !== 'all')" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
           </div>
         </div>
       </div>
@@ -1725,6 +1698,22 @@ const resetConfig = () => {
 
 .analysis-item:last-child {
   margin-bottom: 0;
+}
+
+.borderless-select :deep(.el-input__wrapper),
+.borderless-select :deep(.el-select__wrapper) {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.borderless-select :deep(.el-input__wrapper.is-focus),
+.borderless-select :deep(.el-select__wrapper.is-focused) {
+  box-shadow: none !important;
+}
+
+.borderless-select :deep(.el-input__inner) {
+  font-size: 14px;
+  color: #606266;
 }
 
 .analysis-item strong {
