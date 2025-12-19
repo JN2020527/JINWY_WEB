@@ -180,8 +180,14 @@
             <div class="new-tag" v-if="index === 0">本周上新</div>
             <div class="question-header">
               <div class="question-main">
-                <div class="feature-tags" v-if="question.tags && question.tags.length > 0">
-                  <span class="feature-tag">{{ question.tags[0] }}</span>
+                <div class="tags-row">
+                  <span class="feature-tag" v-if="question.tags && question.tags.length > 0">{{ question.tags[0] }}</span>
+                  <div class="meta-items">
+                    <span class="meta-item">题型：{{ question.type }}</span>
+                    <span class="meta-item">年份：{{ question.year }}</span>
+                    <span class="meta-item">所属地区：{{ question.region }}</span>
+                    <span class="meta-item">试题来源：{{ question.source }}</span>
+                  </div>
                 </div>
                 <div class="question-text" v-html="question.content"></div>
               </div>
@@ -198,11 +204,9 @@
             </div>
 
             <div class="question-footer">
-              <div class="question-meta">
-                <span class="meta-item">题型：{{ question.type }}</span>
-                <span class="meta-item">年份：{{ question.year }}</span>
-                <span class="meta-item">所属地区：{{ question.region }}</span>
-                <span class="meta-item">试题来源：{{ question.source }}</span>
+              <div class="footer-info">
+                <span class="info-item">上新时间：{{ question.uploadTime }}</span>
+                <span class="info-item">组卷次数：{{ question.usageCount }}次</span>
               </div>
               <div class="question-actions">
                 <button class="btn-screen" title="大屏演示" @click="openScreenPresentation(question, index)">
@@ -828,7 +832,9 @@ const questionList = ref([
     tags: ['新题型', '跨学科'],
     answer: '我是你天空中飞翔的小鸟，时时刻刻搏击着风雨。我是你衣服上小小的纽扣，永远倾听着你心脏跳动的声音。',
     analysis: '',
-    showAnalysis: false
+    showAnalysis: false,
+    uploadTime: '2023-11-15',
+    usageCount: 1250
   },
   {
     id: 2,
@@ -840,7 +846,9 @@ const questionList = ref([
     tags: ['教材母题'],
     answer: '山水意象在古代文学中主要有以下作用：1.寄托情感，表达作者的喜怒哀乐；2.象征品格，表现高洁的情操和志向；3.营造意境，增强作品的艺术感染力。',
     analysis: '山水是中国古代文学中最常见的意象之一，文人墨客常常通过描写山水来抒发内心情感，表达人生志向，同时也体现了中国传统文化中"天人合一"的思想。',
-    showAnalysis: false
+    showAnalysis: false,
+    uploadTime: '2023-11-10',
+    usageCount: 890
   },
   {
     id: 3,
@@ -852,7 +860,9 @@ const questionList = ref([
     tags: ['大单元'],
     answer: '虽然天气很冷，但是同学们仍然坚持早起锻炼身体。',
     analysis: '此题考查关联词的使用，"虽然...但是..."表示转折关系，前后分句意思相反或相对。',
-    showAnalysis: false
+    showAnalysis: false,
+    uploadTime: '2023-10-25',
+    usageCount: 2100
   },
   {
     id: 4,
@@ -1550,7 +1560,7 @@ const resetConfig = () => {
   background: #ffffff;
   border: 1px solid #e4e7ed;
   border-radius: 4px;
-  padding: 20px;
+  padding: 15px 20px;
   transition: all 0.3s;
   position: relative;
   overflow: hidden;
@@ -1587,10 +1597,24 @@ const resetConfig = () => {
   min-width: 0;
 }
 
-.feature-tags {
-  float: left;
-  margin-right: 8px;
-  margin-top: 3px;
+.tags-row {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed #EBEEF5;
+}
+
+.meta-items {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #909399;
+}
+
+.meta-item {
+  white-space: nowrap;
 }
 
 .feature-tag {
@@ -1682,20 +1706,15 @@ const resetConfig = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
-  gap: 20px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f2f6fc;
 }
 
-.question-meta {
+.footer-info {
   display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  flex: 1;
-}
-
-.meta-item {
-  font-size: 14px;
+  gap: 16px;
+  font-size: 12px;
   color: #909399;
 }
 
