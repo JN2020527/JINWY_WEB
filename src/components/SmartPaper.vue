@@ -154,20 +154,53 @@
         <div class="filter-row">
           <label class="filter-label">更多：</label>
           <div class="filter-options">
-            <el-select v-model="filters.difficulty" placeholder="试题难度" class="borderless-select" style="width: 120px; margin-right: 10px;">
-              <el-option label="全部难度" value="all" />
-              <el-option v-for="item in difficultyOptions.filter(o => o.value !== 'all')" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
+            <!-- 试题难度 -->
+            <el-dropdown trigger="hover" @command="(val) => filters.difficulty = val" class="filter-dropdown">
+              <span class="el-dropdown-link borderless-select">
+                {{ getLabel(difficultyOptions, filters.difficulty, '试题难度') }}
+                <el-icon class="el-icon--right"><arrow-down /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="all">全部难度</el-dropdown-item>
+                  <el-dropdown-item v-for="item in difficultyOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value">{{ item.label }}</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
             
-            <el-select v-model="filters.year" placeholder="年份" class="borderless-select" style="width: 120px; margin-right: 10px;">
-              <el-option label="全部年份" value="all" />
-              <el-option v-for="item in yearOptions.filter(o => o.value !== 'all')" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
+            <!-- 年份 -->
+            <el-dropdown trigger="hover" @command="(val) => filters.year = val" class="filter-dropdown">
+              <span class="el-dropdown-link borderless-select">
+                {{ getLabel(yearOptions, filters.year, '年份') }}
+                <el-icon class="el-icon--right"><arrow-down /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="all">全部年份</el-dropdown-item>
+                  <el-dropdown-item v-for="item in yearOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value">{{ item.label }}</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
 
-            <el-select v-model="filters.region" placeholder="地区" class="borderless-select" style="width: 120px;">
-              <el-option label="全部地区" value="all" />
-              <el-option v-for="item in regionOptions.filter(o => o.value !== 'all')" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
+            <!-- 地区 -->
+            <el-dropdown trigger="hover" @command="(val) => filters.region = val" class="filter-dropdown">
+              <span class="el-dropdown-link borderless-select">
+                {{ getLabel(regionOptions, filters.region, '地区') }}
+                <el-icon class="el-icon--right"><arrow-down /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="all">全部地区</el-dropdown-item>
+                  <el-dropdown-item v-for="item in regionOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value">{{ item.label }}</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+
+            <!-- 重置按钮 -->
+            <el-button link @click="resetFilters" class="reset-btn">
+              <el-icon><RefreshRight /></el-icon>
+              重置筛选
+            </el-button>
           </div>
         </div>
       </div>
@@ -735,6 +768,20 @@ const filters = ref({
   region: 'all'
 })
 
+// 重置筛选
+const resetFilters = () => {
+  filters.value = {
+    source: 'platform',
+    sourceType: 'all',
+    features: 'all',
+    type: 'all',
+    subType: 'all',
+    difficulty: 'all',
+    year: 'all',
+    region: 'all'
+  }
+}
+
 // 筛选条件（快速组卷）
 const quickFilters = ref({
   source: 'platform',
@@ -818,10 +865,17 @@ const typeOptions = [
 // 试题难度选项
 const difficultyOptions = [
   { label: '全部', value: 'all' },
-  { label: '易', value: 'easy' },
-  { label: '中', value: 'medium' },
-  { label: '难', value: 'hard' }
+  { label: '容易题', value: 'easy' },
+  { label: '中档题', value: 'medium' },
+  { label: '难题', value: 'hard' }
 ]
+
+// 获取选项标签
+const getLabel = (options, value, placeholder) => {
+  if (value === 'all' || !value) return placeholder
+  const option = options.find(o => o.value === value)
+  return option ? option.label : placeholder
+}
 
 // 年份选项
 const yearOptions = [
@@ -847,7 +901,7 @@ const questionList = ref([
     id: 1,
     content: '根据例句的形式另选一组意象仿写，表达对祖国的拳拳赤子之心，至少仿写两句。<br/><br/>例句：我是你河边上破旧的老水车，数百年来纺着疲惫的歌。',
     type: '积累运用',
-    difficulty: '中',
+    difficulty: '中档题',
     source: '2025年山西百校联考试卷',
     tags: ['新题型', '跨学科'],
     answer: '我是你天空中飞翔的小鸟，时时刻刻搏击着风雨。我是你衣服上小小的纽扣，永远倾听着你心脏跳动的声音。',
@@ -860,7 +914,7 @@ const questionList = ref([
     id: 2,
     content: '阅读下面的文字，完成下列小题。<br/><br/>在中国古代文学中，"山水"是一个重要的文学意象。古人常常借助山水来抒发情感，表达志向。请简要分析"山水"意象在古代文学中的作用。',
     type: '现代文阅读',
-    difficulty: '难',
+    difficulty: '难题',
     source: '2025年山西百校联考试卷',
     tags: ['教材母题'],
     answer: '山水意象在古代文学中主要有以下作用：1.寄托情感，表达作者的喜怒哀乐；2.象征品格，表现高洁的情操和志向；3.营造意境，增强作品的艺术感染力。',
@@ -873,7 +927,7 @@ const questionList = ref([
     id: 3,
     content: '请用"虽然...但是..."的句式造句，要求句子通顺，语意完整。',
     type: '积累运用',
-    difficulty: '易',
+    difficulty: '容易题',
     source: '2025年山西百校联考试卷',
     tags: ['大单元'],
     answer: '虽然天气很冷，但是同学们仍然坚持早起锻炼身体。',
@@ -886,7 +940,7 @@ const questionList = ref([
     id: 4,
     content: '下列句子中，标点符号使用正确的一项是（　　）<br/>A. 今天，我们学习了《背影》这篇课文。<br/>B. 你是去图书馆？还是去操场？<br/>C. 他问我："你吃饭了吗"？<br/>D. 这是一个美丽的、富饶的、历史悠久的城市。',
     type: '语言知识',
-    difficulty: '中',
+    difficulty: '中档题',
     source: '2025年山西百校联考试卷',
     answer: 'A',
     analysis: 'A项标点符号使用正确。B项应为"你是去图书馆，还是去操场？"C项问号应在引号内。D项最后一个顿号应删除。',
@@ -896,7 +950,7 @@ const questionList = ref([
     id: 5,
     content: '阅读下面的诗歌，回答问题。<br/><br/>《春望》<br/>国破山河在，城春草木深。<br/>感时花溅泪，恨别鸟惊心。<br/>烽火连三月，家书抵万金。<br/>白头搔更短，浑欲不胜簪。<br/><br/>问：请赏析"白头搔更短，浑欲不胜簪"的表现手法。',
     type: '古诗词鉴赏',
-    difficulty: '难',
+    difficulty: '难题',
     source: '2025年山西百校联考试卷',
     answer: '运用了细节描写和夸张的手法，通过"搔"这一动作和"更短"的夸张描写，生动形象地表现了诗人因忧国忧民而愁白了头发的形象，深刻地表达了诗人内心的痛苦和焦虑。',
     analysis: '这两句诗是全诗的点睛之笔，诗人通过自己白发的细节描写，将个人的遭遇与国家的命运紧密联系在一起，表达了深沉的爱国情怀。',
@@ -1700,20 +1754,53 @@ const resetConfig = () => {
   margin-bottom: 0;
 }
 
-.borderless-select :deep(.el-input__wrapper),
-.borderless-select :deep(.el-select__wrapper) {
-  box-shadow: none !important;
-  border: none !important;
+.filter-dropdown {
+  margin-right: 10px;
 }
 
-.borderless-select :deep(.el-input__wrapper.is-focus),
-.borderless-select :deep(.el-select__wrapper.is-focused) {
-  box-shadow: none !important;
+.filter-dropdown:last-child {
+  margin-right: 0;
 }
 
-.borderless-select :deep(.el-input__inner) {
-  font-size: 14px;
+.borderless-select {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  padding: 0 12px;
+  background-color: #F5F7FA;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
   color: #606266;
+  transition: all 0.3s;
+  min-width: 90px;
+}
+
+.borderless-select:hover {
+  background-color: #EBEEF5;
+}
+
+.borderless-select .el-icon {
+  margin-left: 8px;
+  font-size: 12px;
+  color: #909399;
+}
+
+.reset-btn {
+  margin-left: auto;
+  font-size: 13px;
+  color: #909399;
+  font-weight: normal;
+}
+
+.reset-btn:hover {
+  color: #409EFF;
+  background-color: transparent;
+}
+
+.reset-btn .el-icon {
+  margin-right: 4px;
 }
 
 .analysis-item strong {
