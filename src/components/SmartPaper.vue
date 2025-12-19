@@ -1874,6 +1874,13 @@ const resetConfig = () => {
   color: #606266;
   transition: all 0.3s;
   min-width: 90px;
+  border: none;
+  outline: none;
+}
+
+.borderless-select:focus {
+  outline: none;
+  border: none;
 }
 
 .borderless-select:hover {
@@ -2270,6 +2277,24 @@ const resetConfig = () => {
   font-weight: 600;
   background-color: transparent;
   border: none;
+}
+
+/* 去掉下拉菜单项的黑色边框 */
+:deep(.el-dropdown-menu__item) {
+  border: none !important;
+  outline: none !important;
+}
+
+:deep(.el-dropdown-menu__item:hover) {
+  background-color: #f5f7fa;
+  border: none !important;
+  outline: none !important;
+}
+
+:deep(.el-dropdown-menu__item:focus) {
+  background-color: #f5f7fa;
+  border: none !important;
+  outline: none !important;
 }
 </style>
 
