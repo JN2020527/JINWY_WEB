@@ -76,22 +76,31 @@ export const mockResources = [
     cover: '/covers/cover_xiandaiwen.jpg',
     category: '一轮'
   },
-  {
-    id: 201,
-    name: '中考总复习 二轮',
-    stage: '初中/语文',
-    version: '通用版',
-    cover: '/covers/cover_erlun.jpg',
-    category: '二轮'
-  },
+
   {
     id: 301,
-    name: '中考总复习 三轮',
+    name: '中考总复习 三轮·冲刺调整',
     stage: '初中/语文',
     version: '通用版',
-    cover: '/covers/cover_sanlun.jpg',
+    cover: '/covers/round3_sprint.jpg',
     category: '三轮'
-  }
+  },
+  {
+    id: 302,
+    name: '中考总复习 三轮·综合演练',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/round3_comprehensive.jpg',
+    category: '三轮'
+  },
+  {
+    id: 303,
+    name: '中考总复习 三轮·专项提升',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/round3_special.jpg',
+    category: '三轮'
+  },
 ]
 
 // 年份数据
