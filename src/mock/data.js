@@ -13,6 +13,30 @@ export const mockResources = [
     category: '冲刺'
   },
   {
+    id: 201,
+    name: '中考总复习 二轮·分类整合',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/round2_classification.jpg',
+    category: '二轮'
+  },
+  {
+    id: 202,
+    name: '中考总复习 二轮·综合训练',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/round2_comprehensive.jpg',
+    category: '二轮'
+  },
+  {
+    id: 203,
+    name: '中考总复习 二轮·素材集锦',
+    stage: '初中/语文',
+    version: '通用版',
+    cover: '/covers/round2_material.jpg',
+    category: '二轮'
+  },
+  {
     id: 101,
     name: '中考总复习 一轮·古诗文',
     stage: '初中/语文',
