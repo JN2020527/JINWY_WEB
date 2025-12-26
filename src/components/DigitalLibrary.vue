@@ -472,7 +472,7 @@ const catalogTree = ref([
         contentId: 'unit-overview', // 单元知识梳理
         children: [
           { id: 111, label: '第1篇《论语》十二章（七上）', contentId: 'lunyu' },
-          { id: 112, label: '第2篇《诫子书》（七下）', contentId: 'jiezishu' },
+          { id: 112, label: '第2篇《陋室铭》（七下）', contentId: 'jiezishu' },
           { id: 113, label: '第3篇《爱莲说》（七下）', contentId: 'ailiansuo' }
         ]
       },
@@ -1087,7 +1087,7 @@ const contentLibrary = {
     }
   ],
   
-  // 《诫子书》
+  // 《陋室铭》
   'jiezishu': [
     {
       id: 201,
@@ -1139,7 +1139,7 @@ const contentLibrary = {
       content: '<strong>【思想内涵】</strong><br/>儒家修身思想与道家清静无为的结合',
       type: '思想内涵探究',
       year: '2025',
-      answer: '《诫子书》体现了儒家和道家思想的融合：<br/><br/>1. 儒家思想：强调修身、立志、治学，追求"修身齐家治国平天下"的人生理想。"静以修身，俭以养德"体现了儒家重视道德修养的传统。<br/><br/>2. 道家思想："淡泊"、"宁静"等概念体现了道家清静无为、不争名利的思想。强调内心的平和与超脱。<br/><br/>3. 两者结合：诸葛亮将儒家的积极进取与道家的超然物外相结合，既有远大志向，又能保持内心平和，体现了中国传统文化的智慧。',
+      answer: '《陋室铭》体现了儒家和道家思想的融合：<br/><br/>1. 儒家思想：强调修身、立志、治学，追求"修身齐家治国平天下"的人生理想。"静以修身，俭以养德"体现了儒家重视道德修养的传统。<br/><br/>2. 道家思想："淡泊"、"宁静"等概念体现了道家清静无为、不争名利的思想。强调内心的平和与超脱。<br/><br/>3. 两者结合：诸葛亮将儒家的积极进取与道家的超然物外相结合，既有远大志向，又能保持内心平和，体现了中国传统文化的智慧。',
       analysis: '1. 这种思想融合在诸葛亮的人生中得到充分体现：他既鞠躬尽瘁为国效力，又能在纷乱中保持内心的宁静。<br/><br/>2. 对今天的启示：在追求事业成功的同时，也要注重内心修养，保持平和的心态。<br/><br/>3. 体现了中国传统文化的包容性和综合性。',
       showAnalysis: false
     }
@@ -1262,8 +1262,8 @@ const loadResourcesByContentId = (contentId) => {
       { name: '《论语》十二章课后练习.pdf', type: 'PDF文档', fileType: 'PDF', size: '1.2MB' }
     ],
     'jiezishu': [
-      { name: '《诫子书》教案.docx', type: 'Word文档', fileType: 'DOC', size: '1.8MB' },
-      { name: '《诫子书》课件.pptx', type: 'PPT演示', fileType: 'PPT', size: '4.5MB' }
+      { name: '《陋室铭》教案.docx', type: 'Word文档', fileType: 'DOC', size: '1.8MB' },
+      { name: '《陋室铭》课件.pptx', type: 'PPT演示', fileType: 'PPT', size: '4.5MB' }
     ],
     'ailiansuo': [
       { name: '《爱莲说》教案.docx', type: 'Word文档', fileType: 'DOC', size: '2.1MB' },
