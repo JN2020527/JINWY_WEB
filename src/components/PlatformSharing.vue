@@ -267,15 +267,15 @@
         <div 
           v-for="(question, index) in questionList" 
           :key="question.id"
-          class="question-item"
+          :class="['question-item', { 'knowledge-block': isKnowledgeBlock(question) }]"
         >
-          <div class="new-tag" v-if="index < 2">本周上新</div>
           <div class="question-header">
             <div class="question-number">{{ String(index + 1).padStart(2, '0') }}</div>
-            <div class="question-main">
-
-              <div class="question-text" v-html="question.content"></div>
-            </div>
+            <div class="question-text" v-html="question.content"></div>
+            <button class="btn-screen" title="大屏演示" @click="handleScreenShow(question)">
+              <el-icon><Monitor /></el-icon>
+              <span>大屏演示</span>
+            </button>
           </div>
           
           <!-- 详细讲解区域 -->
@@ -296,10 +296,6 @@
               <span class="meta-item">年份：{{ question.year }}</span>
             </div>
             <div class="question-actions">
-              <button class="btn-screen" title="大屏演示" @click="handleScreenShow(question)">
-                <el-icon><Monitor /></el-icon>
-                <span>大屏演示</span>
-              </button>
               <button class="btn-analysis" @click="toggleAnalysis(question)">
                 <el-icon><View /></el-icon>
                 <span>{{ question.showAnalysis ? '收起详解' : '知识详解' }}</span>
@@ -331,7 +327,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Search, Menu, Grid, Picture, ArrowLeft, Monitor, View, Plus, CaretRight, Star, Edit, Download, DocumentChecked, Delete, MoreFilled, FolderOpened, Reading } from '@element-plus/icons-vue'
+import { Search, Menu, Grid, Picture, ArrowLeft, Monitor, View, Plus, CaretRight, Star, Edit, Download, DocumentChecked, Delete, MoreFilled, FolderOpened, Reading, Document, Calendar } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { mockResources } from '../mock/data'
 import { useExamBasket } from '../store/examBasket'
@@ -1167,6 +1163,22 @@ const handleBookClick = (book) => {
   }
 }
 
+// 判断是否为知识块(只读模式)
+const isKnowledgeBlock = (question) => {
+  const knowledgeTypes = [
+    '重点句段讲解',
+    '名句赏析',
+    '文章整体讲解',
+    '写作特色分析',
+    '思想内涵探究',
+    '托物言志详解',
+    '语言特色分析',
+    '单元知识梳理',
+    '课文精讲'
+  ]
+  return knowledgeTypes.includes(question.type)
+}
+
 // 切换答案解析显示状态
 const toggleAnalysis = (question) => {
   question.showAnalysis = !question.showAnalysis
@@ -1808,6 +1820,34 @@ defineExpose({
 .question-item:hover {
   border-color: #2262FB;
   box-shadow: 0 2px 8px rgba(34, 98, 251, 0.15);
+}
+
+/* 知识块专属样式 - 极简无边框版本 */
+.question-item.knowledge-block {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-bottom: 32px;
+  /* 与试题序号的左边框对齐 */
+  padding-left: 20px;
+}
+
+.question-item.knowledge-block:hover {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* 知识块简化内容区 */
+.knowledge-content-simple {
+  line-height: 1.8;
+}
+
+.knowledge-text {
+  font-size: 15px;
+  color: #303133;
+  line-height: 1.8;
+  margin-bottom: 16px;
 }
 
 .question-header {
