@@ -284,14 +284,14 @@
                 <div class="tags-row">
                   <span class="feature-tag" v-if="question.tags && question.tags.length > 0">{{ question.tags[0] }}</span>
                   <div class="meta-items">
-                    <span class="meta-item">难度：{{ question.difficulty }}</span>
-                    <span class="meta-divider">|</span>
                     <span class="meta-item">题型：{{ question.type }}</span>
+                    <span class="meta-divider">|</span>
+                    <span class="meta-item">难度：{{ question.difficulty }}</span>
                     <span class="meta-divider">|</span>
                     <span class="meta-item">试题来源：{{ question.source }}</span>
                   </div>
                 </div>
-                <div class="question-text" v-html="question.content"></div>
+                <div class="question-text" v-html="highlightKeyword(question.content)"></div>
               </div>
             </div>
             
@@ -606,7 +606,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { CaretRight, Monitor, View, Plus, ArrowUp, ArrowDown } from '@element-plus/icons-vue'
+import { CaretRight, Monitor, View, Plus, ArrowUp, ArrowDown, Search } from '@element-plus/icons-vue'
 import ScreenPresentation from './ScreenPresentation.vue'
 import { ElMessage } from 'element-plus'
 
@@ -932,9 +932,9 @@ const typeOptions = [
 // 试题难度选项
 const difficultyOptions = [
   { label: '全部', value: 'all' },
-  { label: '容易题', value: 'easy' },
-  { label: '中档题', value: 'medium' },
-  { label: '难题', value: 'hard' }
+  { label: '容易', value: 'easy' },
+  { label: '一般', value: 'medium' },
+  { label: '困难', value: 'hard' }
 ]
 
 // 获取选项标签
@@ -968,7 +968,7 @@ const questionList = ref([
     id: 1,
     content: '根据例句的形式另选一组意象仿写，表达对祖国的拳拳赤子之心，至少仿写两句。<br/><br/>例句：我是你河边上破旧的老水车，数百年来纺着疲惫的歌。',
     type: '积累运用',
-    difficulty: '中档题',
+    difficulty: '一般',
     source: '2025年山西百校联考试卷',
     tags: ['新题型', '跨学科'],
     answer: '我是你天空中飞翔的小鸟，时时刻刻搏击着风雨。我是你衣服上小小的纽扣，永远倾听着你心脏跳动的声音。',
@@ -981,7 +981,7 @@ const questionList = ref([
     id: 2,
     content: '阅读下面的文字，完成下列小题。<br/><br/>在中国古代文学中，"山水"是一个重要的文学意象。古人常常借助山水来抒发情感，表达志向。请简要分析"山水"意象在古代文学中的作用。',
     type: '现代文阅读',
-    difficulty: '难题',
+    difficulty: '困难',
     source: '2025年山西百校联考试卷',
     tags: ['教材母题'],
     answer: '山水意象在古代文学中主要有以下作用：1.寄托情感，表达作者的喜怒哀乐；2.象征品格，表现高洁的情操和志向；3.营造意境，增强作品的艺术感染力。',
@@ -994,7 +994,7 @@ const questionList = ref([
     id: 3,
     content: '请用"虽然...但是..."的句式造句，要求句子通顺，语意完整。',
     type: '积累运用',
-    difficulty: '容易题',
+    difficulty: '容易',
     source: '2025年山西百校联考试卷',
     tags: ['大单元'],
     answer: '虽然天气很冷，但是同学们仍然坚持早起锻炼身体。',
@@ -1007,7 +1007,7 @@ const questionList = ref([
     id: 4,
     content: '下列句子中，标点符号使用正确的一项是（　　）<br/>A. 今天，我们学习了《背影》这篇课文。<br/>B. 你是去图书馆？还是去操场？<br/>C. 他问我："你吃饭了吗"？<br/>D. 这是一个美丽的、富饶的、历史悠久的城市。',
     type: '语言知识',
-    difficulty: '中档题',
+    difficulty: '一般',
     source: '2025年山西百校联考试卷',
     answer: 'A',
     analysis: 'A项标点符号使用正确。B项应为"你是去图书馆，还是去操场？"C项问号应在引号内。D项最后一个顿号应删除。',
@@ -1019,7 +1019,7 @@ const questionList = ref([
     id: 5,
     content: '阅读下面的诗歌，回答问题。<br/><br/>《春望》<br/>国破山河在，城春草木深。<br/>感时花溅泪，恨别鸟惊心。<br/>烽火连三月，家书抵万金。<br/>白头搔更短，浑欲不胜簪。<br/><br/>问：请赏析"白头搔更短，浑欲不胜簪"的表现手法。',
     type: '古诗词鉴赏',
-    difficulty: '难题',
+    difficulty: '困难',
     source: '2025年山西百校联考试卷',
     answer: '运用了细节描写和夸张的手法，通过"搔"这一动作和"更短"的夸张描写，生动形象地表现了诗人因忧国忧民而愁白了头发的形象，深刻地表达了诗人内心的痛苦和焦虑。',
     analysis: '这两句诗是全诗的点睛之笔，诗人通过自己白发的细节描写，将个人的遭遇与国家的命运紧密联系在一起，表达了深沉的爱国情怀。',
@@ -1029,9 +1029,9 @@ const questionList = ref([
   },
   {
     id: 6,
-    content: '下列词语中，加点字的注音完全正确的一项是（　　）<br/>A. 憎恶(zēng)　　酝酿(niàng)　　锲而不舍(qiè)<br/>B. 狭隘(ài)　　　　栖息(qī)　　　　鲜为人知(xiǎn)<br/>C. 贮蓄(zhù)　　　　绽放(zhàn)　　　惟妙惟肖(xiào)<br/>D. 伫立(zhù)　　　　蓦然(mù)　　　　咄咄逼人(duō)',
+    content: '下列词语中，加点字的注音完全正确的一项是（　　）<br/>A. 憎恶(zēng)　　酝酿(niàng)　　锲而不舍(qiè)<br/>B. 狭隘(ài)　　　　栖息(qī)　　　　鲜为人知(xiǎn)<br/>C. 贮蓄(zhù)　　　　绽放(zhàn)　　　　惟妙惟肖(xiào)<br/>D. 伫立(zhù)　　　　蓦然(mù)　　　　咄咄逼人(duō)',
     type: '积累运用',
-    difficulty: '容易题',
+    difficulty: '容易',
     source: '2025年山西百校联考试卷',
     tags: ['新题型'],
     answer: 'C',
@@ -1044,7 +1044,7 @@ const questionList = ref([
     id: 7,
     content: '请根据下面的情境，写一段不少于80字的对话。<br/><br/>情境：小明在图书馆遇到了同学小红，小红正在为即将到来的演讲比赛做准备，显得有些紧张。小明想要鼓励她。',
     type: '写作',
-    difficulty: '中档题',
+    difficulty: '一般',
     source: '2025年山西百校联考试卷',
     tags: ['跨学科'],
     answer: '小明：小红，你在准备演讲比赛啊？看起来有点紧张呢。<br/>小红：是啊，我担心自己表现不好。<br/>小明：别担心！你平时口才就很好，而且准备得这么充分，一定没问题的。记住，自信是成功的一半！<br/>小红：谢谢你的鼓励，我会加油的！',
@@ -1057,7 +1057,7 @@ const questionList = ref([
     id: 8,
     content: '下列句子中，没有语病的一项是（　　）<br/>A. 通过这次活动，使我们深刻认识到保护环境的重要性。<br/>B. 能否培养学生的创新能力，是衡量教育成功的重要标准。<br/>C. 我们要继承和发扬老一辈革命家的光荣传统。<br/>D. 在学习上，老师要求我们独立思考，不要盲目地依赖别人。',
     type: '语言知识',
-    difficulty: '中档题',
+    difficulty: '一般',
     source: '2025年山西百校联考试卷',
     answer: 'D',
     analysis: 'A项缺少主语，应删除"通过"或"使"；B项"能否"与"是"不对应，应改为"培养学生的创新能力，是衡量教育成功的重要标准"；C项"继承"与"传统"搭配不当，应为"继承传统，发扬精神"。只有D项没有语病。',
@@ -1069,7 +1069,7 @@ const questionList = ref([
     id: 9,
     content: '阅读下面的文言文，回答问题。<br/><br/>陈太丘与友期行，期日中。过中不至，太丘舍去，去后乃至。元方时年七岁，门外戏。客问元方："尊君在不？"答曰："待君久不至，已去。"客人怒曰："非人哉！与人期行，相委而去。"元方曰："君与家君期日中。日中不至，则是无信；对子骂父，则是无礼。"客人惭，下车引之，元方入门不顾。<br/><br/>问：请用现代汉语翻译"日中不至，则是无信；对子骂父，则是无礼。"',
     type: '文言文阅读',
-    difficulty: '难题',
+    difficulty: '困难',
     source: '2025年山西百校联考试卷',
     tags: ['教材母题'],
     answer: '约定的时间是正午，您却没有到，这就是不讲信用；当着儿子的面骂他的父亲，这就是没有礼貌。',
@@ -1128,6 +1128,25 @@ const changePresentationQuestion = (index) => {
 // 切换答案解析显示状态
 const toggleAnalysis = (question) => {
   question.showAnalysis = !question.showAnalysis
+}
+
+// 高亮搜索关键字
+const highlightKeyword = (content) => {
+  if (!searchKeyword.value.trim()) {
+    return content
+  }
+  
+  const keyword = searchKeyword.value.trim()
+  
+  // 转义正则特殊字符
+  const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  
+  // 创建正则表达式，匹配不在HTML标签内的文本
+  // 使用负向断言避免匹配标签内的属性值
+  const regex = new RegExp(`(${escapedKeyword})`, 'gi')
+  
+  // 替换匹配的文本
+  return content.replace(regex, '<span class="highlight">$1</span>')
 }
 
 // 获取题目的"上新"标签
@@ -1950,6 +1969,14 @@ const resetConfig = () => {
   font-size: 14px;
   line-height: 1.8;
   color: #303133;
+}
+
+.question-text :deep(.highlight) {
+  color: #2262FB;
+  font-weight: 600;
+  background-color: #ecf5ff;
+  padding: 0 2px;
+  border-radius: 2px;
 }
 
 .btn-screen {
