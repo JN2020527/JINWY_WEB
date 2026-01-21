@@ -43,7 +43,7 @@ const myExamPrepList = ref([
 export const addToBasket = (question) => {
   // 检查是否已存在相同题型
   const existingItem = basketItems.value.find(item => item.type === question.type)
-  
+
   if (existingItem) {
     // 如果存在，数量+1
     existingItem.count += 1
@@ -55,7 +55,7 @@ export const addToBasket = (question) => {
       questions: [question]
     })
   }
-  
+
   // 更新总数
   basketCount.value += 1
 }
@@ -81,7 +81,7 @@ export const saveToMyExamPrep = (catalogName, questions, currentStage = '初中'
     ElMessage.warning('暂无内容可保存')
     return false
   }
-  
+
   // 创建新作业
   const newWork = {
     id: Date.now(), // 使用时间戳作为ID
@@ -89,25 +89,25 @@ export const saveToMyExamPrep = (catalogName, questions, currentStage = '初中'
     type: '试题组卷', // 作业类型
     stage: currentStage,
     subject: currentSubject,
-    editTime: new Date().toLocaleString('zh-CN', { 
-      year: 'numeric', 
-      month: '2-digit', 
-      day: '2-digit', 
-      hour: '2-digit', 
-      minute: '2-digit', 
+    editTime: new Date().toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
       second: '2-digit',
-      hour12: false 
+      hour12: false
     }).replace(/\//g, '-'),
     isLocked: false,
     questions: [...questions], // 复制题目数组
     categoryId: 'uncategorized' // 默认为未分类
   }
-  
+
   // 添加到列表最前面
   myExamPrepList.value.unshift(newWork)
-  
+
   ElMessage.success(`已将“${catalogName}”保存为作业，共${questions.length}个知识点！可在「我的」→「我的备考」中查看`)
-  
+
   return true
 }
 
