@@ -235,49 +235,42 @@
         </div>
       </div>
 
-      <div class="question-list-container">
-        <div class="list-header">
-          <span>试题总数：<strong>{{ sortedQuestionList.length }}</strong></span>
-
-          <!-- 重置按钮 -->
-          <el-button link @click="resetFilters" class="reset-btn">
-            <el-icon><RefreshRight /></el-icon>
-            重置筛选
-          </el-button>
-        </div>
-
-        <!-- 排序选项卡 -->
-        <div class="sort-tabs">
-          <div class="sort-options">
-            <span
-              :class="['sort-tab', { active: currentSort === 'comprehensive' }]"
-              @click="currentSort = 'comprehensive'"
-            >
-              综合
-            </span>
-            <span
-              :class="['sort-tab', { active: currentSort === 'latest' }]"
-              @click="currentSort = 'latest'"
-            >
-              最新
-            </span>
-            <span
-              :class="['sort-tab', { active: currentSort === 'hottest' }]"
-              @click="currentSort = 'hottest'"
-            >
-              最热
-            </span>
-          </div>
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索试题内容"
-            :prefix-icon="Search"
-            size="default"
-            clearable
-            style="width: 260px;"
-            @clear="searchKeyword = ''"
-          />
-        </div>
+       <div class="question-list-container">
+         <!-- 排序选项卡 -->
+         <div class="sort-tabs">
+           <div class="sort-options">
+             <span
+               :class="['sort-tab', { active: currentSort === 'comprehensive' }]"
+               @click="currentSort = 'comprehensive'"
+             >
+               综合
+             </span>
+             <span
+               :class="['sort-tab', { active: currentSort === 'latest' }]"
+               @click="currentSort = 'latest'"
+             >
+               最新
+             </span>
+             <span
+               :class="['sort-tab', { active: currentSort === 'hottest' }]"
+               @click="currentSort = 'hottest'"
+             >
+               最热
+             </span>
+           </div>
+           <div class="search-wrapper">
+             <el-input
+               v-model="searchKeyword"
+               placeholder="搜索试题内容"
+               :prefix-icon="Search"
+               size="default"
+               clearable
+               class="search-input"
+               @clear="searchKeyword = ''"
+             />
+           </div>
+           <span class="question-count">试题总数：<strong>{{ sortedQuestionList.length }}</strong></span>
+         </div>
         <div class="question-list">
           <div 
             v-for="(question, index) in sortedQuestionList" 
@@ -1779,31 +1772,52 @@ const resetConfig = () => {
   font-weight: 500;
 }
 
-.list-header {
-  margin-bottom: 0;
-  font-size: 14px;
-  color: #606266;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  background-color: #f5f7fa;
-  border-radius: 8px 8px 0 0;
-}
+ .list-header {
+   margin-bottom: 0;
+   font-size: 14px;
+   color: #606266;
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   padding: 16px 20px;
+   background-color: #f5f7fa;
+   border-radius: 8px 8px 0 0;
+ }
 
-.list-header strong {
-  color: #2262FB;
-  margin: 0 4px;
-  font-size: 16px;
-}
+ .list-header strong {
+   color: #2262FB;
+   margin: 0 4px;
+   font-size: 16px;
+ }
 
-.sort-tabs {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #e8e8e8;
-}
+ .sort-tabs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px 16px;
+  }
+
+ .sort-tabs .search-wrapper {
+   flex: 1;
+   display: flex;
+   justify-content: center;
+ }
+
+ .sort-tabs .search-input {
+   width: 400px;
+ }
+
+ .question-count {
+   font-size: 14px;
+   color: #606266;
+   white-space: nowrap;
+ }
+
+ .question-count strong {
+   color: #2262FB;
+   margin: 0 4px;
+   font-size: 16px;
+ }
 
 .sort-options {
   display: flex;
