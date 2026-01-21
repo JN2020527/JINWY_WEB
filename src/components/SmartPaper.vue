@@ -289,6 +289,10 @@
                     <span class="meta-item">难度：{{ question.difficulty }}</span>
                     <span class="meta-divider">|</span>
                     <span class="meta-item">试题来源：{{ question.source }}</span>
+                    <template v-if="question.knowledgePoints && question.knowledgePoints.length > 0">
+                      <span class="meta-divider">|</span>
+                      <span class="meta-item">知识点：{{ question.knowledgePoints.join('、') }}</span>
+                    </template>
                   </div>
                 </div>
                 <div class="question-text" v-html="highlightKeyword(question.content)"></div>
@@ -971,6 +975,7 @@ const questionList = ref([
     difficulty: '一般',
     source: '2025年山西百校联考试卷',
     tags: ['新题型', '跨学科'],
+    knowledgePoints: ['修辞手法', '仿写句子'],
     answer: '我是你天空中飞翔的小鸟，时时刻刻搏击着风雨。我是你衣服上小小的纽扣，永远倾听着你心脏跳动的声音。',
     analysis: '',
     showAnalysis: false,
@@ -984,6 +989,7 @@ const questionList = ref([
     difficulty: '困难',
     source: '2025年山西百校联考试卷',
     tags: ['教材母题'],
+    knowledgePoints: ['意象分析', '情感表达', '文学常识'],
     answer: '山水意象在古代文学中主要有以下作用：1.寄托情感，表达作者的喜怒哀乐；2.象征品格，表现高洁的情操和志向；3.营造意境，增强作品的艺术感染力。',
     analysis: '山水是中国古代文学中最常见的意象之一，文人墨客常常通过描写山水来抒发内心情感，表达人生志向，同时也体现了中国传统文化中"天人合一"的思想。',
     showAnalysis: false,
@@ -997,6 +1003,7 @@ const questionList = ref([
     difficulty: '容易',
     source: '2025年山西百校联考试卷',
     tags: ['大单元'],
+    knowledgePoints: ['关联词运用', '造句'],
     answer: '虽然天气很冷，但是同学们仍然坚持早起锻炼身体。',
     analysis: '此题考查关联词的使用，"虽然...但是..."表示转折关系，前后分句意思相反或相对。',
     showAnalysis: false,
@@ -1009,6 +1016,7 @@ const questionList = ref([
     type: '语言知识',
     difficulty: '一般',
     source: '2025年山西百校联考试卷',
+    knowledgePoints: ['标点符号', '语感'],
     answer: 'A',
     analysis: 'A项标点符号使用正确。B项应为"你是去图书馆，还是去操场？"C项问号应在引号内。D项最后一个顿号应删除。',
     showAnalysis: false,
@@ -1021,6 +1029,7 @@ const questionList = ref([
     type: '古诗词鉴赏',
     difficulty: '困难',
     source: '2025年山西百校联考试卷',
+    knowledgePoints: ['表现手法', '细节描写', '爱国情怀'],
     answer: '运用了细节描写和夸张的手法，通过"搔"这一动作和"更短"的夸张描写，生动形象地表现了诗人因忧国忧民而愁白了头发的形象，深刻地表达了诗人内心的痛苦和焦虑。',
     analysis: '这两句诗是全诗的点睛之笔，诗人通过自己白发的细节描写，将个人的遭遇与国家的命运紧密联系在一起，表达了深沉的爱国情怀。',
     showAnalysis: false,
@@ -1034,6 +1043,7 @@ const questionList = ref([
     difficulty: '容易',
     source: '2025年山西百校联考试卷',
     tags: ['新题型'],
+    knowledgePoints: ['字音字形', '多音字'],
     answer: 'C',
     analysis: 'A项"憎恶"应读"zēng wù"；B项"鲜为人知"的"鲜"应读"xiǎn"；D项"蓦然"应读"mò rán"。只有C项注音完全正确。',
     showAnalysis: false,
@@ -1047,6 +1057,7 @@ const questionList = ref([
     difficulty: '一般',
     source: '2025年山西百校联考试卷',
     tags: ['跨学科'],
+    knowledgePoints: ['情境对话', '口语交际'],
     answer: '小明：小红，你在准备演讲比赛啊？看起来有点紧张呢。<br/>小红：是啊，我担心自己表现不好。<br/>小明：别担心！你平时口才就很好，而且准备得这么充分，一定没问题的。记住，自信是成功的一半！<br/>小红：谢谢你的鼓励，我会加油的！',
     analysis: '此题考查情境对话写作能力，要求学生能够根据具体情境，运用恰当的语言进行交流，体现人物的情感和态度。',
     showAnalysis: false,
@@ -1059,6 +1070,7 @@ const questionList = ref([
     type: '语言知识',
     difficulty: '一般',
     source: '2025年山西百校联考试卷',
+    knowledgePoints: ['病句辨析', '语法结构'],
     answer: 'D',
     analysis: 'A项缺少主语，应删除"通过"或"使"；B项"能否"与"是"不对应，应改为"培养学生的创新能力，是衡量教育成功的重要标准"；C项"继承"与"传统"搭配不当，应为"继承传统，发扬精神"。只有D项没有语病。',
     showAnalysis: false,
@@ -1072,6 +1084,7 @@ const questionList = ref([
     difficulty: '困难',
     source: '2025年山西百校联考试卷',
     tags: ['教材母题'],
+    knowledgePoints: ['文言翻译', '人物性格'],
     answer: '约定的时间是正午，您却没有到，这就是不讲信用；当着儿子的面骂他的父亲，这就是没有礼貌。',
     analysis: '此题考查文言文翻译能力。翻译时要注意"日中"（正午）、"则是"（就是）、"对子"（当着儿子的面）等关键词的准确翻译，同时要保持句子的通顺。',
     showAnalysis: false,
