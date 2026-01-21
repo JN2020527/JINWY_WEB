@@ -238,12 +238,45 @@
       <div class="question-list-container">
         <div class="list-header">
           <span>试题总数：<strong>{{ sortedQuestionList.length }}</strong></span>
-          
+
           <!-- 重置按钮 -->
           <el-button link @click="resetFilters" class="reset-btn">
             <el-icon><RefreshRight /></el-icon>
             重置筛选
           </el-button>
+        </div>
+
+        <!-- 排序选项卡 -->
+        <div class="sort-tabs">
+          <div class="sort-options">
+            <span
+              :class="['sort-tab', { active: currentSort === 'comprehensive' }]"
+              @click="currentSort = 'comprehensive'"
+            >
+              综合
+            </span>
+            <span
+              :class="['sort-tab', { active: currentSort === 'latest' }]"
+              @click="currentSort = 'latest'"
+            >
+              最新
+            </span>
+            <span
+              :class="['sort-tab', { active: currentSort === 'hottest' }]"
+              @click="currentSort = 'hottest'"
+            >
+              最热
+            </span>
+          </div>
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜索试题内容"
+            :prefix-icon="Search"
+            size="default"
+            clearable
+            style="width: 260px;"
+            @clear="searchKeyword = ''"
+          />
         </div>
         <div class="question-list">
           <div 
@@ -803,6 +836,12 @@ const filters = ref({
   region: 'all'
 })
 
+// 排序方式
+const currentSort = ref('comprehensive')
+
+// 搜索关键词
+const searchKeyword = ref('')
+
 // 重置筛选
 const resetFilters = () => {
   filters.value = {
@@ -1048,12 +1087,25 @@ const questionList = ref([
   }
 ])
 
-// 排序后的题目列表（按更新时间倒序，最新的在前）
+// 排序后的题目列表（按更新时间倒序,最新的在前）
 const sortedQuestionList = computed(() => {
-  return [...questionList.value].sort((a, b) => {
+  let list = [...questionList.value]
+
+  // 搜索过滤
+  if (searchKeyword.value.trim()) {
+    const keyword = searchKeyword.value.trim().toLowerCase()
+    list = list.filter(q => {
+      // 移除HTML标签后搜索
+      const plainContent = q.content.replace(/<[^>]*>/g, '')
+      return plainContent.toLowerCase().includes(keyword)
+    })
+  }
+
+  // 排序
+  return list.sort((a, b) => {
     const dateA = new Date(a.uploadTime || '2000-01-01')
     const dateB = new Date(b.uploadTime || '2000-01-01')
-    return dateB - dateA // 降序排列，最新的在前
+    return dateB - dateA // 降序排列,最新的在前
   })
 })
 
@@ -1728,18 +1780,63 @@ const resetConfig = () => {
 }
 
 .list-header {
-  margin-bottom: 16px;
+  margin-bottom: 0;
   font-size: 14px;
   color: #606266;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 16px 20px;
+  background-color: #f5f7fa;
+  border-radius: 8px 8px 0 0;
 }
 
 .list-header strong {
   color: #2262FB;
   margin: 0 4px;
   font-size: 16px;
+}
+
+.sort-tabs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.sort-options {
+  display: flex;
+  gap: 24px;
+}
+
+.sort-tab {
+  position: relative;
+  padding: 8px 4px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s;
+  user-select: none;
+}
+
+.sort-tab:hover {
+  color: #333;
+}
+
+.sort-tab.active {
+  color: #2262FB;
+  font-weight: 500;
+}
+
+.sort-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #2262FB;
 }
 
 .question-list-container {

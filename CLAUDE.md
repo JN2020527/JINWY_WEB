@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 晋文源智慧助教平台 (Jinwyuan Smart Teaching Assistant Platform) - A Vue 3 educational platform frontend replica built with Vite and Element Plus. This is a Chinese-language educational resource management system with mock data, no backend required.
 
+**Note**: A user-facing `GETTING_STARTED.md` file exists in the project root for new developers. This CLAUDE.md file is specifically for Claude Code guidance.
+
 ## Development Commands
 
 ### Install Dependencies
@@ -85,7 +87,9 @@ my → MyCenter.vue (has tabs)
 
 **Special Components**:
 - `PaperCenter.vue`: Overlay component for test paper creation, activated via `@goto-paper-center` event from certain pages
+  - Has a subdirectory `PaperCenter/` for related sub-components
 - `FloatTools.vue`: Globally visible floating toolbar (always rendered)
+- `ScreenPresentation.vue`: Screen presentation mode component
 
 ### Paper Center Navigation Pattern
 
@@ -102,10 +106,18 @@ This allows users to enter paper assembly mode from multiple entry points and re
 ### Mock Data System
 
 All data is static mock data in `src/mock/data.js`:
-- `mockResources`: Educational resource catalog (books, materials)
+- `mockResources`: Educational resource catalog (books, materials) including:
+  - Round 1 (一轮) review materials: 古诗文, 语言文字积累与梳理, 整本书阅读, 写作, 现代文读写
+  - Round 2 (二轮) review materials: 分类整合, 综合训练, 素材集锦
+  - Round 3 (三轮) review materials: 冲刺调整, 综合演练, 专项提升
 - `years`: Academic year options
 - `stages`: Educational stages (小学/初中/高中)
 - `subjects`: Subject hierarchies per stage
+
+Cover images are stored in `/public/covers/` directory with naming patterns:
+- `cover_*.jpg`: Round 1 materials
+- `round2_*.jpg`: Round 2 materials
+- `round3_*.jpg`: Round 3 materials
 
 No API calls or backend integration exists.
 
@@ -149,18 +161,25 @@ Navigation handled through conditional rendering in App.vue, not Vue Router. Men
 When clicking active menu item, specific components can reset their state. Implement `resetState()` method and expose via `defineExpose()` if adding similar functionality to new components.
 
 ### Assets
-Static assets in project root (logo.png, bg.3e971a55.png) and public cover images in `/covers/` directory referenced in mock data.
+Static assets in project root (logo.png, bg.3e971a55.png) and public cover images in `/public/covers/` directory:
+- Round 1 covers: `cover_gushiwen.jpg`, `cover_yuyan.jpg`, `cover_zhengben.jpg`, `cover_xiezuo.jpg`, `cover_xiandaiwen.jpg`
+- Round 2 covers: `round2_classification.jpg`, `round2_comprehensive.jpg`, `round2_material.jpg`
+- Round 3 covers: `round3_sprint.jpg`, `round3_comprehensive.jpg`, `round3_special.jpg`
+
+All cover images are referenced in mock data with paths like `/covers/cover_*.jpg`.
 
 ## File Organization
 
 ```
 src/
-├── components/         # All Vue components (15 total)
+├── components/         # All Vue components
 │   ├── Header.vue     # Top navigation
 │   ├── LeftNav.vue    # Sidebar menu
 │   ├── Home.vue       # Homepage
 │   ├── PaperCenter.vue # Test paper creation overlay
+│   ├── PaperCenter/   # PaperCenter sub-components directory
 │   ├── FloatTools.vue  # Floating toolbar
+│   ├── ScreenPresentation.vue # Screen presentation mode
 │   └── [9 other page components]
 ├── mock/
 │   └── data.js        # All mock data exports
@@ -168,6 +187,11 @@ src/
 │   └── global.css     # Global CSS
 ├── App.vue            # Root component & state manager
 └── main.js            # App initialization
+public/
+└── covers/            # Cover images for educational materials
+    ├── cover_*.jpg    # Round 1 review materials
+    ├── round2_*.jpg   # Round 2 review materials
+    └── round3_*.jpg   # Round 3 review materials
 ```
 
 ## Dependencies Note
