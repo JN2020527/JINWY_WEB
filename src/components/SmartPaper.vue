@@ -378,12 +378,12 @@
                   <span class="feature-tag" v-if="question.tags && question.tags.length > 0">{{ question.tags[0] }}</span>
                   <span class="source-tag">{{ question.source }}</span>
                   <div class="meta-items">
-                    <span class="meta-item">题型：{{ question.type }}</span>
+                    <span class="meta-item">{{ question.type }}</span>
                     <span class="meta-divider">|</span>
-                    <span class="meta-item">难度：{{ question.difficulty }}</span>
+                    <span class="meta-item">{{ question.difficulty }}</span>
                     <template v-if="question.knowledgePoints && question.knowledgePoints.length > 0">
                       <span class="meta-divider">|</span>
-                      <span class="meta-item">知识点：{{ question.knowledgePoints.join('、') }}</span>
+                      <span class="meta-item">{{ question.knowledgePoints.join('、') }}</span>
                     </template>
                   </div>
                 </div>
