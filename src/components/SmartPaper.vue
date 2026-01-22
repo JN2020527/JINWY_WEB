@@ -118,20 +118,7 @@
 
 
         <!-- 特色筛选 -->
-        <div class="filter-row featured-row">
-          <label class="filter-label">中考特色：</label>
-          <div class="filter-options">
-            <el-radio 
-              v-for="item in featureOptions" 
-              :key="item.value"
-              v-model="filters.features"
-              :label="item.value"
-              class="custom-radio"
-            >
-              {{ item.label }}
-            </el-radio>
-          </div>
-        </div>
+
 
         <!-- 试题来源 -->
         <!-- 试题来源 -->
@@ -154,15 +141,38 @@
         <div class="filter-row" v-if="filters.source === 'platform'">
           <label class="filter-label">题源类型：</label>
           <div class="filter-options">
-            <el-radio 
-              v-for="item in sourceTypeOptions" 
-              :key="item.value"
-              v-model="filters.sourceType"
-              :label="item.value"
-              class="custom-radio"
+            <template v-if="!isMultiSelectSourceType">
+              <el-radio 
+                v-for="item in sourceTypeOptions" 
+                :key="item.value"
+                v-model="filters.sourceType"
+                :label="item.value"
+                class="custom-radio"
+              >
+                {{ item.label }}
+              </el-radio>
+            </template>
+            <template v-else>
+              <el-checkbox
+                v-for="item in sourceTypeOptions"
+                :key="item.value"
+                v-model="filters.sourceType"
+                :label="item.value"
+                class="custom-checkbox"
+                @change="(val) => handleSourceTypeChange(val, item.value)"
+              >
+                {{ item.label }}
+              </el-checkbox>
+            </template>
+
+            <div 
+              class="multi-select-btn" 
+              :class="{ active: isMultiSelectSourceType }"
+              @click="handleSourceTypeModeChange(!isMultiSelectSourceType)"
             >
-              {{ item.label }}
-            </el-radio>
+              <span v-if="!isMultiSelectSourceType">+ 多选</span>
+              <span v-else>单选</span>
+            </div>
           </div>
         </div>
 
@@ -198,35 +208,55 @@
           </div>
         </div>
 
-        <!-- 考法 -->
-        <div class="filter-row">
-          <label class="filter-label">考法：</label>
-          <div class="filter-options">
-            <el-radio 
-              v-for="item in examMethodOptions" 
-              :key="item.value"
-              v-model="filters.examMethod"
-              :label="item.value"
-              class="custom-radio"
-            >
-              {{ item.label }}
-            </el-radio>
+        <!-- 中考特色重点强调区域（包含中考特色、考法、能力） -->
+        <div class="featured-row">
+          <div class="hot-badge">学科特色</div>
+          <!-- 中考特色 -->
+          <div class="filter-row">
+            <label class="filter-label">中考特色：</label>
+            <div class="filter-options">
+              <el-radio 
+                v-for="item in featureOptions" 
+                :key="item.value"
+                v-model="filters.features"
+                :label="item.value"
+                class="custom-radio"
+              >
+                {{ item.label }}
+              </el-radio>
+            </div>
           </div>
-        </div>
 
-        <!-- 能力 -->
-        <div class="filter-row">
-          <label class="filter-label">能力：</label>
-          <div class="filter-options">
-            <el-radio 
-              v-for="item in abilityOptions" 
-              :key="item.value"
-              v-model="filters.ability"
-              :label="item.value"
-              class="custom-radio"
-            >
-              {{ item.label }}
-            </el-radio>
+          <!-- 考法 -->
+          <div class="filter-row">
+            <label class="filter-label">考法：</label>
+            <div class="filter-options">
+              <el-radio 
+                v-for="item in examMethodOptions" 
+                :key="item.value"
+                v-model="filters.examMethod"
+                :label="item.value"
+                class="custom-radio"
+              >
+                {{ item.label }}
+              </el-radio>
+            </div>
+          </div>
+
+          <!-- 能力 -->
+          <div class="filter-row">
+            <label class="filter-label">能力：</label>
+            <div class="filter-options">
+              <el-radio 
+                v-for="item in abilityOptions" 
+                :key="item.value"
+                v-model="filters.ability"
+                :label="item.value"
+                class="custom-radio"
+              >
+                {{ item.label }}
+              </el-radio>
+            </div>
           </div>
         </div>
 
@@ -960,6 +990,59 @@ const filters = ref({
   region: 'all'
 })
 
+// 题源类型多选开关
+const isMultiSelectSourceType = ref(false)
+
+// 切换题源类型多选模式
+const handleSourceTypeModeChange = (val) => {
+  isMultiSelectSourceType.value = val
+  if (val) {
+    // 切换到多选模式
+    if (filters.value.sourceType === 'all') {
+      filters.value.sourceType = ['all']
+    } else {
+      filters.value.sourceType = [filters.value.sourceType]
+    }
+  } else {
+    // 切换到单选模式
+    if (Array.isArray(filters.value.sourceType)) {
+      if (filters.value.sourceType.length > 0) {
+        // 如果包含'all'，优先选'all'，否则选第一个
+        if (filters.value.sourceType.includes('all')) {
+          filters.value.sourceType = 'all'
+        } else {
+          filters.value.sourceType = filters.value.sourceType[0]
+        }
+      } else {
+        filters.value.sourceType = 'all'
+      }
+    }
+  }
+}
+
+// 处理题源类型多选变化
+const handleSourceTypeChange = (val, value) => {
+  if (value === 'all') {
+    if (val) {
+      filters.value.sourceType = ['all']
+    } else {
+      filters.value.sourceType = [] // 允许为空，或者可以强制为['all']
+    }
+  } else {
+    // 如果选中具体项，移除'all'
+    if (val) {
+      const allIndex = filters.value.sourceType.indexOf('all')
+      if (allIndex > -1) {
+        filters.value.sourceType.splice(allIndex, 1)
+      }
+    }
+    // 如果所有具体项都取消选中，自动选'all'
+    if (filters.value.sourceType.length === 0) {
+        filters.value.sourceType = ['all']
+    }
+  }
+}
+
 // 排序方式
 const currentSort = ref('latest')
 
@@ -1073,9 +1156,15 @@ const difficultyOptions = [
 // 考法选项
 const examMethodOptions = [
   { label: '全部', value: 'all' },
-  { label: '常考', value: 'common' },
-  { label: '易错', value: 'error-prone' },
-  { label: '压轴', value: 'finale' }
+  { label: '图片史料型', value: 'image-history' },
+  { label: '数据表格型', value: 'data-table' },
+  { label: '档案文献型', value: 'archive-doc' },
+  { label: '知识示意图', value: 'knowledge-diagram' },
+  { label: '考古、遗迹', value: 'archaeology' },
+  { label: '研究性学习', value: 'research-study' },
+  { label: '大事年表型', value: 'chronology' },
+  { label: '史学研究型', value: 'historiography' },
+  { label: '比较同异型', value: 'comparison' }
 ]
 
 // 能力选项
@@ -1917,6 +2006,20 @@ const resetConfig = () => {
   font-weight: 600;
 }
 
+.hot-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF4757 100%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 10px 0 10px 0;
+  box-shadow: 0 2px 4px rgba(255, 71, 87, 0.3);
+  z-index: 1;
+}
+
 .filter-row:last-child {
   margin-bottom: 0;
 }
@@ -1942,6 +2045,66 @@ const resetConfig = () => {
 .custom-radio {
   margin-right: 0;
   height: 32px;
+}
+
+.custom-checkbox {
+  margin-right: 0;
+  height: 32px;
+}
+
+.custom-checkbox :deep(.el-checkbox__label) {
+  font-size: 14px;
+  color: #606266;
+  padding-left: 8px;
+}
+
+.custom-checkbox :deep(.el-checkbox__inner) {
+  width: 16px;
+  height: 16px;
+}
+
+.custom-checkbox :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+  background-color: #2262FB;
+  border-color: #2262FB;
+}
+
+.custom-checkbox :deep(.el-checkbox__input.is-checked + .el-checkbox__label) {
+  color: #2262FB;
+}
+
+.filter-switch {
+  margin-right: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.multi-select-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid #dcdfe6;
+  color: #606266;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all 0.3s;
+  user-select: none;
+  background-color: #fff;
+}
+
+.multi-select-btn:hover {
+  color: #2262FB;
+  border-color: #2262FB;
+  background-color: #ecf5ff;
+}
+
+.multi-select-btn.active {
+  color: #fff;
+  background-color: #2262FB;
+  border-color: #2262FB;
 }
 
 .custom-radio :deep(.el-radio__label) {
