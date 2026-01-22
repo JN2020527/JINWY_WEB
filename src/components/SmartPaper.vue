@@ -24,53 +24,59 @@
 
         <!-- 知识点筛选容器 -->
         <div class="knowledge-filter-container">
-          <div class="container-header">
-            <span class="header-title">— 知识点筛选 —</span>
-        </div>
-
-        <div class="sidebar-content">
-          <div class="knowledge-tree">
+          <div class="filter-tabs">
             <div 
-              v-for="item in knowledgeTree" 
-              :key="item.id"
-                class="catalog-item"
+              class="filter-tab" 
+              :class="{ active: currentFilterTab === 'knowledge' }"
+              @click="currentFilterTab = 'knowledge'"
             >
+              知识点
+            </div>
+            <div 
+              class="filter-tab" 
+              :class="{ active: currentFilterTab === 'topic' }"
+              @click="currentFilterTab = 'topic'"
+            >
+              专题
+            </div>
+          </div>
+
+          <div class="sidebar-content">
+            <!-- 知识点树 -->
+            <div class="knowledge-tree" v-show="currentFilterTab === 'knowledge'">
               <div 
+                v-for="item in knowledgeTree" 
+                :key="item.id"
+                class="catalog-item"
+              >
+                <div 
                   class="catalog-node level-1"
                   :class="{ active: selectedKnowledgeId === item.id }"
-                @click="toggleNode(item)"
-              >
+                  @click="toggleNode(item)"
+                >
                   <span class="expand-icon-wrapper">
                     <el-icon v-if="item.children && item.children.length > 0" class="expand-icon" :class="{ expanded: item.expanded }">
                       <CaretRight />
-                </el-icon>
+                    </el-icon>
                   </span>
-                <span class="node-label">{{ item.label }}</span>
-              </div>
+                  <span class="node-label">{{ item.label }}</span>
+                </div>
                 <div v-if="item.expanded && item.children && item.children.length > 0" class="catalog-children">
-                <div 
-                  v-for="child in item.children" 
-                  :key="child.id"
+                  <div 
+                    v-for="child in item.children" 
+                    :key="child.id"
                     class="catalog-node level-2"
                     :class="{ active: selectedKnowledgeId === child.id }"
-                  @click="selectKnowledge(child)"
-                >
+                    @click="selectKnowledge(child)"
+                  >
                     <span class="node-label">{{ child.label }}</span>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- 专题筛选容器 -->
-        <div class="topic-filter-container">
-          <div class="container-header">
-            <span class="header-title">— 专题筛选 —</span>
-          </div>
-
-          <div class="sidebar-content">
-            <div class="knowledge-tree">
+            <!-- 专题树 -->
+            <div class="knowledge-tree" v-show="currentFilterTab === 'topic'">
               <div 
                 v-for="item in topicTree" 
                 :key="item.id"
@@ -711,6 +717,9 @@ const emit = defineEmits(['goto-paper-center'])
 
 // 教材版本选择（选题组卷）
 const selectedTextbook = ref('gundong-2026-zhongkao')
+
+// 当前筛选Tab（knowledge/topic）
+const currentFilterTab = ref('knowledge')
 
 // 选中的知识点ID（选题组卷）
 const selectedKnowledgeId = ref(null)
@@ -1617,35 +1626,45 @@ const resetConfig = () => {
   flex-direction: column;
   flex: 1;
   overflow: hidden;
-  padding: 16px;
+  padding: 0; /* 移除内边距，由子元素控制 */
   min-height: 0; /* 允许flex子项收缩 */
 }
 
-/* 专题筛选容器 */
-.topic-filter-container {
-  background: #ffffff;
-  border: 1px solid #e4e7ed;
-  border-radius: 4px;
+/* 筛选Tab */
+.filter-tabs {
   display: flex;
-  flex-direction: column;
+  border-bottom: 1px solid #e4e7ed;
+  background: #f5f7fa;
+}
+
+.filter-tab {
   flex: 1;
-  overflow: hidden;
-  padding: 16px;
-  min-height: 0; /* 允许flex子项收缩 */
-}
-
-/* 容器头部 */
-.container-header {
-  margin-bottom: 12px;
   text-align: center;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #E4E7ED;
+  padding: 12px 0;
+  font-size: 14px;
+  color: #606266;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 500;
 }
 
-.header-title {
-  font-size: 16px;
-  color: #303133;
+.filter-tab:hover {
+  color: #2262FB;
+  background: #ecf5ff;
+}
+
+.filter-tab.active {
+  color: #2262FB;
+  background: #ffffff;
   font-weight: 600;
+  border-bottom: 2px solid #2262FB;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  min-height: 0;
 }
 
 /* 教材版本选择器 */
@@ -1669,12 +1688,7 @@ const resetConfig = () => {
   box-shadow: 0 0 0 1px #2262FB inset;
 }
 
-.sidebar-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-  min-height: 0;
-}
+
 
 .knowledge-tree {
   display: flex;
