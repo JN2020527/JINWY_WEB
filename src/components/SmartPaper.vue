@@ -139,7 +139,7 @@
 
         <!-- 题源类型 -->
         <div class="filter-row" v-if="filters.source === 'platform'">
-          <label class="filter-label">题源类型：</label>
+          <label class="filter-label">试题来源：</label>
           <div class="filter-options">
             <template v-if="!isMultiSelectSourceType">
               <el-radio 
@@ -171,7 +171,7 @@
               @click="handleSourceTypeModeChange(!isMultiSelectSourceType)"
             >
               <span v-if="!isMultiSelectSourceType">+ 多选</span>
-              <span v-else>单选</span>
+              <span v-else>取消多选</span>
             </div>
           </div>
         </div>
@@ -208,6 +208,45 @@
           </div>
         </div>
 
+        <!-- 试题难度 -->
+        <div class="filter-row">
+          <label class="filter-label">试题难度：</label>
+          <div class="filter-options">
+            <template v-if="!isMultiSelectDifficulty">
+              <el-radio 
+                v-for="item in difficultyOptions" 
+                :key="item.value"
+                v-model="filters.difficulty"
+                :label="item.value"
+                class="custom-radio"
+              >
+                {{ item.label }}
+              </el-radio>
+            </template>
+            <template v-else>
+              <el-checkbox
+                v-for="item in difficultyOptions"
+                :key="item.value"
+                v-model="filters.difficulty"
+                :label="item.value"
+                class="custom-checkbox"
+                @change="(val) => handleDifficultyChange(val, item.value)"
+              >
+                {{ item.label }}
+              </el-checkbox>
+            </template>
+
+            <div 
+              class="multi-select-btn" 
+              :class="{ active: isMultiSelectDifficulty }"
+              @click="handleDifficultyModeChange(!isMultiSelectDifficulty)"
+            >
+              <span v-if="!isMultiSelectDifficulty">+ 多选</span>
+              <span v-else>取消多选</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 中考特色重点强调区域（包含中考特色、考法、能力） -->
         <div class="featured-row">
           <div class="hot-badge">学科特色</div>
@@ -229,7 +268,7 @@
 
           <!-- 考法 -->
           <div class="filter-row">
-            <label class="filter-label">考法：</label>
+            <label class="filter-label">学科考法：</label>
             <div class="filter-options">
               <el-radio 
                 v-for="item in examMethodOptions" 
@@ -245,7 +284,7 @@
 
           <!-- 能力 -->
           <div class="filter-row">
-            <label class="filter-label">能力：</label>
+            <label class="filter-label">学科能力：</label>
             <div class="filter-options">
               <el-radio 
                 v-for="item in abilityOptions" 
@@ -264,31 +303,7 @@
         <div class="filter-row">
           <label class="filter-label">更多：</label>
           <div class="filter-options">
-            <!-- 试题难度 -->
-            <el-dropdown trigger="hover" @command="(val) => filters.difficulty = val" class="filter-dropdown">
-              <span class="el-dropdown-link borderless-select">
-                {{ getLabel(difficultyOptions, filters.difficulty, '试题难度') }}
-                <el-icon 
-                  class="el-icon--right" 
-                  v-if="filters.difficulty === 'all'"
-                >
-                  <arrow-down />
-                </el-icon>
-                <el-icon 
-                  class="el-icon--right clear-icon" 
-                  v-else
-                  @click.stop="filters.difficulty = 'all'"
-                >
-                  <Close />
-                </el-icon>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="all">全部难度</el-dropdown-item>
-                  <el-dropdown-item v-for="item in difficultyOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value">{{ item.label }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+
 
             <!-- 年份 -->
             <el-dropdown trigger="hover" @command="(val) => filters.year = val" class="filter-dropdown">
@@ -1039,6 +1054,59 @@ const handleSourceTypeChange = (val, value) => {
     // 如果所有具体项都取消选中，自动选'all'
     if (filters.value.sourceType.length === 0) {
         filters.value.sourceType = ['all']
+    }
+  }
+}
+
+// 试题难度多选开关
+const isMultiSelectDifficulty = ref(false)
+
+// 切换试题难度多选模式
+const handleDifficultyModeChange = (val) => {
+  isMultiSelectDifficulty.value = val
+  if (val) {
+    // 切换到多选模式
+    if (filters.value.difficulty === 'all') {
+      filters.value.difficulty = ['all']
+    } else {
+      filters.value.difficulty = [filters.value.difficulty]
+    }
+  } else {
+    // 切换到单选模式
+    if (Array.isArray(filters.value.difficulty)) {
+      if (filters.value.difficulty.length > 0) {
+        // 如果包含'all'，优先选'all'，否则选第一个
+        if (filters.value.difficulty.includes('all')) {
+          filters.value.difficulty = 'all'
+        } else {
+          filters.value.difficulty = filters.value.difficulty[0]
+        }
+      } else {
+        filters.value.difficulty = 'all'
+      }
+    }
+  }
+}
+
+// 处理试题难度多选变化
+const handleDifficultyChange = (val, value) => {
+  if (value === 'all') {
+    if (val) {
+      filters.value.difficulty = ['all']
+    } else {
+      filters.value.difficulty = []
+    }
+  } else {
+    // 如果选中具体项，移除'all'
+    if (val) {
+      const allIndex = filters.value.difficulty.indexOf('all')
+      if (allIndex > -1) {
+        filters.value.difficulty.splice(allIndex, 1)
+      }
+    }
+    // 如果所有具体项都取消选中，自动选'all'
+    if (filters.value.difficulty.length === 0) {
+        filters.value.difficulty = ['all']
     }
   }
 }
@@ -2045,17 +2113,28 @@ const resetConfig = () => {
 .custom-radio {
   margin-right: 0;
   height: 32px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .custom-checkbox {
   margin-right: 0;
   height: 32px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .custom-checkbox :deep(.el-checkbox__label) {
   font-size: 14px;
   color: #606266;
   padding-left: 8px;
+  line-height: 1; /* 强制行高 */
+  display: inline-block; /* 确保行高生效 */
+}
+
+.custom-checkbox :deep(.el-checkbox__input) {
+  line-height: 1;
+  vertical-align: middle;
 }
 
 .custom-checkbox :deep(.el-checkbox__inner) {
@@ -2111,6 +2190,13 @@ const resetConfig = () => {
   font-size: 14px;
   color: #606266;
   padding-left: 8px;
+  line-height: 1; /* 强制行高 */
+  display: inline-block; /* 确保行高生效 */
+}
+
+.custom-radio :deep(.el-radio__input) {
+  line-height: 1;
+  vertical-align: middle;
 }
 
 /* 未选中状态的外圈 */
