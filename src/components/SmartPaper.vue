@@ -134,7 +134,8 @@
         </div>
 
         <!-- 试题来源 -->
-        <div class="filter-row">
+        <!-- 试题来源 -->
+        <div class="filter-row" style="display: none;">
           <label class="filter-label">试题来源：</label>
           <div class="filter-options">
             <el-radio 
@@ -194,6 +195,38 @@
             >
               {{ item.label }}
             </div>
+          </div>
+        </div>
+
+        <!-- 考法 -->
+        <div class="filter-row">
+          <label class="filter-label">考法：</label>
+          <div class="filter-options">
+            <el-radio 
+              v-for="item in examMethodOptions" 
+              :key="item.value"
+              v-model="filters.examMethod"
+              :label="item.value"
+              class="custom-radio"
+            >
+              {{ item.label }}
+            </el-radio>
+          </div>
+        </div>
+
+        <!-- 能力 -->
+        <div class="filter-row">
+          <label class="filter-label">能力：</label>
+          <div class="filter-options">
+            <el-radio 
+              v-for="item in abilityOptions" 
+              :key="item.value"
+              v-model="filters.ability"
+              :label="item.value"
+              class="custom-radio"
+            >
+              {{ item.label }}
+            </el-radio>
           </div>
         </div>
 
@@ -279,57 +312,7 @@
               </template>
             </el-dropdown>
 
-            <!-- 考法 -->
-            <el-dropdown trigger="hover" @command="(val) => filters.examMethod = val" class="filter-dropdown">
-              <span class="el-dropdown-link borderless-select">
-                {{ getLabel(examMethodOptions, filters.examMethod, '考法') }}
-                <el-icon 
-                  class="el-icon--right" 
-                  v-if="filters.examMethod === 'all'"
-                >
-                  <arrow-down />
-                </el-icon>
-                <el-icon 
-                  class="el-icon--right clear-icon" 
-                  v-else
-                  @click.stop="filters.examMethod = 'all'"
-                >
-                  <Close />
-                </el-icon>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="all">全部考法</el-dropdown-item>
-                  <el-dropdown-item v-for="item in examMethodOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value">{{ item.label }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
 
-            <!-- 能力 -->
-            <el-dropdown trigger="hover" @command="(val) => filters.ability = val" class="filter-dropdown">
-              <span class="el-dropdown-link borderless-select">
-                {{ getLabel(abilityOptions, filters.ability, '能力') }}
-                <el-icon 
-                  class="el-icon--right" 
-                  v-if="filters.ability === 'all'"
-                >
-                  <arrow-down />
-                </el-icon>
-                <el-icon 
-                  class="el-icon--right clear-icon" 
-                  v-else
-                  @click.stop="filters.ability = 'all'"
-                >
-                  <Close />
-                </el-icon>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="all">全部能力</el-dropdown-item>
-                  <el-dropdown-item v-for="item in abilityOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value">{{ item.label }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
           </div>
         </div>
       </div>
@@ -338,6 +321,7 @@
           <!-- 排序选项卡 -->
           <div class="sort-tabs">
             <div class="sort-options">
+              <span class="sort-label">排序：</span>
               <span
                 :class="['sort-tab', { active: currentSort === 'latest' }]"
                 @click="currentSort = 'latest'"
@@ -378,7 +362,7 @@
                   <span class="feature-tag" v-if="question.tags && question.tags.length > 0">{{ question.tags[0] }}</span>
                   <span class="source-tag">{{ question.source }}</span>
                   <div class="meta-items">
-                    <span class="meta-item">{{ question.type }}</span>
+                    <span class="meta-item">{{ question.type }}{{ question.subType ? '-' + question.subType : '' }}</span>
                     <span class="meta-divider">|</span>
                     <span class="meta-item">{{ question.difficulty }}</span>
                     <template v-if="question.knowledgePoints && question.knowledgePoints.length > 0">
@@ -1082,7 +1066,7 @@ const typeOptions = [
 const difficultyOptions = [
   { label: '全部', value: 'all' },
   { label: '容易', value: 'easy' },
-  { label: '一般', value: 'medium' },
+  { label: '适中', value: 'medium' },
   { label: '困难', value: 'hard' }
 ]
 
@@ -1136,7 +1120,8 @@ const questionList = ref([
     id: 1,
     content: '根据例句的形式另选一组意象仿写，表达对祖国的拳拳赤子之心，至少仿写两句。<br/><br/>例句：我是你河边上破旧的老水车，数百年来纺着疲惫的歌。',
     type: '积累运用',
-    difficulty: '一般',
+    subType: '仿写',
+    difficulty: '适中',
     source: '2025年山西百校联考试卷',
     tags: ['新题型', '跨学科'],
     knowledgePoints: ['修辞手法', '仿写句子'],
@@ -1164,6 +1149,7 @@ const questionList = ref([
     id: 3,
     content: '请用"虽然...但是..."的句式造句，要求句子通顺，语意完整。',
     type: '积累运用',
+    subType: '造句',
     difficulty: '容易',
     source: '2025年山西百校联考试卷',
     tags: ['大单元'],
@@ -1178,7 +1164,7 @@ const questionList = ref([
     id: 4,
     content: '下列句子中，标点符号使用正确的一项是（　　）<br/>A. 今天，我们学习了《背影》这篇课文。<br/>B. 你是去图书馆？还是去操场？<br/>C. 他问我："你吃饭了吗"？<br/>D. 这是一个美丽的、富饶的、历史悠久的城市。',
     type: '语言知识',
-    difficulty: '一般',
+    difficulty: '适中',
     source: '2025年山西百校联考试卷',
     knowledgePoints: ['标点符号', '语感'],
     answer: 'A',
@@ -1204,6 +1190,7 @@ const questionList = ref([
     id: 6,
     content: '下列词语中，加点字的注音完全正确的一项是（　　）<br/>A. 憎恶(zēng)　　酝酿(niàng)　　锲而不舍(qiè)<br/>B. 狭隘(ài)　　　　栖息(qī)　　　　鲜为人知(xiǎn)<br/>C. 贮蓄(zhù)　　　　绽放(zhàn)　　　　惟妙惟肖(xiào)<br/>D. 伫立(zhù)　　　　蓦然(mù)　　　　咄咄逼人(duō)',
     type: '积累运用',
+    subType: '选择',
     difficulty: '容易',
     source: '2025年山西百校联考试卷',
     tags: ['新题型'],
@@ -1218,7 +1205,7 @@ const questionList = ref([
     id: 7,
     content: '请根据下面的情境，写一段不少于80字的对话。<br/><br/>情境：小明在图书馆遇到了同学小红，小红正在为即将到来的演讲比赛做准备，显得有些紧张。小明想要鼓励她。',
     type: '写作',
-    difficulty: '一般',
+    difficulty: '适中',
     source: '2025年山西百校联考试卷',
     tags: ['跨学科'],
     knowledgePoints: ['情境对话', '口语交际'],
@@ -1232,7 +1219,7 @@ const questionList = ref([
     id: 8,
     content: '下列句子中，没有语病的一项是（　　）<br/>A. 通过这次活动，使我们深刻认识到保护环境的重要性。<br/>B. 能否培养学生的创新能力，是衡量教育成功的重要标准。<br/>C. 我们要继承和发扬老一辈革命家的光荣传统。<br/>D. 在学习上，老师要求我们独立思考，不要盲目地依赖别人。',
     type: '语言知识',
-    difficulty: '一般',
+    difficulty: '适中',
     source: '2025年山西百校联考试卷',
     knowledgePoints: ['病句辨析', '语法结构'],
     answer: 'D',
@@ -1921,7 +1908,7 @@ const resetConfig = () => {
   border: 1px dashed #A0CFFF;
   border-radius: 8px;
   padding: 16px 0;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   position: relative;
 }
 
@@ -2106,36 +2093,45 @@ const resetConfig = () => {
 
 .sort-options {
   display: flex;
-  gap: 24px;
+  align-items: center;
+  gap: 16px;
+}
+
+.sort-label {
+  font-size: 14px;
+  color: #909399;
+  font-weight: 400;
 }
 
 .sort-tab {
   position: relative;
-  padding: 8px 4px;
+  padding: 8px 0;
   font-size: 14px;
-  color: #666;
+  color: #606266;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: all 0.3s;
   user-select: none;
 }
 
 .sort-tab:hover {
-  color: #333;
+  color: #2262FB;
 }
 
 .sort-tab.active {
   color: #2262FB;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .sort-tab.active::after {
   content: '';
   position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
   background-color: #2262FB;
+  border-radius: 3px;
 }
 
 .question-list-container {
