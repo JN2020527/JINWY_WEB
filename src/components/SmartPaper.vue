@@ -62,6 +62,47 @@
             </div>
           </div>
         </div>
+
+        <!-- 专题筛选容器 -->
+        <div class="topic-filter-container">
+          <div class="container-header">
+            <span class="header-title">— 专题筛选 —</span>
+          </div>
+
+          <div class="sidebar-content">
+            <div class="knowledge-tree">
+              <div 
+                v-for="item in topicTree" 
+                :key="item.id"
+                class="catalog-item"
+              >
+                <div 
+                  class="catalog-node level-1"
+                  :class="{ active: selectedTopicId === item.id }"
+                  @click="toggleTopicNode(item)"
+                >
+                  <span class="expand-icon-wrapper">
+                    <el-icon v-if="item.children && item.children.length > 0" class="expand-icon" :class="{ expanded: item.expanded }">
+                      <CaretRight />
+                    </el-icon>
+                  </span>
+                  <span class="node-label">{{ item.label }}</span>
+                </div>
+                <div v-if="item.expanded && item.children && item.children.length > 0" class="catalog-children">
+                  <div 
+                    v-for="child in item.children" 
+                    :key="child.id"
+                    class="catalog-node level-2"
+                    :class="{ active: selectedTopicId === child.id }"
+                    @click="selectTopic(child)"
+                  >
+                    <span class="node-label">{{ child.label }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 右侧内容区 -->
@@ -179,7 +220,7 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-            
+
             <!-- 年份 -->
             <el-dropdown trigger="hover" @command="(val) => filters.year = val" class="filter-dropdown">
               <span class="el-dropdown-link borderless-select">
@@ -228,6 +269,58 @@
                 <el-dropdown-menu>
                   <el-dropdown-item command="all">全部地区</el-dropdown-item>
                   <el-dropdown-item v-for="item in regionOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value">{{ item.label }}</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+
+            <!-- 考法 -->
+            <el-dropdown trigger="hover" @command="(val) => filters.examMethod = val" class="filter-dropdown">
+              <span class="el-dropdown-link borderless-select">
+                {{ getLabel(examMethodOptions, filters.examMethod, '考法') }}
+                <el-icon 
+                  class="el-icon--right" 
+                  v-if="filters.examMethod === 'all'"
+                >
+                  <arrow-down />
+                </el-icon>
+                <el-icon 
+                  class="el-icon--right clear-icon" 
+                  v-else
+                  @click.stop="filters.examMethod = 'all'"
+                >
+                  <Close />
+                </el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="all">全部考法</el-dropdown-item>
+                  <el-dropdown-item v-for="item in examMethodOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value">{{ item.label }}</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+
+            <!-- 能力 -->
+            <el-dropdown trigger="hover" @command="(val) => filters.ability = val" class="filter-dropdown">
+              <span class="el-dropdown-link borderless-select">
+                {{ getLabel(abilityOptions, filters.ability, '能力') }}
+                <el-icon 
+                  class="el-icon--right" 
+                  v-if="filters.ability === 'all'"
+                >
+                  <arrow-down />
+                </el-icon>
+                <el-icon 
+                  class="el-icon--right clear-icon" 
+                  v-else
+                  @click.stop="filters.ability = 'all'"
+                >
+                  <Close />
+                </el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="all">全部能力</el-dropdown-item>
+                  <el-dropdown-item v-for="item in abilityOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value">{{ item.label }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -622,6 +715,9 @@ const selectedTextbook = ref('gundong-2026-zhongkao')
 // 选中的知识点ID（选题组卷）
 const selectedKnowledgeId = ref(null)
 
+// 选中的专题ID（选题组卷）
+const selectedTopicId = ref(null)
+
 // 知识点树形数据（选题组卷）
 const knowledgeTree = ref([
   {
@@ -670,6 +766,35 @@ const knowledgeTree = ref([
     label: '写作',
     expanded: false,
     children: []
+  }
+])
+
+// 专题树形数据（选题组卷）
+const topicTree = ref([
+  {
+    id: 1,
+    label: '中考专题复习',
+    expanded: true,
+    children: [
+      { id: 11, label: '专题一：积累与运用', expanded: false, children: [] },
+      { id: 12, label: '专题二：古诗文阅读', expanded: false, children: [] },
+      { id: 13, label: '专题三：现代文阅读', expanded: false, children: [] },
+      { id: 14, label: '专题四：名著阅读', expanded: false, children: [] },
+      { id: 15, label: '专题五：写作', expanded: false, children: [] }
+    ]
+  },
+  {
+    id: 2,
+    label: '教材同步专题',
+    expanded: false,
+    children: [
+      { id: 21, label: '七年级上册专题', expanded: false, children: [] },
+      { id: 22, label: '七年级下册专题', expanded: false, children: [] },
+      { id: 23, label: '八年级上册专题', expanded: false, children: [] },
+      { id: 24, label: '八年级下册专题', expanded: false, children: [] },
+      { id: 25, label: '九年级上册专题', expanded: false, children: [] },
+      { id: 26, label: '九年级下册专题', expanded: false, children: [] }
+    ]
   }
 ])
 
@@ -744,6 +869,20 @@ const toggleNode = (node) => {
 const selectKnowledge = (node) => {
   selectedKnowledgeId.value = node.id
   console.log('选择知识点:', node.label)
+}
+
+// 切换专题节点展开/收起
+const toggleTopicNode = (node) => {
+  selectedTopicId.value = node.id
+  if (node.children) {
+    node.expanded = !node.expanded
+  }
+}
+
+// 选择专题
+const selectTopic = (node) => {
+  selectedTopicId.value = node.id
+  console.log('选择专题:', node.label)
 }
 
 // 切换节点展开/收起（快速组卷）
@@ -822,6 +961,8 @@ const filters = ref({
   type: 'all',
   subType: 'all',
   difficulty: 'all',
+  examMethod: 'all',
+  ability: 'all',
   year: 'all',
   region: 'all'
 })
@@ -841,6 +982,8 @@ const resetFilters = () => {
     type: 'all',
     subType: 'all',
     difficulty: 'all',
+    examMethod: 'all',
+    ability: 'all',
     year: 'all',
     region: 'all'
   }
@@ -932,6 +1075,25 @@ const difficultyOptions = [
   { label: '容易', value: 'easy' },
   { label: '一般', value: 'medium' },
   { label: '困难', value: 'hard' }
+]
+
+// 考法选项
+const examMethodOptions = [
+  { label: '全部', value: 'all' },
+  { label: '常考', value: 'common' },
+  { label: '易错', value: 'error-prone' },
+  { label: '压轴', value: 'finale' }
+]
+
+// 能力选项
+const abilityOptions = [
+  { label: '全部', value: 'all' },
+  { label: '识记', value: 'memorization' },
+  { label: '理解', value: 'understanding' },
+  { label: '分析综合', value: 'analysis' },
+  { label: '鉴赏评价', value: 'appreciation' },
+  { label: '表达应用', value: 'application' },
+  { label: '探究', value: 'inquiry' }
 ]
 
 // 获取选项标签
@@ -1456,6 +1618,20 @@ const resetConfig = () => {
   flex: 1;
   overflow: hidden;
   padding: 16px;
+  min-height: 0; /* 允许flex子项收缩 */
+}
+
+/* 专题筛选容器 */
+.topic-filter-container {
+  background: #ffffff;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  padding: 16px;
+  min-height: 0; /* 允许flex子项收缩 */
 }
 
 /* 容器头部 */
@@ -1727,7 +1903,7 @@ const resetConfig = () => {
 
 /* 中考特色重点强调区域 */
 .featured-row {
-  background: transparent;
+  background: #F0F7FF;
   border: 1px dashed #A0CFFF;
   border-radius: 8px;
   padding: 16px 0;
@@ -2037,14 +2213,7 @@ const resetConfig = () => {
   line-height: 20px;
   white-space: nowrap;
   color: #2262FB;
-  background:
-    repeating-linear-gradient(
-      45deg,
-      #ECF5FF,
-      #ECF5FF 4px,
-      #D9ECFF 4px,
-      #D9ECFF 8px
-    );
+  background-color: #ECF5FF;
   border: none;
 }
 
