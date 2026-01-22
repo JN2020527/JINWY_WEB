@@ -70,6 +70,22 @@
         <div class="filter-section">
 
 
+        <!-- 特色筛选 -->
+        <div class="filter-row featured-row">
+          <label class="filter-label">中考特色：</label>
+          <div class="filter-options">
+            <el-radio 
+              v-for="item in featureOptions" 
+              :key="item.value"
+              v-model="filters.features"
+              :label="item.value"
+              class="custom-radio"
+            >
+              {{ item.label }}
+            </el-radio>
+          </div>
+        </div>
+
         <!-- 试题来源 -->
         <div class="filter-row">
           <label class="filter-label">试题来源：</label>
@@ -131,22 +147,6 @@
             >
               {{ item.label }}
             </div>
-          </div>
-        </div>
-
-        <!-- 特色筛选 -->
-        <div class="filter-row">
-          <label class="filter-label">中考特色：</label>
-          <div class="filter-options">
-            <el-radio 
-              v-for="item in featureOptions" 
-              :key="item.value"
-              v-model="filters.features"
-              :label="item.value"
-              class="custom-radio"
-            >
-              {{ item.label }}
-            </el-radio>
           </div>
         </div>
 
@@ -235,29 +235,23 @@
         </div>
       </div>
 
-       <div class="question-list-container">
-         <!-- 排序选项卡 -->
-         <div class="sort-tabs">
-           <div class="sort-options">
-             <span
-               :class="['sort-tab', { active: currentSort === 'comprehensive' }]"
-               @click="currentSort = 'comprehensive'"
-             >
-               综合
-             </span>
-             <span
-               :class="['sort-tab', { active: currentSort === 'latest' }]"
-               @click="currentSort = 'latest'"
-             >
-               最新
-             </span>
-             <span
-               :class="['sort-tab', { active: currentSort === 'hottest' }]"
-               @click="currentSort = 'hottest'"
-             >
-               最热
-             </span>
-           </div>
+         <div class="question-list-container">
+          <!-- 排序选项卡 -->
+          <div class="sort-tabs">
+            <div class="sort-options">
+              <span
+                :class="['sort-tab', { active: currentSort === 'latest' }]"
+                @click="currentSort = 'latest'"
+              >
+                最新
+              </span>
+              <span
+                :class="['sort-tab', { active: currentSort === 'hottest' }]"
+                @click="currentSort = 'hottest'"
+              >
+                最热
+              </span>
+            </div>
            <div class="search-wrapper">
              <el-input
                v-model="searchKeyword"
@@ -609,7 +603,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { CaretRight, Monitor, View, Plus, ArrowUp, ArrowDown, Search } from '@element-plus/icons-vue'
+import { CaretRight, Monitor, View, Plus, ArrowUp, ArrowDown, Search, Close, Check } from '@element-plus/icons-vue'
 import ScreenPresentation from './ScreenPresentation.vue'
 import { ElMessage } from 'element-plus'
 
@@ -833,7 +827,7 @@ const filters = ref({
 })
 
 // 排序方式
-const currentSort = ref('comprehensive')
+const currentSort = ref('latest')
 
 // 搜索关键词
 const searchKeyword = ref('')
@@ -1731,6 +1725,21 @@ const resetConfig = () => {
   align-items: flex-start;
 }
 
+/* 中考特色重点强调区域 */
+.featured-row {
+  background: transparent;
+  border: 1px dashed #A0CFFF;
+  border-radius: 8px;
+  padding: 16px 0;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.featured-row .filter-label {
+  color: #2262FB;
+  font-weight: 600;
+}
+
 .filter-row:last-child {
   margin-bottom: 0;
 }
@@ -1801,6 +1810,61 @@ const resetConfig = () => {
 .custom-radio.is-checked :deep(.el-radio__label) {
   color: #2262FB;
   font-weight: 500;
+}
+
+/* 中考特色标签样式 - 重点展示 */
+.feature-radio {
+  margin-right: 12px !important;
+  height: 32px;
+  padding: 0 16px !important;
+  border-radius: 4px;
+  transition: all 0.3s;
+  background: #ffffff;
+  border: 1px solid #dcdfe6;
+}
+
+/* 隐藏默认的原点 */
+.feature-radio :deep(.el-radio__input) {
+  display: none;
+}
+
+.feature-radio :deep(.el-radio__label) {
+  padding-left: 0;
+  font-size: 14px;
+  color: #606266;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 选中状态 */
+.feature-radio.is-checked {
+  background: linear-gradient(135deg, #2262FB 0%, #409EFF 100%) !important;
+  border-color: #2262FB !important;
+  box-shadow: 0 2px 8px rgba(34, 98, 251, 0.2);
+  transform: translateY(-1px);
+}
+
+.feature-radio.is-checked :deep(.el-radio__label) {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* hover状态 */
+.feature-radio:hover:not(.is-checked) {
+  border-color: #2262FB;
+  color: #2262FB;
+  background-color: #ECF5FF;
+}
+
+.feature-radio:hover:not(.is-checked) :deep(.el-radio__label) {
+  color: #2262FB;
+}
+
+/* 选中后的勾选图标 */
+.check-icon {
+  font-size: 12px;
+  margin-left: 2px;
 }
 
  .list-header {
@@ -1973,7 +2037,14 @@ const resetConfig = () => {
   line-height: 20px;
   white-space: nowrap;
   color: #2262FB;
-  background: #ECF5FF;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #ECF5FF,
+      #ECF5FF 4px,
+      #D9ECFF 4px,
+      #D9ECFF 8px
+    );
   border: none;
 }
 
