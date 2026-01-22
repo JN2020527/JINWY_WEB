@@ -1194,10 +1194,13 @@ const sourceOptions = [
 const sourceTypeOptions = [
   { label: '全部', value: 'all' },
   { label: '中考真题', value: 'entrance-exam' },
-  { label: '仿真模拟', value: 'simulation' },
+  { label: '中考模拟', value: 'zk-simulation' },
+  { label: '仿真演练', value: 'simulation-drill' },
   { label: '名校试题', value: 'famous-school' },
   { label: '原创好题', value: 'original' },
-  { label: '阶段性测试', value: 'stage-test' }
+  { label: '月考', value: 'monthly-exam' },
+  { label: '期中', value: 'midterm-exam' },
+  { label: '期末', value: 'final-exam' }
 ]
 
 // 试题类型选项
@@ -2107,6 +2110,7 @@ const resetConfig = () => {
   display: flex;
   flex-wrap: wrap;
   gap: 12px 24px;
+  align-items: center;
 }
 
 /* Element Plus Radio 自定义样式 */
