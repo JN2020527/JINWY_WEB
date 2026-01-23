@@ -7,7 +7,7 @@
         <!-- 教材版本筛选容器 -->
         <div class="textbook-filter-container">
           <div class="container-header">
-            <span class="header-title">— 教材版本 —</span>
+            <span class="header-title">教材版本</span>
         </div>
           <div class="textbook-selector">
             <el-select 
@@ -412,15 +412,22 @@
                     <span class="meta-item">{{ question.difficulty }}</span>
                     <template v-if="question.knowledgePoints && question.knowledgePoints.length > 0">
                       <span class="meta-divider">|</span>
-                      <el-tooltip
-                        class="box-item"
-                        effect="dark"
-                        :content="question.knowledgePoints.join('、')"
-                        placement="top"
-                        :show-after="500"
+                      <div 
+                        class="kp-wrapper" 
+                        :class="{ 'can-expand': overflowStates[question.id] }"
+                        @mouseenter="checkSingleOverflow(question.id)"
                       >
-                        <span class="meta-item knowledge-point-item">{{ question.knowledgePoints.join('、') }}</span>
-                      </el-tooltip>
+                        <span 
+                          class="kp-text-truncated"
+                          :ref="(el) => setKpRef(el, question.id)"
+                        >
+                          {{ question.knowledgePoints.join('、') }}
+                        </span>
+                        <div class="kp-text-full" v-if="overflowStates[question.id]">
+                          {{ question.knowledgePoints.join('、') }}
+                          <el-icon class="collapse-icon"><ArrowUp /></el-icon>
+                        </div>
+                      </div>
                     </template>
                   </div>
                 </div>
@@ -738,7 +745,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { CaretRight, Monitor, View, Plus, ArrowUp, ArrowDown, Search, Close, Check } from '@element-plus/icons-vue'
 import ScreenPresentation from './ScreenPresentation.vue'
 import { ElMessage } from 'element-plus'
@@ -1282,6 +1289,49 @@ const regionOptions = [
   { label: '全国', value: 'national' }
 ]
 
+// 知识点溢出检测
+const kpRefs = ref({})
+const overflowStates = ref({})
+
+const setKpRef = (el, id) => {
+  if (el) {
+    kpRefs.value[id] = el
+    // 初始化时检测一次
+    checkSingleOverflow(id)
+  }
+}
+
+const checkSingleOverflow = (id) => {
+  const el = kpRefs.value[id]
+  if (el) {
+    // 使用 scrollWidth > clientWidth 判断是否溢出
+    // 增加一个小的容差值(1px)以避免浮点数计算误差
+    const isOverflow = el.scrollWidth > el.clientWidth + 1
+    overflowStates.value[id] = isOverflow
+  }
+}
+
+// 监听窗口大小变化重新检测
+let resizeObserver = null
+onMounted(() => {
+  resizeObserver = new ResizeObserver(() => {
+    Object.keys(kpRefs.value).forEach(id => {
+      checkSingleOverflow(id)
+    })
+  })
+  // 观察整个列表容器或者body，这里简单起见观察body，实际应用中可以更精细
+  resizeObserver.observe(document.body)
+})
+
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+  }
+})
+
+// 监听数据变化重新检测
+
+
 // 模拟题目数据
 const questionList = ref([
   {
@@ -1732,6 +1782,15 @@ const resetConfig = () => {
   ]
   ElMessage.success('配置已重置')
 }
+// 监听数据变化重新检测
+watch(sortedQuestionList, () => {
+  nextTick(() => {
+    Object.keys(kpRefs.value).forEach(id => {
+      checkSingleOverflow(id)
+    })
+  })
+}, { deep: true })
+
 </script>
 
 <style scoped>
@@ -1772,6 +1831,18 @@ const resetConfig = () => {
   padding: 16px;
 }
 
+.container-header {
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  display: block;
+}
+
 /* 知识点筛选容器 */
 .knowledge-filter-container {
   background: #ffffff;
@@ -1786,33 +1857,52 @@ const resetConfig = () => {
 }
 
 /* 筛选Tab */
+/* 筛选Tab */
 .filter-tabs {
   display: flex;
+  justify-content: center;
+  align-items: center;
   border-bottom: 1px solid #e4e7ed;
-  background: #f5f7fa;
+  background: #ffffff;
+  padding: 12px 0;
 }
 
 .filter-tab {
-  flex: 1;
+  flex: 1; /* 保持均分，或者改为 flex: none + padding */
   text-align: center;
-  padding: 12px 0;
-  font-size: 14px;
-  color: #606266;
+  padding: 0;
+  font-size: 16px;
+  color: #303133;
   cursor: pointer;
   transition: all 0.3s;
-  font-weight: 500;
+  font-weight: 400;
+  position: relative;
+  background: none;
+  border: none;
 }
 
 .filter-tab:hover {
   color: #2262FB;
-  background: #ecf5ff;
+  background: none;
 }
 
 .filter-tab.active {
   color: #2262FB;
-  background: #ffffff;
-  font-weight: 600;
-  border-bottom: 2px solid #2262FB;
+  background: none;
+  font-weight: 400;
+  border-bottom: none;
+}
+
+/* 竖线分割 */
+.filter-tab:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 16px;
+  width: 1px;
+  background-color: #E4E7ED;
 }
 
 .sidebar-content {
@@ -2473,12 +2563,59 @@ const resetConfig = () => {
   white-space: nowrap;
 }
 
-.knowledge-point-item {
+.kp-wrapper {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  height: 20px; /* 保持与行高一致，防止抖动 */
+  line-height: 20px;
+}
+
+.kp-text-truncated {
+  display: block;
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #909399;
+}
+
+.kp-text-full {
+  display: none;
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -20px; /* 向右延伸一点 */
+  background: #ffffff;
+  border: 1px solid #e4e7ed;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  padding: 8px 12px;
+  border-radius: 4px;
+  white-space: normal;
+  color: #606266;
+  line-height: 1.5;
+  min-width: 100%;
+  width: max-content;
+  max-width: 500px; /* 限制最大宽度，防止溢出太多 */
+}
+
+.kp-wrapper.can-expand:hover .kp-text-full {
   display: block;
-  min-width: 0;
-  flex: 1;
+}
+
+.kp-wrapper.can-expand:hover .kp-text-truncated {
+  visibility: hidden;
+}
+
+.collapse-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #909399;
+  font-size: 12px;
+  cursor: pointer;
+  display: none; /* 暂时隐藏图标，因为是hover自动收起 */
 }
 
 .meta-divider {
