@@ -412,7 +412,15 @@
                     <span class="meta-item">{{ question.difficulty }}</span>
                     <template v-if="question.knowledgePoints && question.knowledgePoints.length > 0">
                       <span class="meta-divider">|</span>
-                      <span class="meta-item">{{ question.knowledgePoints.join('、') }}</span>
+                      <el-tooltip
+                        class="box-item"
+                        effect="dark"
+                        :content="question.knowledgePoints.join('、')"
+                        placement="top"
+                        :show-after="500"
+                      >
+                        <span class="meta-item knowledge-point-item">{{ question.knowledgePoints.join('、') }}</span>
+                      </el-tooltip>
                     </template>
                   </div>
                 </div>
@@ -1284,7 +1292,7 @@ const questionList = ref([
     difficulty: '适中',
     source: '2025年山西百校联考试卷',
     tags: ['新题型', '跨学科'],
-    knowledgePoints: ['修辞手法', '仿写句子'],
+    knowledgePoints: ['修辞手法', '仿写句子', '现代文阅读理解', '古代诗歌鉴赏', '文言文阅读', '语言文字运用', '写作表达技巧', '文学常识积累', '名著导读与分析'],
     answer: '我是你天空中飞翔的小鸟，时时刻刻搏击着风雨。我是你衣服上小小的纽扣，永远倾听着你心脏跳动的声音。',
     analysis: '',
     showAnalysis: false,
@@ -1298,7 +1306,7 @@ const questionList = ref([
     difficulty: '困难',
     source: '2025年山西百校联考试卷',
     tags: ['教材母题'],
-    knowledgePoints: ['意象分析', '情感表达', '文学常识'],
+    knowledgePoints: ['意象分析', '情感表达', '文学常识', '中国古代文学史', '山水田园诗派', '唐宋八大家', '古文观止', '诗经楚辞', '汉赋魏晋南北朝诗歌'],
     answer: '山水意象在古代文学中主要有以下作用：1.寄托情感，表达作者的喜怒哀乐；2.象征品格，表现高洁的情操和志向；3.营造意境，增强作品的艺术感染力。',
     analysis: '山水是中国古代文学中最常见的意象之一，文人墨客常常通过描写山水来抒发内心情感，表达人生志向，同时也体现了中国传统文化中"天人合一"的思想。',
     showAnalysis: false,
@@ -2449,6 +2457,7 @@ const resetConfig = () => {
   gap: 12px;
   padding-bottom: 12px;
   border-bottom: 1px dashed #EBEEF5;
+  padding-right: 80px; /* 防止与右上角标签重叠 */
 }
 
 .meta-items {
@@ -2456,10 +2465,20 @@ const resetConfig = () => {
   gap: 8px;
   font-size: 12px;
   color: #909399;
+  flex: 1;
+  min-width: 0; /* 关键：允许flex子项收缩 */
 }
 
 .meta-item {
   white-space: nowrap;
+}
+
+.knowledge-point-item {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  min-width: 0;
+  flex: 1;
 }
 
 .meta-divider {
