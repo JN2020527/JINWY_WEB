@@ -139,49 +139,27 @@
 
         <!-- 题源类型 -->
         <div class="filter-row" v-if="filters.source === 'platform'">
-          <label class="filter-label">试题来源：</label>
+          <label class="filter-label">题源：</label>
           <div class="filter-options">
-            <template v-if="!isMultiSelectSourceType">
-              <el-radio 
-                v-for="item in sourceTypeOptions" 
-                :key="item.value"
-                v-model="filters.sourceType"
-                :label="item.value"
-                class="custom-radio"
-              >
-                {{ item.label }}
-              </el-radio>
-            </template>
-            <template v-else>
-              <el-checkbox
-                v-for="item in sourceTypeOptions"
-                :key="item.value"
-                v-model="filters.sourceType"
-                :label="item.value"
-                class="custom-checkbox"
-                @change="(val) => handleSourceTypeChange(val, item.value)"
-              >
-                {{ item.label }}
-              </el-checkbox>
-            </template>
-
-            <div 
-              class="multi-select-btn" 
-              :class="{ active: isMultiSelectSourceType }"
-              @click="handleSourceTypeModeChange(!isMultiSelectSourceType)"
+            <el-checkbox
+              v-for="item in sourceTypeOptions"
+              :key="item.value"
+              v-model="filters.sourceType"
+              :label="item.value"
+              class="custom-checkbox"
+              @change="(val) => handleSourceTypeChange(val, item.value)"
             >
-              <span v-if="!isMultiSelectSourceType">+ 多选</span>
-              <span v-else>取消多选</span>
-            </div>
+              {{ item.label }}
+            </el-checkbox>
           </div>
         </div>
 
         <!-- 试题类型 -->
         <div class="filter-row">
-          <label class="filter-label">试题类型：</label>
+          <label class="filter-label">题型：</label>
           <div class="filter-options">
-            <el-radio 
-              v-for="item in typeOptions" 
+            <el-radio
+              v-for="item in typeOptions"
               :key="item.value"
               v-model="filters.type"
               :label="item.value"
@@ -196,8 +174,8 @@
         <div class="filter-row sub-type-row" v-if="subTypeOptions.length > 0" :style="{ '--arrow-left': arrowLeft }">
           <label class="filter-label">子题型：</label>
           <div class="filter-options">
-            <div 
-              v-for="item in subTypeOptions" 
+            <div
+              v-for="item in subTypeOptions"
               :key="item.value"
               class="sub-type-tag"
               :class="{ active: filters.subType === item.value }"
@@ -210,52 +188,30 @@
 
         <!-- 试题难度 -->
         <div class="filter-row">
-          <label class="filter-label">试题难度：</label>
+          <label class="filter-label">难度：</label>
           <div class="filter-options">
-            <template v-if="!isMultiSelectDifficulty">
-              <el-radio 
-                v-for="item in difficultyOptions" 
-                :key="item.value"
-                v-model="filters.difficulty"
-                :label="item.value"
-                class="custom-radio"
-              >
-                {{ item.label }}
-              </el-radio>
-            </template>
-            <template v-else>
-              <el-checkbox
-                v-for="item in difficultyOptions"
-                :key="item.value"
-                v-model="filters.difficulty"
-                :label="item.value"
-                class="custom-checkbox"
-                @change="(val) => handleDifficultyChange(val, item.value)"
-              >
-                {{ item.label }}
-              </el-checkbox>
-            </template>
-
-            <div 
-              class="multi-select-btn" 
-              :class="{ active: isMultiSelectDifficulty }"
-              @click="handleDifficultyModeChange(!isMultiSelectDifficulty)"
+            <el-checkbox
+              v-for="item in difficultyOptions"
+              :key="item.value"
+              v-model="filters.difficulty"
+              :label="item.value"
+              class="custom-checkbox"
+              @change="(val) => handleDifficultyChange(val, item.value)"
             >
-              <span v-if="!isMultiSelectDifficulty">+ 多选</span>
-              <span v-else>取消多选</span>
-            </div>
+              {{ item.label }}
+            </el-checkbox>
           </div>
         </div>
 
-        <!-- 中考特色重点强调区域（包含中考特色、考法、能力） -->
+        <!-- 中考特色重点强调区域 -->
         <div class="featured-row">
           <div class="hot-badge">学科特色</div>
           <!-- 中考特色 -->
           <div class="filter-row">
-            <label class="filter-label">中考特色：</label>
+            <label class="filter-label">特色：</label>
             <div class="filter-options">
-              <el-radio 
-                v-for="item in featureOptions" 
+              <el-radio
+                v-for="item in featureOptions"
                 :key="item.value"
                 v-model="filters.features"
                 :label="item.value"
@@ -266,30 +222,14 @@
             </div>
           </div>
 
-          <!-- 考法 -->
+          <!-- 教材 -->
           <div class="filter-row">
-            <label class="filter-label">学科考法：</label>
+            <label class="filter-label">教材：</label>
             <div class="filter-options">
-              <el-radio 
-                v-for="item in examMethodOptions" 
+              <el-radio
+                v-for="item in textbookOptions"
                 :key="item.value"
-                v-model="filters.examMethod"
-                :label="item.value"
-                class="custom-radio"
-              >
-                {{ item.label }}
-              </el-radio>
-            </div>
-          </div>
-
-          <!-- 能力 -->
-          <div class="filter-row">
-            <label class="filter-label">学科能力：</label>
-            <div class="filter-options">
-              <el-radio 
-                v-for="item in abilityOptions" 
-                :key="item.value"
-                v-model="filters.ability"
+                v-model="filters.textbook"
                 :label="item.value"
                 class="custom-radio"
               >
@@ -304,19 +244,18 @@
           <label class="filter-label">更多：</label>
           <div class="filter-options">
 
-
             <!-- 年份 -->
             <el-dropdown trigger="hover" @command="(val) => filters.year = val" class="filter-dropdown">
               <span class="el-dropdown-link borderless-select">
                 {{ getLabel(yearOptions, filters.year, '年份') }}
-                <el-icon 
-                  class="el-icon--right" 
+                <el-icon
+                  class="el-icon--right"
                   v-if="filters.year === 'all'"
                 >
                   <arrow-down />
                 </el-icon>
-                <el-icon 
-                  class="el-icon--right clear-icon" 
+                <el-icon
+                  class="el-icon--right clear-icon"
                   v-else
                   @click.stop="filters.year = 'all'"
                 >
@@ -325,8 +264,8 @@
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item command="all">全部年份</el-dropdown-item>
-                  <el-dropdown-item v-for="item in yearOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value">{{ item.label }}</el-dropdown-item>
+                  <el-dropdown-item command="all" :class="{ 'is-selected': filters.year === 'all' }">全部年份</el-dropdown-item>
+                  <el-dropdown-item v-for="item in yearOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value" :class="{ 'is-selected': filters.year === item.value }">{{ item.label }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -335,24 +274,75 @@
             <el-dropdown trigger="hover" @command="(val) => filters.region = val" class="filter-dropdown">
               <span class="el-dropdown-link borderless-select">
                 {{ getLabel(regionOptions, filters.region, '地区') }}
-                <el-icon 
-                  class="el-icon--right" 
-                  v-if="filters.region === 'all'"
+                <el-icon
+                  class="el-icon--right"
+                  v-if="filters.region === 'national'"
                 >
                   <arrow-down />
                 </el-icon>
-                <el-icon 
-                  class="el-icon--right clear-icon" 
+                <el-icon
+                  class="el-icon--right clear-icon"
                   v-else
-                  @click.stop="filters.region = 'all'"
+                  @click.stop="filters.region = 'national'"
                 >
                   <Close />
                 </el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item command="all">全部地区</el-dropdown-item>
-                  <el-dropdown-item v-for="item in regionOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value">{{ item.label }}</el-dropdown-item>
+                  <el-dropdown-item v-for="item in regionOptions" :key="item.value" :command="item.value" :class="{ 'is-selected': filters.region === item.value }">{{ item.label }}</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+
+            <!-- 考法 -->
+            <el-dropdown trigger="hover" @command="(val) => filters.examMethod = val" class="filter-dropdown">
+              <span class="el-dropdown-link borderless-select">
+                {{ getLabel(examMethodOptions, filters.examMethod, '考法') }}
+                <el-icon
+                  class="el-icon--right"
+                  v-if="filters.examMethod === 'all'"
+                >
+                  <arrow-down />
+                </el-icon>
+                <el-icon
+                  class="el-icon--right clear-icon"
+                  v-else
+                  @click.stop="filters.examMethod = 'all'"
+                >
+                  <Close />
+                </el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="all" :class="{ 'is-selected': filters.examMethod === 'all' }">全部考法</el-dropdown-item>
+                  <el-dropdown-item v-for="item in examMethodOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value" :class="{ 'is-selected': filters.examMethod === item.value }">{{ item.label }}</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+
+            <!-- 能力 -->
+            <el-dropdown trigger="hover" @command="(val) => filters.ability = val" class="filter-dropdown">
+              <span class="el-dropdown-link borderless-select">
+                {{ getLabel(abilityOptions, filters.ability, '能力') }}
+                <el-icon
+                  class="el-icon--right"
+                  v-if="filters.ability === 'all'"
+                >
+                  <arrow-down />
+                </el-icon>
+                <el-icon
+                  class="el-icon--right clear-icon"
+                  v-else
+                  @click.stop="filters.ability = 'all'"
+                >
+                  <Close />
+                </el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="all" :class="{ 'is-selected': filters.ability === 'all' }">全部能力</el-dropdown-item>
+                  <el-dropdown-item v-for="item in abilityOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value" :class="{ 'is-selected': filters.ability === item.value }">{{ item.label }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -1009,46 +999,17 @@ const toggleParentSelection = (parentNode) => {
 // 筛选条件（选题组卷）
 const filters = ref({
   source: 'platform',
-  sourceType: 'all',
+  sourceType: ['all'],
   features: 'all',
+  textbook: 'all',
   type: 'all',
   subType: 'all',
-  difficulty: 'all',
+  difficulty: ['all'],
   examMethod: 'all',
   ability: 'all',
   year: 'all',
-  region: 'all'
+  region: 'shanxi'
 })
-
-// 题源类型多选开关
-const isMultiSelectSourceType = ref(false)
-
-// 切换题源类型多选模式
-const handleSourceTypeModeChange = (val) => {
-  isMultiSelectSourceType.value = val
-  if (val) {
-    // 切换到多选模式
-    if (filters.value.sourceType === 'all') {
-      filters.value.sourceType = ['all']
-    } else {
-      filters.value.sourceType = [filters.value.sourceType]
-    }
-  } else {
-    // 切换到单选模式
-    if (Array.isArray(filters.value.sourceType)) {
-      if (filters.value.sourceType.length > 0) {
-        // 如果包含'all'，优先选'all'，否则选第一个
-        if (filters.value.sourceType.includes('all')) {
-          filters.value.sourceType = 'all'
-        } else {
-          filters.value.sourceType = filters.value.sourceType[0]
-        }
-      } else {
-        filters.value.sourceType = 'all'
-      }
-    }
-  }
-}
 
 // 处理题源类型多选变化
 const handleSourceTypeChange = (val, value) => {
@@ -1069,36 +1030,6 @@ const handleSourceTypeChange = (val, value) => {
     // 如果所有具体项都取消选中，自动选'all'
     if (filters.value.sourceType.length === 0) {
         filters.value.sourceType = ['all']
-    }
-  }
-}
-
-// 试题难度多选开关
-const isMultiSelectDifficulty = ref(false)
-
-// 切换试题难度多选模式
-const handleDifficultyModeChange = (val) => {
-  isMultiSelectDifficulty.value = val
-  if (val) {
-    // 切换到多选模式
-    if (filters.value.difficulty === 'all') {
-      filters.value.difficulty = ['all']
-    } else {
-      filters.value.difficulty = [filters.value.difficulty]
-    }
-  } else {
-    // 切换到单选模式
-    if (Array.isArray(filters.value.difficulty)) {
-      if (filters.value.difficulty.length > 0) {
-        // 如果包含'all'，优先选'all'，否则选第一个
-        if (filters.value.difficulty.includes('all')) {
-          filters.value.difficulty = 'all'
-        } else {
-          filters.value.difficulty = filters.value.difficulty[0]
-        }
-      } else {
-        filters.value.difficulty = 'all'
-      }
     }
   }
 }
@@ -1136,15 +1067,16 @@ const searchKeyword = ref('')
 const resetFilters = () => {
   filters.value = {
     source: 'platform',
-    sourceType: 'all',
+    sourceType: ['all'],
     features: 'all',
+    textbook: 'all',
     type: 'all',
     subType: 'all',
-    difficulty: 'all',
+    difficulty: ['all'],
     examMethod: 'all',
     ability: 'all',
     year: 'all',
-    region: 'all'
+    region: 'shanxi'
   }
 }
 
@@ -1192,11 +1124,18 @@ const arrowLeft = computed(() => {
 // 特色筛选选项
 const featureOptions = [
   { label: '全部', value: 'all' },
-  { label: '教材母题', value: 'textbook-mother' },
   { label: '跨学科', value: 'interdisciplinary' },
   { label: '项目化', value: 'project-based' },
   { label: '新题型', value: 'new-type' },
   { label: '大单元', value: 'big-unit' }
+]
+
+// 教材筛选选项
+const textbookOptions = [
+  { label: '全部', value: 'all' },
+  { label: '人教版', value: 'renjiao' },
+  { label: '华师版', value: 'huashi' },
+  { label: '北师版', value: 'beishi' }
 ]
 
 // 试题来源选项
@@ -1211,8 +1150,6 @@ const sourceTypeOptions = [
   { label: '中考真题', value: 'entrance-exam' },
   { label: '中考模拟', value: 'zk-simulation' },
   { label: '仿真演练', value: 'simulation-drill' },
-  { label: '名校试题', value: 'famous-school' },
-  { label: '原创好题', value: 'original' },
   { label: '月考', value: 'monthly-exam' },
   { label: '期中', value: 'midterm-exam' },
   { label: '期末', value: 'final-exam' }
@@ -1284,9 +1221,8 @@ const yearOptions = [
 
 // 地区选项
 const regionOptions = [
-  { label: '全部', value: 'all' },
-  { label: '山西', value: 'shanxi' },
-  { label: '全国', value: 'national' }
+  { label: '全国', value: 'national' },
+  { label: '山西', value: 'shanxi' }
 ]
 
 // 知识点溢出检测
@@ -2195,7 +2131,7 @@ watch(sortedQuestionList, () => {
 
 .filter-label {
   flex-shrink: 0;
-  width: 100px;
+  width: 60px;
   font-size: 14px;
   color: #303133;
   line-height: 32px;
@@ -2732,7 +2668,7 @@ watch(sortedQuestionList, () => {
   color: #606266;
   transition: all 0.3s;
   min-width: 90px;
-  border: none;
+  border: 1px solid #DCDFE6;
   outline: none;
 }
 
@@ -2748,17 +2684,30 @@ watch(sortedQuestionList, () => {
 .clear-icon {
   cursor: pointer;
   transition: all 0.3s;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #C0C4CC;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
 }
 
 .clear-icon:hover {
-  color: #F56C6C;
-  transform: scale(1.2);
+  background-color: #909399;
+  transform: scale(1.1);
 }
 
 .borderless-select .el-icon {
   margin-left: 8px;
   font-size: 12px;
   color: #909399;
+}
+
+.borderless-select .el-icon.clear-icon {
+  color: #fff;
 }
 
 .reset-btn {
