@@ -141,16 +141,38 @@
         <div class="filter-row" v-if="filters.source === 'platform'">
           <label class="filter-label">题源：</label>
           <div class="filter-options">
-            <el-checkbox
-              v-for="item in sourceTypeOptions"
-              :key="item.value"
-              v-model="filters.sourceType"
-              :label="item.value"
-              class="custom-checkbox"
-              @change="(val) => handleSourceTypeChange(val, item.value)"
+            <template v-if="!isMultiSelectSourceType">
+              <el-radio
+                v-for="item in sourceTypeOptions"
+                :key="item.value"
+                v-model="filters.sourceType"
+                :label="item.value"
+                class="custom-radio"
+              >
+                {{ item.label }}
+              </el-radio>
+            </template>
+            <template v-else>
+              <el-checkbox
+                v-for="item in sourceTypeOptions"
+                :key="item.value"
+                v-model="filters.sourceType"
+                :label="item.value"
+                class="custom-checkbox"
+                @change="(val) => handleSourceTypeChange(val, item.value)"
+              >
+                {{ item.label }}
+              </el-checkbox>
+            </template>
+
+            <div
+              class="multi-select-btn"
+              :class="{ active: isMultiSelectSourceType }"
+              @click="handleSourceTypeModeChange(!isMultiSelectSourceType)"
             >
-              {{ item.label }}
-            </el-checkbox>
+              <span v-if="!isMultiSelectSourceType">+ 多选</span>
+              <span v-else>取消多选</span>
+            </div>
           </div>
         </div>
 
@@ -190,16 +212,38 @@
         <div class="filter-row">
           <label class="filter-label">难度：</label>
           <div class="filter-options">
-            <el-checkbox
-              v-for="item in difficultyOptions"
-              :key="item.value"
-              v-model="filters.difficulty"
-              :label="item.value"
-              class="custom-checkbox"
-              @change="(val) => handleDifficultyChange(val, item.value)"
+            <template v-if="!isMultiSelectDifficulty">
+              <el-radio
+                v-for="item in difficultyOptions"
+                :key="item.value"
+                v-model="filters.difficulty"
+                :label="item.value"
+                class="custom-radio"
+              >
+                {{ item.label }}
+              </el-radio>
+            </template>
+            <template v-else>
+              <el-checkbox
+                v-for="item in difficultyOptions"
+                :key="item.value"
+                v-model="filters.difficulty"
+                :label="item.value"
+                class="custom-checkbox"
+                @change="(val) => handleDifficultyChange(val, item.value)"
+              >
+                {{ item.label }}
+              </el-checkbox>
+            </template>
+
+            <div
+              class="multi-select-btn"
+              :class="{ active: isMultiSelectDifficulty }"
+              @click="handleDifficultyModeChange(!isMultiSelectDifficulty)"
             >
-              {{ item.label }}
-            </el-checkbox>
+              <span v-if="!isMultiSelectDifficulty">+ 多选</span>
+              <span v-else>取消多选</span>
+            </div>
           </div>
         </div>
 
@@ -214,22 +258,6 @@
                 v-for="item in featureOptions"
                 :key="item.value"
                 v-model="filters.features"
-                :label="item.value"
-                class="custom-radio"
-              >
-                {{ item.label }}
-              </el-radio>
-            </div>
-          </div>
-
-          <!-- 教材 -->
-          <div class="filter-row">
-            <label class="filter-label">教材：</label>
-            <div class="filter-options">
-              <el-radio
-                v-for="item in textbookOptions"
-                :key="item.value"
-                v-model="filters.textbook"
                 :label="item.value"
                 class="custom-radio"
               >
@@ -999,17 +1027,46 @@ const toggleParentSelection = (parentNode) => {
 // 筛选条件（选题组卷）
 const filters = ref({
   source: 'platform',
-  sourceType: ['all'],
+  sourceType: 'all',
   features: 'all',
   textbook: 'all',
   type: 'all',
   subType: 'all',
-  difficulty: ['all'],
+  difficulty: 'all',
   examMethod: 'all',
   ability: 'all',
   year: 'all',
   region: 'shanxi'
 })
+
+// 题源类型多选开关
+const isMultiSelectSourceType = ref(false)
+
+// 切换题源类型多选模式
+const handleSourceTypeModeChange = (val) => {
+  isMultiSelectSourceType.value = val
+  if (val) {
+    // 切换到多选模式
+    if (filters.value.sourceType === 'all') {
+      filters.value.sourceType = ['all']
+    } else {
+      filters.value.sourceType = [filters.value.sourceType]
+    }
+  } else {
+    // 切换到单选模式
+    if (Array.isArray(filters.value.sourceType)) {
+      if (filters.value.sourceType.length > 0) {
+        if (filters.value.sourceType.includes('all')) {
+          filters.value.sourceType = 'all'
+        } else {
+          filters.value.sourceType = filters.value.sourceType[0]
+        }
+      } else {
+        filters.value.sourceType = 'all'
+      }
+    }
+  }
+}
 
 // 处理题源类型多选变化
 const handleSourceTypeChange = (val, value) => {
@@ -1057,6 +1114,36 @@ const handleDifficultyChange = (val, value) => {
   }
 }
 
+// 难度多选开关
+const isMultiSelectDifficulty = ref(false)
+
+// 切换难度多选模式
+const handleDifficultyModeChange = (val) => {
+  isMultiSelectDifficulty.value = val
+  if (val) {
+    // 切换到多选模式
+    if (filters.value.difficulty === 'all') {
+      filters.value.difficulty = ['all']
+    } else {
+      filters.value.difficulty = [filters.value.difficulty]
+    }
+  } else {
+    // 切换到单选模式
+    if (Array.isArray(filters.value.difficulty)) {
+      if (filters.value.difficulty.length > 0) {
+        // 如果包含'all'，优先选'all'，否则选第一个
+        if (filters.value.difficulty.includes('all')) {
+          filters.value.difficulty = 'all'
+        } else {
+          filters.value.difficulty = filters.value.difficulty[0]
+        }
+      } else {
+        filters.value.difficulty = 'all'
+      }
+    }
+  }
+}
+
 // 排序方式
 const currentSort = ref('latest')
 
@@ -1067,17 +1154,20 @@ const searchKeyword = ref('')
 const resetFilters = () => {
   filters.value = {
     source: 'platform',
-    sourceType: ['all'],
+    sourceType: 'all',
     features: 'all',
     textbook: 'all',
     type: 'all',
     subType: 'all',
-    difficulty: ['all'],
+    difficulty: 'all',
     examMethod: 'all',
     ability: 'all',
     year: 'all',
     region: 'shanxi'
   }
+  // 重置多选开关
+  isMultiSelectSourceType.value = false
+  isMultiSelectDifficulty.value = false
 }
 
 // 筛选条件（快速组卷）
@@ -1127,7 +1217,8 @@ const featureOptions = [
   { label: '跨学科', value: 'interdisciplinary' },
   { label: '项目化', value: 'project-based' },
   { label: '新题型', value: 'new-type' },
-  { label: '大单元', value: 'big-unit' }
+  { label: '大单元', value: 'big-unit' },
+  { label: '教材母题变式', value: 'textbook-variant' }
 ]
 
 // 教材筛选选项
@@ -1150,9 +1241,7 @@ const sourceTypeOptions = [
   { label: '中考真题', value: 'entrance-exam' },
   { label: '中考模拟', value: 'zk-simulation' },
   { label: '仿真演练', value: 'simulation-drill' },
-  { label: '月考', value: 'monthly-exam' },
-  { label: '期中', value: 'midterm-exam' },
-  { label: '期末', value: 'final-exam' }
+  { label: '期中期末', value: 'midterm-final-exam' }
 ]
 
 // 试题类型选项
@@ -3058,6 +3147,11 @@ watch(sortedQuestionList, () => {
   margin-bottom: 15px;
   position: relative; /* For pseudo-element */
   align-items: center; /* Vertically align label and options */
+}
+
+.sub-type-row .filter-label {
+  width: auto;
+  white-space: nowrap;
 }
 
 /* Connector arrow */
