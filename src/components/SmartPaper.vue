@@ -323,10 +323,10 @@
               </template>
             </el-dropdown>
 
-            <!-- 考法 -->
+            <!-- 素养 -->
             <el-dropdown trigger="hover" @command="(val) => filters.examMethod = val" class="filter-dropdown">
               <span class="el-dropdown-link borderless-select">
-                {{ getLabel(examMethodOptions, filters.examMethod, '考法') }}
+                {{ getLabel(examMethodOptions, filters.examMethod, '素养') }}
                 <el-icon
                   class="el-icon--right"
                   v-if="filters.examMethod === 'all'"
@@ -343,34 +343,8 @@
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item command="all" :class="{ 'is-selected': filters.examMethod === 'all' }">全部考法</el-dropdown-item>
+                  <el-dropdown-item command="all" :class="{ 'is-selected': filters.examMethod === 'all' }">全部素养</el-dropdown-item>
                   <el-dropdown-item v-for="item in examMethodOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value" :class="{ 'is-selected': filters.examMethod === item.value }">{{ item.label }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-
-            <!-- 能力 -->
-            <el-dropdown trigger="hover" @command="(val) => filters.ability = val" class="filter-dropdown">
-              <span class="el-dropdown-link borderless-select">
-                {{ getLabel(abilityOptions, filters.ability, '能力') }}
-                <el-icon
-                  class="el-icon--right"
-                  v-if="filters.ability === 'all'"
-                >
-                  <arrow-down />
-                </el-icon>
-                <el-icon
-                  class="el-icon--right clear-icon"
-                  v-else
-                  @click.stop="filters.ability = 'all'"
-                >
-                  <Close />
-                </el-icon>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="all" :class="{ 'is-selected': filters.ability === 'all' }">全部能力</el-dropdown-item>
-                  <el-dropdown-item v-for="item in abilityOptions.filter(o => o.value !== 'all')" :key="item.value" :command="item.value" :class="{ 'is-selected': filters.ability === item.value }">{{ item.label }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -1244,7 +1218,7 @@ const difficultyOptions = [
   { label: '困难', value: 'hard' }
 ]
 
-// 考法选项
+// 素养选项
 const examMethodOptions = [
   { label: '全部', value: 'all' },
   { label: '图片史料型', value: 'image-history' },
