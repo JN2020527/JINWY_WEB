@@ -1053,18 +1053,8 @@ const handleSourceTypeModeChange = (val) => {
       filters.value.sourceType = [filters.value.sourceType]
     }
   } else {
-    // 切换到单选模式
-    if (Array.isArray(filters.value.sourceType)) {
-      if (filters.value.sourceType.length > 0) {
-        if (filters.value.sourceType.includes('all')) {
-          filters.value.sourceType = 'all'
-        } else {
-          filters.value.sourceType = filters.value.sourceType[0]
-        }
-      } else {
-        filters.value.sourceType = 'all'
-      }
-    }
+    // 切换到单选模式，直接回到"全部"选项
+    filters.value.sourceType = 'all'
   }
 }
 
@@ -1128,19 +1118,8 @@ const handleDifficultyModeChange = (val) => {
       filters.value.difficulty = [filters.value.difficulty]
     }
   } else {
-    // 切换到单选模式
-    if (Array.isArray(filters.value.difficulty)) {
-      if (filters.value.difficulty.length > 0) {
-        // 如果包含'all'，优先选'all'，否则选第一个
-        if (filters.value.difficulty.includes('all')) {
-          filters.value.difficulty = 'all'
-        } else {
-          filters.value.difficulty = filters.value.difficulty[0]
-        }
-      } else {
-        filters.value.difficulty = 'all'
-      }
-    }
+    // 切换到单选模式，直接回到"全部"选项
+    filters.value.difficulty = 'all'
   }
 }
 
