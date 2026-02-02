@@ -397,19 +397,18 @@
               <div class="question-main">
                 <div class="tags-row">
                   <span class="feature-tag" v-if="question.tags && question.tags.length > 0">{{ question.tags[0] }}</span>
-                  <span class="source-tag">{{ question.source }}</span>
                   <div class="meta-items">
                     <span class="meta-item">{{ question.type }}{{ question.subType ? '-' + question.subType : '' }}</span>
                     <span class="meta-divider">|</span>
                     <span class="meta-item">{{ question.difficulty }}</span>
                     <template v-if="question.knowledgePoints && question.knowledgePoints.length > 0">
                       <span class="meta-divider">|</span>
-                      <div 
-                        class="kp-wrapper" 
+                      <div
+                        class="kp-wrapper"
                         :class="{ 'can-expand': overflowStates[question.id] }"
                         @mouseenter="checkSingleOverflow(question.id)"
                       >
-                        <span 
+                        <span
                           class="kp-text-truncated"
                           :ref="(el) => setKpRef(el, question.id)"
                         >
@@ -423,7 +422,10 @@
                     </template>
                   </div>
                 </div>
-                <div class="question-text" v-html="highlightKeyword(question.content)"></div>
+                <div class="question-text-wrapper">
+                  <div class="question-text" v-html="highlightKeyword(question.content)"></div>
+                  <span class="source-tag">《{{ question.source }}》</span>
+                </div>
               </div>
             </div>
             
@@ -2615,22 +2617,26 @@ watch(sortedQuestionList, () => {
 }
 
 .source-tag {
-  display: inline-block;
   font-size: 12px;
-  padding: 2px 10px;
-  border-radius: 8px 0 8px 0;
-  font-weight: 600;
-  line-height: 20px;
+  color: #999;
   white-space: nowrap;
-  color: #B88230;
-  background-color: #FBF6ED;
-  border: none;
+}
+
+.question-text-wrapper {
+  position: relative;
+}
+
+.question-text-wrapper .source-tag {
+  position: absolute;
+  right: 0;
+  bottom: 0;
 }
 
 .question-text {
   font-size: 14px;
   line-height: 1.8;
   color: #303133;
+  padding-bottom: 20px;
 }
 
 .question-text :deep(.highlight) {
