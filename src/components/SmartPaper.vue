@@ -441,7 +441,9 @@
             <div class="question-footer">
               <div class="footer-info">
                 <span class="info-item">更新时间：{{ question.uploadTime }}</span>
+                <span class="info-divider">|</span>
                 <span class="info-item">组卷次数：{{ question.usageCount }}次</span>
+                <span class="info-divider">|</span>
                 <span class="source-tag">《{{ question.source }}》</span>
               </div>
               <div class="question-actions">
@@ -2810,9 +2812,14 @@ watch(sortedQuestionList, () => {
 
 .footer-info {
   display: flex;
-  gap: 16px;
+  align-items: center;
+  gap: 8px;
   font-size: 12px;
   color: #909399;
+}
+
+.info-divider {
+  color: #dcdfe6;
 }
 
 .question-actions {
