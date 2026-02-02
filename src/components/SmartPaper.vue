@@ -1219,7 +1219,7 @@ const sourceTypeOptions = [
   { label: '全部', value: 'all' },
   { label: '中考真题', value: 'entrance-exam' },
   { label: '中考模拟', value: 'zk-simulation' },
-  { label: '仿真演练', value: 'simulation-drill' },
+  { label: '备考练习', value: 'simulation-drill' },
   { label: '期中期末', value: 'midterm-final-exam' }
 ]
 
