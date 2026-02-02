@@ -424,11 +424,10 @@
                 </div>
                 <div class="question-text-wrapper">
                   <div class="question-text" v-html="highlightKeyword(question.content)"></div>
-                  <span class="source-tag">《{{ question.source }}》</span>
                 </div>
               </div>
             </div>
-            
+
             <!-- 答案解析区域 -->
             <div v-if="question.showAnalysis" class="analysis-section">
               <div class="analysis-item">
@@ -443,6 +442,7 @@
               <div class="footer-info">
                 <span class="info-item">更新时间：{{ question.uploadTime }}</span>
                 <span class="info-item">组卷次数：{{ question.usageCount }}次</span>
+                <span class="source-tag">《{{ question.source }}》</span>
               </div>
               <div class="question-actions">
                 <button class="btn-analysis" @click.stop="toggleAnalysis(question)">
@@ -2622,21 +2622,10 @@ watch(sortedQuestionList, () => {
   white-space: nowrap;
 }
 
-.question-text-wrapper {
-  position: relative;
-}
-
-.question-text-wrapper .source-tag {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-}
-
 .question-text {
   font-size: 14px;
   line-height: 1.8;
   color: #303133;
-  padding-bottom: 20px;
 }
 
 .question-text :deep(.highlight) {
