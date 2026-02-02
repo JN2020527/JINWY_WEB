@@ -55,8 +55,8 @@ The app follows a **single-page application (SPA)** architecture with:
    - Key state: `currentLeftMenu`, `currentTab`, `leftNavCollapsed`, `showPaperCenter`
 
 3. **Navigation Flow**:
-   - Left menu items map to different page components (see `menuMap` in App.vue:76-86)
-   - Some menus support top tabs (see `show-tabs` logic in App.vue:4)
+   - Left menu items map to different page components (see `menuMap` in App.vue)
+   - Some menus support top tabs (see `show-tabs` logic in Header.vue)
    - Special "Paper Center" mode that overlays regular navigation
 
 ### Key Component Relationships
@@ -78,7 +78,7 @@ home → Home.vue
 digital-library → DigitalLibrary.vue
 prep-plan → PlatformSharing.vue (supports @goto-paper-center)
 prep-resource → PrepareResource.vue
-prep-paper → SmartPaper.vue (has tabs)
+prep-paper → SmartPaper.vue (has tabs, supports @goto-paper-center)
 homework → HomeworkManage.vue (has tabs)
 analysis → SituationAnalysis.vue (has tabs)
 school → SchoolManage.vue (has tabs)
@@ -87,7 +87,6 @@ my → MyCenter.vue (has tabs)
 
 **Special Components**:
 - `PaperCenter.vue`: Overlay component for test paper creation, activated via `@goto-paper-center` event from certain pages
-  - Has a subdirectory `PaperCenter/` for related sub-components
 - `FloatTools.vue`: Globally visible floating toolbar (always rendered)
 - `ScreenPresentation.vue`: Screen presentation mode component
 
@@ -95,7 +94,7 @@ my → MyCenter.vue (has tabs)
 
 Unique navigation system for test paper assembly:
 
-1. User clicks "组卷" in `DigitalLibrary.vue` or `PlatformSharing.vue`
+1. User clicks "组卷" in `DigitalLibrary.vue`, `PlatformSharing.vue`, or `SmartPaper.vue`
 2. Component emits `@goto-paper-center` with catalog data
 3. `App.vue` saves previous menu state in `previousMenuState`
 4. Sets `showPaperCenter = true`, which overlays all other content
@@ -137,7 +136,7 @@ Several components expose `resetState()` methods via template refs:
 - `DigitalLibrary.vue` (ref: `digitalLibraryRef`)
 - `PlatformSharing.vue` (ref: `platformSharingRef`)
 
-Called when user clicks already-active menu item to reset the page state (see App.vue:100-111).
+Called when user clicks already-active menu item to reset the page state.
 
 ## Vite Configuration
 
@@ -161,43 +160,10 @@ Navigation handled through conditional rendering in App.vue, not Vue Router. Men
 When clicking active menu item, specific components can reset their state. Implement `resetState()` method and expose via `defineExpose()` if adding similar functionality to new components.
 
 ### Assets
-Static assets in project root (logo.png, bg.3e971a55.png) and public cover images in `/public/covers/` directory:
-- Round 1 covers: `cover_gushiwen.jpg`, `cover_yuyan.jpg`, `cover_zhengben.jpg`, `cover_xiezuo.jpg`, `cover_xiandaiwen.jpg`
-- Round 2 covers: `round2_classification.jpg`, `round2_comprehensive.jpg`, `round2_material.jpg`
-- Round 3 covers: `round3_sprint.jpg`, `round3_comprehensive.jpg`, `round3_special.jpg`
+- Static assets in project root: `logo.png`, `bg.3e971a55.png`
+- Cover images in `/public/covers/` referenced by mock data
 
-All cover images are referenced in mock data with paths like `/covers/cover_*.jpg`.
+## External Libraries
 
-## File Organization
-
-```
-src/
-├── components/         # All Vue components
-│   ├── Header.vue     # Top navigation
-│   ├── LeftNav.vue    # Sidebar menu
-│   ├── Home.vue       # Homepage
-│   ├── PaperCenter.vue # Test paper creation overlay
-│   ├── PaperCenter/   # PaperCenter sub-components directory
-│   ├── FloatTools.vue  # Floating toolbar
-│   ├── ScreenPresentation.vue # Screen presentation mode
-│   └── [9 other page components]
-├── mock/
-│   └── data.js        # All mock data exports
-├── styles/
-│   └── global.css     # Global CSS
-├── App.vue            # Root component & state manager
-└── main.js            # App initialization
-public/
-└── covers/            # Cover images for educational materials
-    ├── cover_*.jpg    # Round 1 review materials
-    ├── round2_*.jpg   # Round 2 review materials
-    └── round3_*.jpg   # Round 3 review materials
-```
-
-## Dependencies Note
-
-Key external libraries:
-- `jspdf`: PDF generation (likely used in paper export)
-- `jszip`: ZIP file creation (for batch downloads)
-
-Both suggest document export capabilities in Paper Center component.
+- `jspdf`: PDF generation for paper export
+- `jszip`: ZIP file creation for batch downloads
